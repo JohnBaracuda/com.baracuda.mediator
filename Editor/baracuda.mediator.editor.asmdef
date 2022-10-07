@@ -1,0 +1,19 @@
+{
+    "name": "baracuda.mediator.editor",
+    "rootNamespace": "Baracuda.Mediator",
+    "references": [
+        "GUID:60b317c0e9339ed42a02f571de4723cd",
+        "GUID:b9deda85d8368a74eb14d8fa8fb3a309"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

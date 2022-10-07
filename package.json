@@ -1,0 +1,29 @@
+{
+  "name": "com.baracuda.mediator",
+  "version": "0.1.0",
+  "displayName": "Mediator",
+  "description": "Scriptable object based optimized event system. ",
+  "unity": "2021.3",
+  "documentationUrl": "https://github.com/JohnBaracuda/com.baracuda.mediator",
+  "changelogUrl": "https://github.com/JohnBaracuda/com.baracuda.mediator/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/JohnBaracuda/com.baracuda.mediator/blob/main/LICENSE.md",
+  "dependencies": {
+    "com.baracuda.runtime-monitoring": "3.0.1",
+    "com.baracuda.utilities": "1.0.0",
+    "com.baracuda.utilities-editor": "0.1.0"
+  },
+  "keywords": [
+    "event",
+    "event system",
+    "framework",
+    "scriptable object",
+    "mediator",
+    "medium"
+  ],
+  "author": {
+    "name": "John Baracuda",
+    "email": "johnbaracudagames@gmail.com",
+    "url": "https://johnbaracuda.com/"
+  },
+  "type": "tool"
+}
