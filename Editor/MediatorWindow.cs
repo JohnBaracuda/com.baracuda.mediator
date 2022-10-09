@@ -1,7 +1,7 @@
-using Baracuda.EditorUtilities.Helper;
-using Baracuda.EditorUtilities.Inspector;
 using Baracuda.Mediator.Events;
 using Baracuda.Mediator.ValueObjects;
+using Baracuda.Utilities.Editor.Helper;
+using Baracuda.Utilities.Editor.Inspector;
 using UnityEditor;
 
 namespace Baracuda.Mediator.Editor
