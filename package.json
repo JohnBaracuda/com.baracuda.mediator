@@ -9,7 +9,7 @@
   "licensesUrl": "https://github.com/JohnBaracuda/com.baracuda.mediator/blob/main/LICENSE.md",
   "dependencies": {
     "com.baracuda.runtime-monitoring": "3.0.1",
-    "com.baracuda.utilities": "1.0.0",
+    "com.baracuda.utilities": "0.1.0",
     "com.baracuda.utilities-editor": "0.1.0"
   },
   "keywords": [
