@@ -1,5 +1,5 @@
 ﻿using Baracuda.Mediator.Relays;
-using Baracuda.Utilities.Attributes.Inspector;
+using Baracuda.Utilities.Inspector;
 using JetBrains.Annotations;
 using System;
 using System.Runtime.CompilerServices;
