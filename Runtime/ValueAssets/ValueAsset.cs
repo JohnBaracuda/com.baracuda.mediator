@@ -1,5 +1,6 @@
 ﻿using Baracuda.Mediator.Relays;
 using Baracuda.Utilities.Attributes.Inspector;
+using JetBrains.Annotations;
 using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -14,6 +15,9 @@ namespace Baracuda.Mediator.ValueAssets
     [HideMonoScript]
     public abstract class ValueAsset<TValue> : ScriptableObject, IRelay<TValue>
     {
+        [UsedImplicitly]
+        [SerializeField] private string description;
+
         [Foldout(FoldoutName.HumanizedObjectName)]
         [SerializeField] private TValue value;
 
