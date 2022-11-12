@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Baracuda.Mediator.RelayAssets
 {
-    public class RelayAsset : ScriptableObject, IRelay
+    public abstract class RelayAsset : ScriptableObject, IRelay
     {
         private readonly IRelay _relay = new Relay();
 
