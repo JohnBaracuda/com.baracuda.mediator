@@ -102,7 +102,7 @@ namespace Baracuda.Mediator.Relays
         {
             for (var i = 0; i < _nextIndex; i++)
             {
-                if (_listener[i].Equals(listener))
+                if (_listener[i] == listener)
                 {
                     RemoveAt(i);
                     return true;

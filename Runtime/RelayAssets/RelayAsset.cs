@@ -53,7 +53,7 @@ namespace Baracuda.Mediator.RelayAssets
             return _relay.AddUnique(listener);
         }
 
-        public bool Remove(Action<T>  listener)
+        public bool Remove(Action<T> listener)
         {
             return _relay.Remove(listener);
         }
@@ -123,7 +123,7 @@ namespace Baracuda.Mediator.RelayAssets
             return _relay.AddUnique(listener);
         }
 
-        public bool Remove(Action<T1, T2, T3>  listener)
+        public bool Remove(Action<T1, T2, T3> listener)
         {
             return _relay.Remove(listener);
         }
@@ -158,7 +158,7 @@ namespace Baracuda.Mediator.RelayAssets
             return _relay.AddUnique(listener);
         }
 
-        public bool Remove(Action<T1, T2, T3, T4>  listener)
+        public bool Remove(Action<T1, T2, T3, T4> listener)
         {
             return _relay.Remove(listener);
         }

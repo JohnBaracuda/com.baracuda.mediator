@@ -1,5 +1,5 @@
 using Baracuda.Mediator.ValueAssets;
-using Baracuda.Utilities.Editor;
+using Baracuda.Utilities;
 using UnityEditor;
 using UnityEngine;
 
