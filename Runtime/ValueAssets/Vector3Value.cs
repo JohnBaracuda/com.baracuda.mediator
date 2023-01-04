@@ -2,7 +2,7 @@
 
 namespace Baracuda.Mediator.ValueAssets
 {
-    public class Vector3Value : ValueAsset<Vector3>
+    public class Vector3Value : ValueAssetRelay<Vector3>
     {
         
     }

@@ -1,6 +1,6 @@
 ﻿namespace Baracuda.Mediator.ValueAssets
 {
-    public class StringValue : ValueAsset<string>
+    public class StringValue : ValueAssetRelay<string>
     {
     }
 }

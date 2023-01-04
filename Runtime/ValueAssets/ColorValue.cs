@@ -2,7 +2,7 @@
 
 namespace Baracuda.Mediator.ValueAssets
 {
-    public class ColorValue : ValueAsset<Color>
+    public class ColorValue : ValueAssetRelay<Color>
     {
     }
 }

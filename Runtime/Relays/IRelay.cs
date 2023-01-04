@@ -13,9 +13,6 @@ namespace Baracuda.Mediator.Relays
         /// <summary> Remove a listener from the relay event </summary>
         public bool Remove(Action listener);
 
-        /// <summary> Raise the relay event </summary>
-        public void Raise();
-
         /// <summary> Check if the relay event contains the passed listener </summary>
         public bool Contains(Action listener);
 
@@ -23,7 +20,7 @@ namespace Baracuda.Mediator.Relays
         public void Clear();
     }
 
-    public interface IRelay<T>
+    public interface IRelay<out T>
     {
         /// <summary> Add a listener to the relay event </summary>
         public void Add(Action<T> listener);
@@ -34,9 +31,6 @@ namespace Baracuda.Mediator.Relays
         /// <summary> Remove a listener from the relay event </summary>
         public bool Remove(Action<T> listener);
 
-        /// <summary> Raise the relay event </summary>
-        public void Raise(in T arg);
-
         /// <summary> Check if the relay event contains the passed listener </summary>
         public bool Contains(Action<T> listener);
 
@@ -44,7 +38,7 @@ namespace Baracuda.Mediator.Relays
         public void Clear();
     }
 
-    public interface IRelay<T1, T2>
+    public interface IRelay<out T1, out T2>
     {
         /// <summary> Add a listener to the relay event </summary>
         public void Add(Action<T1, T2> listener);
@@ -55,9 +49,6 @@ namespace Baracuda.Mediator.Relays
         /// <summary> Remove a listener from the relay event </summary>
         public bool Remove(Action<T1, T2> listener);
 
-        /// <summary> Raise the relay event </summary>
-        public void Raise(in T1 first, in T2 second);
-
         /// <summary> Check if the relay event contains the passed listener </summary>
         public bool Contains(Action<T1, T2> listener);
 
@@ -65,7 +56,7 @@ namespace Baracuda.Mediator.Relays
         public void Clear();
     }
 
-    public interface IRelay<T1, T2, T3>
+    public interface IRelay<out T1, out T2, out T3>
     {
         /// <summary> Add a listener to the relay event </summary>
         public void Add(Action<T1, T2, T3> listener);
@@ -76,9 +67,6 @@ namespace Baracuda.Mediator.Relays
         /// <summary> Remove a listener from the relay event </summary>
         public bool Remove(Action<T1, T2, T3> listener);
 
-        /// <summary> Raise the relay event </summary>
-        public void Raise(in T1 first, in T2 second, in T3 third);
-
         /// <summary> Check if the relay event contains the passed listener </summary>
         public bool Contains(Action<T1, T2, T3> listener);
 
@@ -86,7 +74,7 @@ namespace Baracuda.Mediator.Relays
         public void Clear();
     }
 
-    public interface IRelay<T1, T2, T3, T4>
+    public interface IRelay<out T1, out T2, out T3, out T4>
     {
         /// <summary> Add a listener to the relay event </summary>
         public void Add(Action<T1, T2, T3, T4> listener);
@@ -96,9 +84,6 @@ namespace Baracuda.Mediator.Relays
 
         /// <summary> Remove a listener from the relay event </summary>
         public bool Remove(Action<T1, T2, T3, T4> listener);
-
-        /// <summary> Raise the relay event </summary>
-        public void Raise(in T1 first, in T2 second, in T3 third, in T4 forth);
 
         /// <summary> Check if the relay event contains the passed listener </summary>
         public bool Contains(Action<T1, T2, T3, T4> listener);

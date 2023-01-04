@@ -1,6 +1,6 @@
 ﻿namespace Baracuda.Mediator.ValueAssets
 {
-    public class FloatValue : ValueAsset<float>
+    public class FloatValue : ValueAssetRelay<float>
     {
     }
 }

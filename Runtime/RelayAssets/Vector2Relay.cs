@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Baracuda.Mediator.RelayAssets
 {
-    public class Vector2Relay : Relay<Vector2>
+    public class Vector2Relay : RelayAsset<Vector2>
     {
     }
 }

@@ -1,4 +1,5 @@
 using Baracuda.Mediator.Relays;
+using Baracuda.Utilities.Inspector;
 using System;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ namespace Baracuda.Mediator.RelayAssets
 {
     public abstract class RelayAsset : ScriptableObject, IRelay
     {
-        private readonly IRelay _relay = new Relay();
+        private readonly IRelayBroadcast _relay = new RelayBroadcast();
 
         public void Add(Action listener)
         {
@@ -23,6 +24,7 @@ namespace Baracuda.Mediator.RelayAssets
             return _relay.Remove(listener);
         }
 
+        [Button]
         public void Raise()
         {
             _relay.Raise();
@@ -41,7 +43,7 @@ namespace Baracuda.Mediator.RelayAssets
 
     public abstract class RelayAsset<T> : ScriptableObject, IRelay<T>
     {
-        private readonly IRelay<T> _relay = new Relay<T>();
+        private readonly IRelayBroadcast<T> _relay = new RelayBroadcast<T>();
 
         public void Add(Action<T> listener)
         {
@@ -76,7 +78,7 @@ namespace Baracuda.Mediator.RelayAssets
 
     public abstract class RelayAsset<T1, T2> : ScriptableObject, IRelay<T1, T2>
     {
-        private readonly IRelay<T1, T2> _relay = new Relay<T1, T2>();
+        private readonly IRelayBroadcast<T1, T2> _relay = new RelayBroadcast<T1, T2>();
 
         public void Add(Action<T1, T2> listener)
         {
@@ -111,7 +113,7 @@ namespace Baracuda.Mediator.RelayAssets
 
     public abstract class RelayAsset<T1, T2, T3> : ScriptableObject, IRelay<T1, T2, T3>
     {
-        private readonly IRelay<T1, T2, T3> _relay = new Relay<T1, T2, T3>();
+        private readonly IRelayBroadcast<T1, T2, T3> _relay = new RelayBroadcast<T1, T2, T3>();
 
         public void Add(Action<T1, T2, T3> listener)
         {
@@ -146,7 +148,7 @@ namespace Baracuda.Mediator.RelayAssets
 
     public abstract class RelayAsset<T1, T2, T3, T4> : ScriptableObject, IRelay<T1, T2, T3, T4>
     {
-        private readonly IRelay<T1, T2, T3, T4> _relay = new Relay<T1, T2, T3, T4>();
+        private readonly IRelayBroadcast<T1, T2, T3, T4> _relay = new RelayBroadcast<T1, T2, T3, T4>();
 
         public void Add(Action<T1, T2, T3, T4> listener)
         {

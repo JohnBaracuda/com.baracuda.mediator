@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Baracuda.Mediator.Editor
 {
-    [CustomPropertyDrawer(typeof(ValueAsset<>), true)]
+    [CustomPropertyDrawer(typeof(IValueAsset<>), true)]
     public class ValueAssetPropertyDrawer : PropertyDrawer
     {
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
@@ -42,40 +42,40 @@ namespace Baracuda.Mediator.Editor
 
         private static void DrawEditorInspector(SerializedProperty property, GUIContent label)
         {
-            EditorGUILayout.BeginHorizontal();
-
             var serializedObject = new SerializedObject(property.objectReferenceValue);
-
             var valueProperty = serializedObject.FindProperty("value");
 
             serializedObject.Update();
+
+            EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PropertyField(valueProperty, label);
             GUIHelper.BeginIndentOverride(0);
-            EditorGUILayout.PropertyField(property, GUIContent.none, GUILayout.MaxWidth(100));
+            EditorGUILayout.PropertyField(property, GUIContent.none);
             GUIHelper.EndIndentOverride();
-            serializedObject.ApplyModifiedProperties();
-
             EditorGUILayout.EndHorizontal();
+
+            serializedObject.ApplyModifiedProperties();
         }
 
         private static void DrawRuntimeInspector(SerializedProperty property, GUIContent label)
         {
-            EditorGUILayout.BeginHorizontal();
             var serializedObject = new SerializedObject(property.objectReferenceValue);
 
             var valueProperty = serializedObject.FindProperty("value");
             var cachedProperty = serializedObject.FindProperty("cached");
 
             serializedObject.Update();
+
+            EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PropertyField(valueProperty, label);
             GUI.enabled = false;
             GUIHelper.BeginIndentOverride(0);
             EditorGUILayout.PropertyField(cachedProperty, GUIContent.none, GUILayout.MaxWidth(100));
             GUIHelper.EndIndentOverride();
             GUI.enabled = true;
-            serializedObject.ApplyModifiedProperties();
-
             EditorGUILayout.EndHorizontal();
+
+            serializedObject.ApplyModifiedProperties();
         }
 
         //--------------------------------------------------------------------------------------------------------------

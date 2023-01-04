@@ -1,6 +1,6 @@
 ﻿namespace Baracuda.Mediator.ValueAssets
 {
-    public class ByteValue : ValueAsset<byte>
+    public class ByteValue : ValueAssetRelay<byte>
     {
     }
 }

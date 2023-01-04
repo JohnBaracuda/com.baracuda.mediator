@@ -138,9 +138,8 @@ namespace Baracuda.Mediator.Relays
 
         #region Raise
 
-        /// <inheritdoc />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Raise()
+        protected void RaiseInternal()
         {
             for (var i = 0; i < _nextIndex; i++)
             {
@@ -280,9 +279,8 @@ namespace Baracuda.Mediator.Relays
 
         #region Raise
 
-        /// <inheritdoc />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Raise(in T arg)
+        protected void RaiseInternal(in T arg)
         {
             for (var i = 0; i < _nextIndex; i++)
             {
@@ -426,9 +424,8 @@ namespace Baracuda.Mediator.Relays
 
         #region Raise
 
-        /// <inheritdoc />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Raise(in T1 first, in T2 second)
+        protected void RaiseInternal(in T1 first, in T2 second)
         {
             for (var i = 0; i < _nextIndex; i++)
             {
@@ -572,9 +569,8 @@ namespace Baracuda.Mediator.Relays
 
         #region Raise
 
-        /// <inheritdoc />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Raise(in T1 first, in T2 second, in T3 third)
+        protected void RaiseInternal(in T1 first, in T2 second, in T3 third)
         {
             for (var i = 0; i < _nextIndex; i++)
             {
@@ -717,9 +713,8 @@ namespace Baracuda.Mediator.Relays
 
         #region Raise
 
-        /// <inheritdoc />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Raise(in T1 first, in T2 second, in T3 third, in T4 fourth)
+        protected void RaiseInternal(in T1 first, in T2 second, in T3 third, in T4 fourth)
         {
             for (var i = 0; i < _nextIndex; i++)
             {

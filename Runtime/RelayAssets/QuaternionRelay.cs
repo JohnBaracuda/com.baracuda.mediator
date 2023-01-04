@@ -1,9 +1,8 @@
-﻿using Baracuda.Mediator.Relays;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Baracuda.Mediator.RelayAssets
 {
-    public class QuaternionRelay : Relay<Quaternion>
+    public class QuaternionRelay : RelayAsset<Quaternion>
     {
     }
 }
