@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace Baracuda.Mediator.ValueAssets
+namespace Baracuda.Mediator
 {
-    public class Vector3Value : ValueAssetRelay<Vector3>
+    public class Vector3Value : ValueAssetEvent<Vector3>
     {
         
     }

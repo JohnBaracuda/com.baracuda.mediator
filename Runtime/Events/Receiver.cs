@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Baracuda.Utilities;
+using System;
 using System.Runtime.CompilerServices;
 using UnityEngine.Assertions;
 
-namespace Baracuda.Mediator.Relays
+namespace Baracuda.Mediator
 {
-    public class Relay : IRelay
+    public class Receiver : IReceiver
     {
         #region Member Variables
 
@@ -12,6 +13,7 @@ namespace Baracuda.Mediator.Relays
          * State
          */
 
+        public int Count => _nextIndex;
         public Action this[int index] => _listener[index];
 
         private int _nextIndex;
@@ -22,12 +24,12 @@ namespace Baracuda.Mediator.Relays
 
         #region Ctor
 
-        public Relay(int initialCapacity)
+        public Receiver(int initialCapacity)
         {
             _listener = new Action[initialCapacity];
         }
 
-        public Relay()
+        public Receiver()
         {
             _listener = new Action[8];
         }
@@ -133,6 +135,18 @@ namespace Baracuda.Mediator.Relays
             }
         }
 
+        /// <inheritdoc />
+        public void ClearInvalid()
+        {
+            for (var i = _nextIndex - 1; i >= 0; i--)
+            {
+                if (_listener[i] is null || _listener[i].Target == null)
+                {
+                    RemoveAt(i);
+                }
+            }
+        }
+
         #endregion
 
 
@@ -150,7 +164,7 @@ namespace Baracuda.Mediator.Relays
         #endregion
     }
 
-    public class Relay<T> : IRelay<T>
+    public class Receiver<T> : IReceiver<T>
     {
         #region Member Variables
 
@@ -164,12 +178,12 @@ namespace Baracuda.Mediator.Relays
 
         #region Ctor
 
-        public Relay(int initialCapacity)
+        public Receiver(int initialCapacity)
         {
             _listener = new Action<T>[initialCapacity];
         }
 
-        public Relay()
+        public Receiver()
         {
             _listener = new Action<T>[8];
         }
@@ -274,13 +288,25 @@ namespace Baracuda.Mediator.Relays
             }
         }
 
+        /// <inheritdoc />
+        public void ClearInvalid()
+        {
+            for (var i = _nextIndex - 1; i >= 0; i--)
+            {
+                if (_listener[i] is null || _listener[i].Target == null)
+                {
+                    RemoveAt(i);
+                }
+            }
+        }
+
         #endregion
 
 
         #region Raise
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void RaiseInternal(in T arg)
+        protected void RaiseInternal(T arg)
         {
             for (var i = 0; i < _nextIndex; i++)
             {
@@ -291,7 +317,7 @@ namespace Baracuda.Mediator.Relays
         #endregion
     }
 
-    public class Relay<T1, T2> : IRelay<T1, T2>
+    public class Receiver<T1, T2> : IReceiver<T1, T2>
     {
         #region Member Variables
 
@@ -309,12 +335,12 @@ namespace Baracuda.Mediator.Relays
 
         #region Ctor
 
-        public Relay(int initialCapacity)
+        public Receiver(int initialCapacity)
         {
             _listener = new Action<T1, T2>[initialCapacity];
         }
 
-        public Relay()
+        public Receiver()
         {
             _listener = new Action<T1, T2>[8];
         }
@@ -419,13 +445,25 @@ namespace Baracuda.Mediator.Relays
             }
         }
 
+        /// <inheritdoc />
+        public void ClearInvalid()
+        {
+            for (var i = _nextIndex - 1; i >= 0; i--)
+            {
+                if (_listener[i] is null || _listener[i].Target == null)
+                {
+                    RemoveAt(i);
+                }
+            }
+        }
+
         #endregion
 
 
         #region Raise
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void RaiseInternal(in T1 first, in T2 second)
+        protected void RaiseInternal(T1 first, T2 second)
         {
             for (var i = 0; i < _nextIndex; i++)
             {
@@ -436,7 +474,7 @@ namespace Baracuda.Mediator.Relays
         #endregion
     }
 
-    public class Relay<T1, T2, T3> : IRelay<T1, T2, T3>
+    public class Receiver<T1, T2, T3> : IReceiver<T1, T2, T3>
     {
         #region Member Variables
 
@@ -454,12 +492,12 @@ namespace Baracuda.Mediator.Relays
 
         #region Ctor
 
-        public Relay(int initialCapacity)
+        public Receiver(int initialCapacity)
         {
             _listener = new Action<T1, T2, T3>[initialCapacity];
         }
 
-        public Relay()
+        public Receiver()
         {
             _listener = new Action<T1, T2, T3>[8];
         }
@@ -564,13 +602,25 @@ namespace Baracuda.Mediator.Relays
             }
         }
 
+        /// <inheritdoc />
+        public void ClearInvalid()
+        {
+            for (var i = _nextIndex - 1; i >= 0; i--)
+            {
+                if (_listener[i] is null || _listener[i].Target == null)
+                {
+                    RemoveAt(i);
+                }
+            }
+        }
+
         #endregion
 
 
         #region Raise
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void RaiseInternal(in T1 first, in T2 second, in T3 third)
+        protected void RaiseInternal(T1 first, T2 second, T3 third)
         {
             for (var i = 0; i < _nextIndex; i++)
             {
@@ -581,7 +631,7 @@ namespace Baracuda.Mediator.Relays
         #endregion
     }
 
-    public class Relay<T1, T2, T3, T4> : IRelay<T1, T2, T3, T4>
+    public class Receiver<T1, T2, T3, T4> : IReceiver<T1, T2, T3, T4>
     {
         #region Member Variables
 
@@ -598,12 +648,12 @@ namespace Baracuda.Mediator.Relays
 
         #region Ctor
 
-        public Relay(int initialCapacity)
+        public Receiver(int initialCapacity)
         {
             _listener = new Action<T1, T2, T3, T4>[initialCapacity];
         }
 
-        public Relay()
+        public Receiver()
         {
             _listener = new Action<T1, T2, T3, T4>[8];
         }
@@ -708,13 +758,25 @@ namespace Baracuda.Mediator.Relays
             }
         }
 
+        /// <inheritdoc />
+        public void ClearInvalid()
+        {
+            for (var i = _nextIndex - 1; i >= 0; i--)
+            {
+                if (_listener[i] is null || _listener[i].Target == null)
+                {
+                    RemoveAt(i);
+                }
+            }
+        }
+
         #endregion
 
 
         #region Raise
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void RaiseInternal(in T1 first, in T2 second, in T3 third, in T4 fourth)
+        protected void RaiseInternal(T1 first, T2 second, T3 third, T4 fourth)
         {
             for (var i = 0; i < _nextIndex; i++)
             {

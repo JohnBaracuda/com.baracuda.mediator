@@ -1,9 +1,9 @@
-using Baracuda.Mediator.ValueAssets;
 using Baracuda.Utilities;
+using Baracuda.Utilities.Helper;
 using UnityEditor;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Editor
+namespace Baracuda.Mediator
 {
     [CustomPropertyDrawer(typeof(IValueAsset<>), true)]
     public class ValueAssetPropertyDrawer : PropertyDrawer
@@ -21,7 +21,7 @@ namespace Baracuda.Mediator.Editor
             }
             else
             {
-                DrawNullInspector(property, label);
+                EditorGUILayout.PropertyField(property, label);
             }
         }
 
@@ -50,7 +50,7 @@ namespace Baracuda.Mediator.Editor
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PropertyField(valueProperty, label);
             GUIHelper.BeginIndentOverride(0);
-            EditorGUILayout.PropertyField(property, GUIContent.none);
+            EditorGUILayout.PropertyField(property, GUIContent.none, GUILayout.MaxWidth(100));
             GUIHelper.EndIndentOverride();
             EditorGUILayout.EndHorizontal();
 
@@ -76,23 +76,6 @@ namespace Baracuda.Mediator.Editor
             EditorGUILayout.EndHorizontal();
 
             serializedObject.ApplyModifiedProperties();
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        private static void DrawNullInspector(SerializedProperty property, GUIContent label)
-        {
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PropertyField(property, label);
-            if (GUILayout.Button("Create", GUILayout.MaxWidth(80)))
-            {
-                var type = property.GetUnderlyingType();
-                var scriptableObject = EditorHelper.CreateScriptableObjectAsset(type);
-                property.objectReferenceValue = scriptableObject;
-                EditorUtility.SetDirty(property.serializedObject.targetObject);
-            }
-
-            EditorGUILayout.EndHorizontal();
         }
     }
 }

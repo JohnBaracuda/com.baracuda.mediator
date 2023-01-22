@@ -1,11 +1,10 @@
-﻿using Baracuda.Mediator.ValueAssets;
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
     [Serializable]
-    public struct ValueRO<T>
+    public struct VariableRO<T>
     {
         public T Value => byReference ? reference.Value : value;
 
@@ -16,6 +15,11 @@ namespace Baracuda.Mediator
         public override string ToString()
         {
             return Value.ToString();
+        }
+
+        public static implicit operator T(VariableRO<T> var)
+        {
+            return var.Value;
         }
     }
 }

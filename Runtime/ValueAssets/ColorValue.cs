@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace Baracuda.Mediator.ValueAssets
+namespace Baracuda.Mediator
 {
-    public class ColorValue : ValueAssetRelay<Color>
+    public class ColorValue : ValueAssetEvent<Color>
     {
     }
 }

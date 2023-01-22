@@ -1,31 +1,22 @@
-﻿using Baracuda.Mediator.Relays;
-using Baracuda.Utilities.Inspector;
-using JetBrains.Annotations;
+﻿using Baracuda.Utilities.Inspector;
 using System;
 using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
 
-namespace Baracuda.Mediator.ValueAssets
+namespace Baracuda.Mediator
 {
     /// <summary>
     /// Scriptable object holding a arg that can be accessed and set.
     /// Object can be subscribed to receive a callback when the arg is changed.
     /// The arg of this object will reset to its inspector arg after runtime.
     /// </summary>
-    [HideMonoScript]
-    public abstract class ValueAssetRelay<TValue> : IValueAsset<TValue>, IRelay<TValue>
+    public abstract class ValueAssetEvent<TValue> : IValueAsset<TValue>, IBroadcast<TValue>
     {
-        [UsedImplicitly]
-        [SerializeField] private string description;
-
-        [Foldout(FoldoutName.HumanizedObjectName)]
         [SerializeField] private TValue value;
+        [Readonly] [SerializeField] private TValue cached;
 
-        [Readonly]
-        [SerializeField] private TValue cached;
-
-        private readonly IRelayBroadcast<TValue> _relay = new RelayBroadcast<TValue>();
+        private readonly IBroadcast<TValue> _event = new Broadcast<TValue>();
 
         public sealed override TValue Value
         {
@@ -38,39 +29,51 @@ namespace Baracuda.Mediator.ValueAssets
             }
         }
 
+        /// <inheritdoc />
         public void Add(Action<TValue> listener)
         {
-            _relay.Add(listener);
+            _event.Add(listener);
         }
 
+        /// <inheritdoc />
         public bool AddUnique(Action<TValue> listener)
         {
-            return _relay.AddUnique(listener);
+            return _event.AddUnique(listener);
         }
 
+        /// <inheritdoc />
         public bool Remove(Action<TValue> listener)
         {
-            return _relay.Remove(listener);
+            return _event.Remove(listener);
         }
 
-        public void Raise(in TValue arg)
+        /// <inheritdoc />
+        public void Raise(TValue arg)
         {
-            _relay.Raise(arg);
+            _event.Raise(arg);
         }
 
+        /// <inheritdoc />
         public bool Contains(Action<TValue> listener)
         {
-            return _relay.Contains(listener);
+            return _event.Contains(listener);
         }
 
+        /// <inheritdoc />
         public void Clear()
         {
-            _relay.Clear();
+            _event.Clear();
         }
 
-        public static implicit operator TValue(ValueAssetRelay<TValue> valueAssetRelay)
+        /// <inheritdoc />
+        public void ClearInvalid()
         {
-            return valueAssetRelay.Value;
+            _event.ClearInvalid();
+        }
+
+        public static implicit operator TValue(ValueAssetEvent<TValue> valueAssetEvent)
+        {
+            return valueAssetEvent.Value;
         }
 
         #region Editor
@@ -100,7 +103,7 @@ namespace Baracuda.Mediator.ValueAssets
                     return;
                 case PlayModeStateChange.ExitingPlayMode:
                     Value = cached;
-                    _relay.Clear();
+                    _event.Clear();
                     return;
             }
         }

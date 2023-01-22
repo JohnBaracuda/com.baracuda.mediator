@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Baracuda.Mediator.ValueAssets
+namespace Baracuda.Mediator
 {
     /// <summary>
     /// Scriptable object holding a arg that can be accessed and set.

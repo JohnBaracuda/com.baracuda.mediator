@@ -1,6 +1,6 @@
-namespace Baracuda.Mediator.ValueAssets
+namespace Baracuda.Mediator
 {
-    public class IntValue : ValueAssetRelay<int>
+    public class IntValue : ValueAssetEvent<int>
     {
     }
 }

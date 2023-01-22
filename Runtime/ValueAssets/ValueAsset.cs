@@ -4,20 +4,15 @@ using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
 
-namespace Baracuda.Mediator.ValueAssets
+namespace Baracuda.Mediator
 {
     /// <summary>
     /// Scriptable object holding a arg that can be accessed and set.
     /// Object can be subscribed to receive a callback when the arg is changed.
     /// The arg of this object will reset to its inspector arg after runtime.
     /// </summary>
-    [HideMonoScript]
     public abstract class ValueAsset<TValue> : IValueAsset<TValue>
     {
-        [UsedImplicitly]
-        [SerializeField] private string description;
-
-        [Foldout(FoldoutName.HumanizedObjectName)]
         [SerializeField] private TValue value;
 
         [Readonly]
