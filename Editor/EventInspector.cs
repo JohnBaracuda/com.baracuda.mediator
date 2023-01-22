@@ -4,6 +4,7 @@ using Baracuda.Utilities.Inspector;
 using System;
 using System.Reflection;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace Baracuda.Mediator
@@ -30,13 +31,15 @@ namespace Baracuda.Mediator
         private Action _clearInvalid;
         private Action _raise;
         private Action<Delegate> _remove;
-        private (Type argumentType, object value)[] _parameterData;
 
         private Vector2 _scrollPosition;
 
+        private int Count { get; set; }
+        private Delegate[] Listener { get; set; }
+
         private void OnEnable()
         {
-            var eventField = GetFieldIncludeBaseTypes(target.GetType(), EventFieldName); //assetType.GetField("Event", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var eventField = GetFieldIncludeBaseTypes(target.GetType(), EventFieldName);
             var eventValue = eventField.GetValue(target);
 
             var broadcastType = eventValue.GetType();
@@ -56,7 +59,6 @@ namespace Baracuda.Mediator
             _remove = listener => removeMethod!.Invoke(eventValue, new object[] {listener});
 
             _parameterInfos = raiseMethod.GetParameters();
-            _parameterData = new (Type, object)[_parameterInfos.Length];
             _arguments = new object[_parameterInfos.Length];
             for (var i = 0; i < _arguments.Length; i++)
             {
@@ -113,12 +115,12 @@ namespace Baracuda.Mediator
 
         private void DrawListenerGUI()
         {
-            var listeners = _listener();
-            var count = _count();
+            Listener = _listener();
+            Count = _count();
 
-            for (var index = 0; index < count; index++)
+            for (var index = 0; index < Count; index++)
             {
-                var listener = listeners[index];
+                var listener = Listener[index];
                 DrawListener(listener);
             }
         }
