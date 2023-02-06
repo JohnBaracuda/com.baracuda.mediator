@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class ColorEvent : EventBroadcast<Color>
+    public class ColorEvent : BroadcastAsset<Color>
     {
         // Disable warning to hide base.Raise with custom parameter name.
 #pragma warning disable 109

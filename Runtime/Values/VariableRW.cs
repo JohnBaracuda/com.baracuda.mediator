@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Baracuda.Mediator
 {
     [Serializable]
-    public struct Variable<T>
+    public struct VariableRW<T>
     {
         public T Value
         {
@@ -23,7 +23,7 @@ namespace Baracuda.Mediator
         }
 
         [SerializeField] private bool byReference;
-        [SerializeField] private IValueAsset<T> reference;
+        [SerializeField] private ValueAsset<T> reference;
         [SerializeField] private T value;
 
         public override string ToString()
@@ -31,7 +31,7 @@ namespace Baracuda.Mediator
             return Value.ToString();
         }
 
-        public static implicit operator T(Variable<T> var)
+        public static implicit operator T(VariableRW<T> var)
         {
             return var.Value;
         }

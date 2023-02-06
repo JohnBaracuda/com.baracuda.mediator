@@ -2,7 +2,7 @@
 
 namespace Baracuda.Mediator
 {
-    public abstract class IEventAsset : ScriptableObject
+    public abstract class EventMediator : ScriptableObject
     {
     }
 }

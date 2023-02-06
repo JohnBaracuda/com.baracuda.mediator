@@ -1,6 +1,6 @@
 ﻿namespace Baracuda.Mediator
 {
-    public class LongValue : ValueAssetEvent<long>
+    public class LongValue : ValueAsset<long>
     {
     }
 }

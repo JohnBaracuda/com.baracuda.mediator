@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    [CustomPropertyDrawer(typeof(Variable<>), true)]
+    [CustomPropertyDrawer(typeof(VariableRW<>), true)]
     [CustomPropertyDrawer(typeof(VariableRO<>), true)]
     public class ValuePropertyDrawer : PropertyDrawer
     {

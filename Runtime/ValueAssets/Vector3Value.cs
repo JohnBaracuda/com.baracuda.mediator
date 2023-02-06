@@ -2,8 +2,8 @@
 
 namespace Baracuda.Mediator
 {
-    public class Vector3Value : ValueAssetEvent<Vector3>
+    public class Vector3Value : ValueAsset<Vector3>
     {
-        
+
     }
 }

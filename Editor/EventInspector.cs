@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    [CustomEditor(typeof(IEventAsset), true)]
+    [CustomEditor(typeof(EventAsset), true)]
     public class EventInspectorT : Editor
     {
         private const string EventFieldName = "Event";

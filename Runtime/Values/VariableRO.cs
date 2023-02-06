@@ -9,7 +9,7 @@ namespace Baracuda.Mediator
         public T Value => byReference ? reference.Value : value;
 
         [SerializeField] private bool byReference;
-        [SerializeField] private IValueAsset<T> reference;
+        [SerializeField] private ValueAsset<T> reference;
         [SerializeField] private T value;
 
         public override string ToString()

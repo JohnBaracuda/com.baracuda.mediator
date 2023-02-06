@@ -2,7 +2,7 @@ using System;
 
 namespace Baracuda.Mediator
 {
-    public abstract class EventReceiver : IEventAsset, IReceiver
+    public abstract class EventAsset : EventMediator, IReceiver
     {
         private protected readonly IBroadcast Event = new Broadcast();
 
@@ -37,7 +37,7 @@ namespace Baracuda.Mediator
         }
     }
 
-    public abstract class EventReceiver<T> : IEventAsset, IReceiver<T>
+    public abstract class EventAsset<T> : EventMediator, IReceiver<T>
     {
         private protected readonly IBroadcast<T> Event = new Broadcast<T>();
 
@@ -73,7 +73,7 @@ namespace Baracuda.Mediator
         }
     }
 
-    public abstract class EventReceiver<T1, T2> : IEventAsset, IReceiver<T1, T2>
+    public abstract class EventAsset<T1, T2> : EventMediator, IReceiver<T1, T2>
     {
         private protected readonly IBroadcast<T1, T2> Event = new Broadcast<T1, T2>();
 
@@ -108,7 +108,7 @@ namespace Baracuda.Mediator
         }
     }
 
-    public abstract class EventReceiver<T1, T2, T3> : IEventAsset, IReceiver<T1, T2, T3>
+    public abstract class EventAsset<T1, T2, T3> : EventMediator, IReceiver<T1, T2, T3>
     {
         private protected readonly IBroadcast<T1, T2, T3> Event = new Broadcast<T1, T2, T3>();
 
@@ -143,7 +143,7 @@ namespace Baracuda.Mediator
         }
     }
 
-    public abstract class EventReceiver<T1, T2, T3, T4> : IEventAsset, IReceiver<T1, T2, T3, T4>
+    public abstract class EventAsset<T1, T2, T3, T4> : EventMediator, IReceiver<T1, T2, T3, T4>
     {
         private protected readonly IBroadcast<T1, T2, T3, T4> Event = new Broadcast<T1, T2, T3, T4>();
 
