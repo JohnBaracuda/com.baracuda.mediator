@@ -35,13 +35,17 @@ namespace Baracuda.Mediator
         {
             Event.ClearInvalid();
         }
+
+        public void Raise()
+        {
+            Event.Raise();
+        }
     }
 
     public abstract class EventAsset<T> : EventMediator, IReceiver<T>
     {
         private protected readonly IBroadcast<T> Event = new Broadcast<T>();
 
-        /// <inheritdoc />
         public void Add(Action<T> listener)
         {
             Event.Add(listener);
@@ -70,6 +74,11 @@ namespace Baracuda.Mediator
         public void ClearInvalid()
         {
             Event.ClearInvalid();
+        }
+
+        public void Raise(T value)
+        {
+            Event.Raise(value);
         }
     }
 
@@ -106,6 +115,11 @@ namespace Baracuda.Mediator
         {
             Event.ClearInvalid();
         }
+
+        public void Raise(T1 value1, T2 value2)
+        {
+            Event.Raise(value1, value2);
+        }
     }
 
     public abstract class EventAsset<T1, T2, T3> : EventMediator, IReceiver<T1, T2, T3>
@@ -141,6 +155,11 @@ namespace Baracuda.Mediator
         {
             Event.ClearInvalid();
         }
+
+        public void Raise(T1 value1, T2 value2, T3 value3)
+        {
+            Event.Raise(value1, value2, value3);
+        }
     }
 
     public abstract class EventAsset<T1, T2, T3, T4> : EventMediator, IReceiver<T1, T2, T3, T4>
@@ -175,6 +194,11 @@ namespace Baracuda.Mediator
         public void ClearInvalid()
         {
             Event.ClearInvalid();
+        }
+
+        public void Raise(T1 value1, T2 value2, T3 value3, T4 value4)
+        {
+            Event.Raise(value1, value2, value3, value4);
         }
     }
 }

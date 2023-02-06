@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class Vector2Event : BroadcastAsset<Vector2>
+    public class Vector2Event : EventAsset<Vector2>
     {
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Baracuda.Mediator
 {
-    public class VoidEvent : BroadcastAsset
+    public class VoidEvent : EventAsset
     {
     }
 }

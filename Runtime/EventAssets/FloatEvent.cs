@@ -1,6 +1,6 @@
 namespace Baracuda.Mediator
 {
-    public class FloatEvent : BroadcastAsset<float>
+    public class FloatEvent : EventAsset<float>
     {
     }
 }

@@ -1,6 +1,6 @@
 namespace Baracuda.Mediator
 {
-    public class IntEvent : BroadcastAsset<int>
+    public class IntEvent : EventAsset<int>
     {
     }
 }

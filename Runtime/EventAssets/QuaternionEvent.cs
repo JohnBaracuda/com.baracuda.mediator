@@ -2,7 +2,7 @@
 
 namespace Baracuda.Mediator
 {
-    public class QuaternionEvent : BroadcastAsset<Quaternion>
+    public class QuaternionEvent : EventAsset<Quaternion>
     {
     }
 }

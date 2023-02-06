@@ -12,7 +12,7 @@ namespace Baracuda.Mediator
         /// </summary>
         /// <returns>true if the event was not null</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryRaise(this BroadcastAsset eventAsset)
+        public static bool TryRaise(this EventAsset eventAsset)
         {
             if (eventAsset == null)
             {
@@ -28,7 +28,7 @@ namespace Baracuda.Mediator
         /// </summary>
         /// <returns>true if the event was not null</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryRaise<T>(this BroadcastAsset<T> eventAsset, T value)
+        public static bool TryRaise<T>(this EventAsset<T> eventAsset, T value)
         {
             if (eventAsset == null)
             {
@@ -44,7 +44,7 @@ namespace Baracuda.Mediator
         /// </summary>
         /// <returns>true if the event was not null</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryRaise<T1, T2>(this BroadcastAsset<T1, T2> eventAsset, T1 value1, T2 value2)
+        public static bool TryRaise<T1, T2>(this EventAsset<T1, T2> eventAsset, T1 value1, T2 value2)
         {
             if (eventAsset == null)
             {
@@ -60,7 +60,7 @@ namespace Baracuda.Mediator
         /// </summary>
         /// <returns>true if the event was not null</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryRaise<T1, T2, T3>(this BroadcastAsset<T1, T2, T3> eventAsset, T1 value1, T2 value2, T3 value3)
+        public static bool TryRaise<T1, T2, T3>(this EventAsset<T1, T2, T3> eventAsset, T1 value1, T2 value2, T3 value3)
         {
             if (eventAsset == null)
             {
@@ -76,7 +76,7 @@ namespace Baracuda.Mediator
         /// </summary>
         /// <returns>true if the event was not null</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryRaise<T1, T2, T3, T4>(this BroadcastAsset<T1, T2, T3, T4> eventAsset, T1 value1, T2 value2, T3 value3, T4 value4)
+        public static bool TryRaise<T1, T2, T3, T4>(this EventAsset<T1, T2, T3, T4> eventAsset, T1 value1, T2 value2, T3 value3, T4 value4)
         {
             if (eventAsset == null)
             {

@@ -1,4 +1,5 @@
 ﻿using Baracuda.Utilities.Collections;
+using Baracuda.Utilities.Inspector;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -10,6 +11,7 @@ namespace Baracuda.Mediator
     /// </summary>
     public abstract class QueueAsset<T> : RuntimeCollectionAsset<T>, IQueue<T>
     {
+        [ShowInInspector]
         private readonly Queue<T> queue = new(8);
 
         /// <summary>Returns an enumerator that iterates through the collection.</summary>

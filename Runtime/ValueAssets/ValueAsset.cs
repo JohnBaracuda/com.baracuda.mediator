@@ -1,7 +1,7 @@
-﻿using Baracuda.Utilities.Inspector;
+﻿using Baracuda.Utilities.Callbacks;
+using Baracuda.Utilities.Inspector;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using UnityEditor;
 using UnityEngine;
 
 namespace Baracuda.Mediator
@@ -11,7 +11,7 @@ namespace Baracuda.Mediator
     /// Object can be subscribed to receive a callback when the arg is changed.
     /// The arg of this object will reset to its inspector arg after runtime.
     /// </summary>
-    public abstract class ValueAsset<TValue> : ScriptableObject, IValueAsset<TValue>
+    public abstract class ValueAsset<TValue> : ScriptableObject, IValueAsset<TValue>, IOnExitEdit, IOnExitPlay
     {
         [SerializeField] private TValue value;
 
@@ -35,7 +35,7 @@ namespace Baracuda.Mediator
             }
         }
 
-        private readonly Broadcast<TValue> _changed;
+        private readonly Broadcast<TValue> _changed = new();
 
         #region Editor
 
@@ -43,30 +43,18 @@ namespace Baracuda.Mediator
 
         private void OnEnable()
         {
-            EditorApplication.playModeStateChanged += PlayStateChanged;
+            EngineCallbacks.AddCallbacks(this);
         }
 
-        private void OnDisable()
+        public void OnExitEditMode()
         {
-            EditorApplication.playModeStateChanged -= PlayStateChanged;
+            cached = Value;
         }
 
-        private void PlayStateChanged(PlayModeStateChange change)
+        public void OnExitPlayMode()
         {
-            switch (change)
-            {
-                case PlayModeStateChange.ExitingEditMode:
-                    cached = Value;
-                    return;
-                case PlayModeStateChange.ExitingPlayMode:
-                    Value = cached;
-                    return;
-            }
+            Value = cached;
         }
-
-        /*
-         * Raw Value
-         */
 
         [Button]
         public void ResetValue()
@@ -76,5 +64,36 @@ namespace Baracuda.Mediator
 #endif
 
         #endregion
+    }
+
+
+    public abstract class ValueAssetRW<TValue> : ScriptableObject
+    {
+        private TValue _value;
+
+        public TValue Value
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _value;
+            set
+            {
+                if (EqualityComparer<TValue>.Default.Equals(value, _value))
+                {
+                    return;
+                }
+                _value = value;
+                _changed.Raise(value);
+            }
+        }
+
+        public IReceiver<TValue> Changed => _changed;
+        private Broadcast<TValue> _changed;
+
+    }
+
+    public abstract class ValueAssetRO<TValue> : ScriptableObject
+    {
+        [SerializeField] private TValue value;
+        public TValue Value => value;
     }
 }

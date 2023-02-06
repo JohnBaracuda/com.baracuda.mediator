@@ -1,6 +1,6 @@
 namespace Baracuda.Mediator
 {
-    public class BoolEvent : BroadcastAsset<bool>
+    public class BoolEvent : EventAsset<bool>
     {
     }
 }
