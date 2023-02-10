@@ -11,6 +11,7 @@ namespace Baracuda.Mediator
     public abstract class DictionaryAsset<TKey, TValue> : RuntimeCollectionAsset<KeyValuePair<TKey, TValue>>, IDictionary<TKey, TValue>
     {
         [Readonly]
+        [ShowInInspector]
         [Foldout(FoldoutName.HumanizedObjectName)]
         private readonly Dictionary<TKey, TValue> dictionary = new(16);
 

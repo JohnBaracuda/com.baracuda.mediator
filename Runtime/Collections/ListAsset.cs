@@ -8,6 +8,7 @@ namespace Baracuda.Mediator
     public abstract class ListAsset<T> : RuntimeCollectionAsset<T>, IList<T>, IReadOnlyList<T>
     {
         [Readonly]
+        [ShowInInspector]
         [Foldout(FoldoutName.HumanizedObjectName)]
         private readonly List<T> list = new(16);
 
@@ -42,6 +43,16 @@ namespace Baracuda.Mediator
         public void Add(T item)
         {
             list.Add(item);
+        }
+
+        /// <summary>Adds the elements of the specified collection to the end of the <see cref="T:System.Collections.Generic.List`1" />.</summary>
+        /// <param name="collection">The collection whose elements should be added to the end of the <see cref="T:System.Collections.Generic.List`1" />. The collection itself cannot be <see langword="null" />, but it can contain elements that are <see langword="null" />, if type <paramref name="T" /> is a reference type.</param>
+        /// <exception cref="T:System.ArgumentNullException">
+        /// <paramref name="collection" /> is <see langword="null" />.</exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AddRange(IEnumerable<T> collection)
+        {
+            list.AddRange(collection);
         }
 
         /// <summary>Removes all items from the <see cref="T:System.Collections.Generic.ICollection`1" />.</summary>

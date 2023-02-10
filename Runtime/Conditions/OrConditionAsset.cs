@@ -2,9 +2,9 @@
 
 namespace Baracuda.Mediator
 {
-    public sealed class OrCondition : Condition
+    public sealed class OrConditionAsset : ConditionAsset
     {
-        [SerializeField] private Condition[] conditions;
+        [SerializeField] private ConditionAsset[] conditions;
         public override bool Check()
         {
             return conditions.Any();

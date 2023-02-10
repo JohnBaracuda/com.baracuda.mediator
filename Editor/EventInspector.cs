@@ -1,15 +1,13 @@
-﻿using Baracuda.Utilities;
-using Baracuda.Utilities.Helper;
+﻿using Baracuda.Utilities.Helper;
 using Baracuda.Utilities.Inspector;
 using System;
 using System.Reflection;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    [CustomEditor(typeof(EventAsset), true)]
+    [CustomEditor(typeof(EventMediator), true)]
     public class EventInspectorT : Editor
     {
         private const string EventFieldName = "Event";
@@ -27,6 +25,7 @@ namespace Baracuda.Mediator
 
         private Func<int> _count;
         private Func<Delegate[]> _listener;
+        private Func<object, object>[] _elementEditors;
         private Action _clear;
         private Action _clearInvalid;
         private Action _raise;
@@ -58,7 +57,9 @@ namespace Baracuda.Mediator
             _raise = () => raiseMethod!.Invoke(eventValue, _arguments);
             _remove = listener => removeMethod!.Invoke(eventValue, new object[] {listener});
 
+
             _parameterInfos = raiseMethod.GetParameters();
+            _elementEditors = new Func<object, object>[_parameterInfos.Length];
             _arguments = new object[_parameterInfos.Length];
             for (var i = 0; i < _arguments.Length; i++)
             {
@@ -68,6 +69,9 @@ namespace Baracuda.Mediator
                 _arguments[i] = underlyingParameterType.IsValueType
                     ? Activator.CreateInstance(underlyingParameterType, true)
                     : Convert.ChangeType(_arguments[i], underlyingParameterType);
+
+                _elementEditors[i] =
+                    GUIHelper.CreateEditor(new GUIContent(parameterInfo.Name), parameterInfo.ParameterType);
             }
             Foldout = new FoldoutHandler(name);
         }
@@ -94,8 +98,7 @@ namespace Baracuda.Mediator
                 GUIHelper.Space();
                 for (var i = 0; i < _parameterInfos.Length; i++)
                 {
-                    var parameterInfo = _parameterInfos[i];
-                    _arguments[i] = GUIHelper.DynamicField(new GUIContent(parameterInfo.ParameterType.ToString()), _arguments[i], parameterInfo.ParameterType);
+                    _arguments[i] = _elementEditors[i](_arguments[i]);
                 }
                 GUIHelper.Space();
                 if (GUILayout.Button("Raise"))

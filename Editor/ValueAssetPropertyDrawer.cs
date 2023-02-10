@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    [CustomPropertyDrawer(typeof(IValueAsset<>), true)]
+    [CustomPropertyDrawer(typeof(ValueAsset<>), true)]
     public class ValueAssetPropertyDrawer : PropertyDrawer
     {
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)

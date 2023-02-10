@@ -5,7 +5,7 @@ namespace Baracuda.Mediator
     public static class ConditionExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool All(this Condition[] conditions)
+        public static bool All(this ConditionAsset[] conditions)
         {
             for (var i = 0; i < conditions.Length; i++)
             {
@@ -19,7 +19,7 @@ namespace Baracuda.Mediator
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool None(this Condition[] conditions)
+        public static bool None(this ConditionAsset[] conditions)
         {
             for (var i = 0; i < conditions.Length; i++)
             {
@@ -33,7 +33,7 @@ namespace Baracuda.Mediator
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Any(this Condition[] conditions)
+        public static bool Any(this ConditionAsset[] conditions)
         {
             for (var i = 0; i < conditions.Length; i++)
             {

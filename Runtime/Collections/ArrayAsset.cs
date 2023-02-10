@@ -12,8 +12,12 @@ namespace Baracuda.Mediator
     /// </summary>
     public abstract class ArrayAsset<T> : CollectionAsset, IReadOnlyList<T>, IReadOnlyCollection<T>
     {
-        [ListOptions]
-        [Foldout("Content")]
+#pragma warning disable 414
+        [Foldout("Options")]
+        [SerializeField] private bool showMoreOptions = false;
+
+        [ListOptions(DisplayHeader = false)]
+        [Foldout(FoldoutName.HumanizedObjectName)]
         [SerializeField] private List<T> items = new(16);
 
         /// <summary>Returns an enumerator that iterates through the collection.</summary>
@@ -52,6 +56,8 @@ namespace Baracuda.Mediator
 
         /// <summary>Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.</summary>
         /// <returns>The number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.</returns>
+        [ConditionalShow(nameof(showMoreOptions))]
+        [Foldout("Options")]
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -90,10 +96,20 @@ namespace Baracuda.Mediator
 
         #region Editor
 
-        [Button] [Foldout("Options")]
+        [Button]
+        [Foldout("Options")]
+        [ConditionalShow(nameof(showMoreOptions))]
         private void RemoveDuplicates()
         {
             items.RemoveDuplicates();
+        }
+
+        [Button]
+        [Foldout("Options")]
+        [ConditionalShow(nameof(showMoreOptions))]
+        private void RemoveNullObjects()
+        {
+            items.RemoveNull();
         }
 
         #endregion

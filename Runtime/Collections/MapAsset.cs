@@ -1,4 +1,5 @@
 ﻿using Baracuda.Utilities.Collections;
+using Baracuda.Utilities.Inspector;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -11,6 +12,7 @@ namespace Baracuda.Mediator
     /// </summary>
     public abstract class MapAsset<TKey, TValue> : CollectionAsset, IReadOnlyDictionary<TKey, TValue>
     {
+        [Foldout(FoldoutName.HumanizedObjectName)]
         [SerializeField] private Map<TKey, TValue> map;
 
         /// <summary>Returns an enumerator that iterates through the collection.</summary>

@@ -1,5 +1,7 @@
 ﻿using Baracuda.Utilities.Collections;
 using Baracuda.Utilities.Inspector;
+using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -10,6 +12,7 @@ namespace Baracuda.Mediator
     {
         [Readonly]
         [ShowInInspector]
+        [Foldout(FoldoutName.HumanizedObjectName)]
         private readonly Stack<T> stack = new(8);
 
         /// <summary>Returns an enumerator that iterates through the collection.</summary>
@@ -38,6 +41,7 @@ namespace Baracuda.Mediator
 
         /// <summary>Inserts an object at the top of the <see cref="T:System.Collections.Generic.Stack`1" />.</summary>
         /// <param name="item">The object to push onto the <see cref="T:System.Collections.Generic.Stack`1" />. The value can be <see langword="null" /> for reference types.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Push(T item)
         {
             stack.Push(item);
@@ -46,6 +50,7 @@ namespace Baracuda.Mediator
         /// <summary>Removes and returns the object at the top of the <see cref="T:System.Collections.Generic.Stack`1" />.</summary>
         /// <returns>The object removed from the top of the <see cref="T:System.Collections.Generic.Stack`1" />.</returns>
         /// <exception cref="T:System.InvalidOperationException">The <see cref="T:System.Collections.Generic.Stack`1" /> is empty.</exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Pop()
         {
             return stack.Pop();
@@ -54,16 +59,37 @@ namespace Baracuda.Mediator
         /// <summary>Returns the object at the top of the <see cref="T:System.Collections.Generic.Stack`1" /> without removing it.</summary>
         /// <returns>The object at the top of the <see cref="T:System.Collections.Generic.Stack`1" />.</returns>
         /// <exception cref="T:System.InvalidOperationException">The <see cref="T:System.Collections.Generic.Stack`1" /> is empty.</exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Peek()
         {
             return stack.Peek();
         }
 
+        /// <summary>Adds the elements of the specified collection to the stack />.</summary>
+        /// <param name="collection">The collection whose elements should be added to the stack. The collection itself cannot be <see langword="null" />, but it can contain elements that are <see langword="null" />, if type T is a reference type.</param>
+        /// <exception cref="T:System.ArgumentNullException">
+        /// <paramref name="collection" /> is <see langword="null" />.</exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void PushRange([NotNull] IEnumerable<T> collection)
+        {
+            if (collection == null)
+            {
+                throw new ArgumentNullException(nameof(collection));
+            }
+
+            foreach (var element in collection)
+            {
+                stack.Push(element);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryPeek(out T item)
         {
             return stack.TryPeek(out item);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryPop(out T item)
         {
             return stack.TryPop(out item);
@@ -71,6 +97,7 @@ namespace Baracuda.Mediator
 
         /// <summary>Removes all items from the <see cref="T:System.Collections.Generic.ICollection`1" />.</summary>
         /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.</exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear()
         {
             stack.Clear();
@@ -80,6 +107,7 @@ namespace Baracuda.Mediator
         /// <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
         /// <returns>
         /// <see langword="true" /> if <paramref name="item" /> is found in the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, <see langword="false" />.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Contains(T item)
         {
             return stack.Contains(item);
@@ -93,6 +121,7 @@ namespace Baracuda.Mediator
         /// <exception cref="T:System.ArgumentOutOfRangeException">
         /// <paramref name="arrayIndex" /> is less than 0.</exception>
         /// <exception cref="T:System.ArgumentException">The number of elements in the source <see cref="T:System.Collections.Generic.ICollection`1" /> is greater than the available space from <paramref name="arrayIndex" /> to the end of the destination <paramref name="array" />.</exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CopyTo(T[] array, int arrayIndex)
         {
             stack.CopyTo(array, arrayIndex);

@@ -5,8 +5,8 @@ using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    [CustomPropertyDrawer(typeof(VariableRW<>), true)]
-    [CustomPropertyDrawer(typeof(VariableRO<>), true)]
+    [CustomPropertyDrawer(typeof(Variable<>), true)]
+    [CustomPropertyDrawer(typeof(ReadonlyVariable<>), true)]
     public class ValuePropertyDrawer : PropertyDrawer
     {
         private static readonly GUIContent modeLabel = new GUIContent("Pass By", "Set the value directly or set a reference to a value object.");

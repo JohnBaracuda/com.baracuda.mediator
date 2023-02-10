@@ -1,4 +1,5 @@
-﻿using Baracuda.Utilities.Callbacks;
+﻿using Baracuda.Utilities;
+using Baracuda.Utilities.Callbacks;
 using Baracuda.Utilities.Inspector;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,8 +28,7 @@ namespace Baracuda.Mediator
         {
             if (logLeaks && CountInternal > 0)
             {
-                Debug.LogWarning("Collection", $"Leak detected in runtime collection", this);
-                Debug.LogWarning("Collection", CollectionInternal);
+                Debug.LogWarning("Collection", $"Leak detected in runtime collection: {name}\n{CollectionInternal.ToCollectionString()}", this);
             }
             if (clearLeaks && CountInternal > 0)
             {

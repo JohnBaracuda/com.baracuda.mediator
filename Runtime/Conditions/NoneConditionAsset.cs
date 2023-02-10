@@ -2,9 +2,9 @@
 
 namespace Baracuda.Mediator
 {
-    public sealed class NoneCondition : Condition
+    public sealed class NoneConditionAsset : ConditionAsset
     {
-        [SerializeField] private Condition[] conditions;
+        [SerializeField] private ConditionAsset[] conditions;
         public override bool Check()
         {
             return conditions.None();

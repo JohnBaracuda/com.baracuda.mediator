@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using Baracuda.Utilities.Inspector;
+using JetBrains.Annotations;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -9,6 +11,9 @@ namespace Baracuda.Mediator
     /// </summary>
     public abstract class HashSetAsset<T> : RuntimeCollectionAsset<T>, ICollection<T>
     {
+        [Readonly]
+        [ShowInInspector]
+        [Foldout(FoldoutName.HumanizedObjectName)]
         private readonly HashSet<T> hashSet = new();
 
         /// <summary>Returns an enumerator that iterates through the collection.</summary>
@@ -60,6 +65,19 @@ namespace Baracuda.Mediator
         public bool Contains(T item)
         {
             return hashSet.Contains(item);
+        }
+
+        /// <summary>Adds the elements of the specified collection to the set />.</summary>
+        /// <param name="collection">The collection whose elements should be added to the set. The collection itself cannot be <see langword="null" />, but it can contain elements that are <see langword="null" />, if type T is a reference type.</param>
+        /// <exception cref="T:System.ArgumentNullException">
+        /// <paramref name="collection" /> is <see langword="null" />.</exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void EnqueueRange([NotNull] IEnumerable<T> collection)
+        {
+            foreach (var element in collection)
+            {
+                hashSet.Add(element);
+            }
         }
 
         /// <summary>Copies the elements of the <see cref="T:System.Collections.Generic.ICollection`1" /> to an <see cref="T:System.Array" />, starting at a particular <see cref="T:System.Array" /> index.</summary>
