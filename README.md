@@ -1,3 +1,3 @@
 # Mediator
 
-Scriptable object based optimized event system.
+Scriptable object based event and mediation framework.
