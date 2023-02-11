@@ -1,6 +1,6 @@
 {
   "name": "com.baracuda.mediator",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "displayName": "Mediator",
   "description": "Scriptable object based event and mediation system. ",
   "unity": "2021.3",
