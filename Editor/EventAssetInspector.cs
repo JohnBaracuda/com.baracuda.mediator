@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Baracuda.Mediator
 {
     [CustomEditor(typeof(EventMediator), true)]
-    public class EventInspectorT : Editor
+    public class EventAssetInspector : OverrideInspector<EventMediator>
     {
         private const string EventFieldName = "Event";
         private const string NextIndexFieldName = "_nextIndex";
@@ -21,7 +21,6 @@ namespace Baracuda.Mediator
         private bool _showListener;
         private ParameterInfo[] _parameterInfos;
         private object[] _arguments;
-        private FoldoutHandler Foldout { get; set; }
 
         private Func<int> _count;
         private Func<Delegate[]> _listener;
@@ -33,11 +32,9 @@ namespace Baracuda.Mediator
 
         private Vector2 _scrollPosition;
 
-        private int Count { get; set; }
-        private Delegate[] Listener { get; set; }
-
-        private void OnEnable()
+        protected override void OnEnable()
         {
+            base.OnEnable();
             var eventField = GetFieldIncludeBaseTypes(target.GetType(), EventFieldName);
             var eventValue = eventField.GetValue(target);
 
@@ -73,12 +70,17 @@ namespace Baracuda.Mediator
                 _elementEditors[i] =
                     GUIHelper.CreateEditor(new GUIContent(parameterInfo.Name), parameterInfo.ParameterType);
             }
-            Foldout = new FoldoutHandler(name);
         }
 
         public override void OnInspectorGUI()
         {
-            base.OnInspectorGUI();
+            try
+            {
+                base.OnInspectorGUI();
+            }
+            catch (NullReferenceException)
+            {
+            }
 
             EditorGUILayout.LabelField("Listener Count", _count().ToString());
 
@@ -118,12 +120,12 @@ namespace Baracuda.Mediator
 
         private void DrawListenerGUI()
         {
-            Listener = _listener();
-            Count = _count();
+            var listeners = _listener();
+            var count = _count();
 
-            for (var index = 0; index < Count; index++)
+            for (var index = 0; index < count; index++)
             {
-                var listener = Listener[index];
+                var listener = listeners[index];
                 DrawListener(listener);
             }
         }

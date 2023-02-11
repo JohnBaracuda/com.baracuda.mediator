@@ -8,16 +8,34 @@ namespace Baracuda.Mediator
 
         public void Add(Action listener)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return;
+            }
+#endif
             Event.Add(listener);
         }
 
         public bool AddUnique(Action listener)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return false;
+            }
+#endif
             return Event.AddUnique(listener);
         }
 
         public bool Remove(Action listener)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return false;
+            }
+#endif
             return Event.Remove(listener);
         }
 
@@ -38,6 +56,12 @@ namespace Baracuda.Mediator
 
         public void Raise()
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return;
+            }
+#endif
             Event.Raise();
         }
     }
@@ -48,16 +72,34 @@ namespace Baracuda.Mediator
 
         public void Add(Action<T> listener)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return;
+            }
+#endif
             Event.Add(listener);
         }
 
         public bool AddUnique(Action<T> listener)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return false;
+            }
+#endif
             return Event.AddUnique(listener);
         }
 
         public bool Remove(Action<T> listener)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return false;
+            }
+#endif
             return Event.Remove(listener);
         }
 
@@ -78,6 +120,12 @@ namespace Baracuda.Mediator
 
         public void Raise(T value)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return;
+            }
+#endif
             Event.Raise(value);
         }
     }
@@ -88,16 +136,34 @@ namespace Baracuda.Mediator
 
         public void Add(Action<T1, T2> listener)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return;
+            }
+#endif
             Event.Add(listener);
         }
 
         public bool AddUnique(Action<T1, T2> listener)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return false;
+            }
+#endif
             return Event.AddUnique(listener);
         }
 
         public bool Remove(Action<T1, T2> listener)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return false;
+            }
+#endif
             return Event.Remove(listener);
         }
 
@@ -118,6 +184,12 @@ namespace Baracuda.Mediator
 
         public void Raise(T1 value1, T2 value2)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return;
+            }
+#endif
             Event.Raise(value1, value2);
         }
     }
@@ -128,16 +200,34 @@ namespace Baracuda.Mediator
 
         public void Add(Action<T1, T2, T3> listener)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return;
+            }
+#endif
             Event.Add(listener);
         }
 
         public bool AddUnique(Action<T1, T2, T3> listener)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return false;
+            }
+#endif
             return Event.AddUnique(listener);
         }
 
         public bool Remove(Action<T1, T2, T3> listener)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return false;
+            }
+#endif
             return Event.Remove(listener);
         }
 
@@ -158,6 +248,12 @@ namespace Baracuda.Mediator
 
         public void Raise(T1 value1, T2 value2, T3 value3)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return;
+            }
+#endif
             Event.Raise(value1, value2, value3);
         }
     }
@@ -168,16 +264,34 @@ namespace Baracuda.Mediator
 
         public void Add(Action<T1, T2, T3, T4> listener)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return;
+            }
+#endif
             Event.Add(listener);
         }
 
         public bool AddUnique(Action<T1, T2, T3, T4> listener)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return false;
+            }
+#endif
             return Event.AddUnique(listener);
         }
 
         public bool Remove(Action<T1, T2, T3, T4> listener)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return false;
+            }
+#endif
             return Event.Remove(listener);
         }
 
@@ -198,6 +312,12 @@ namespace Baracuda.Mediator
 
         public void Raise(T1 value1, T2 value2, T3 value3, T4 value4)
         {
+#if UNITY_EDITOR
+            if (IsIllegalCall(this))
+            {
+                return;
+            }
+#endif
             Event.Raise(value1, value2, value3, value4);
         }
     }
