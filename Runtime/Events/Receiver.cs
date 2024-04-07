@@ -1,22 +1,21 @@
-﻿using Baracuda.Utilities;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine.Assertions;
 
-namespace Baracuda.Mediator
+namespace Baracuda.Mediator.Events
 {
     public class Receiver : IReceiver
     {
         #region Member Variables
 
-        /*
-         * State
-         */
+        public int Count { get; private set; }
 
-        public int Count => _nextIndex;
+        public IReadOnlyCollection<Action> GetListenerCollection => _listener.Take(Count).ToList();
+
         public Action this[int index] => _listener[index];
 
-        private int _nextIndex;
         private Action[] _listener;
 
         #endregion
@@ -39,6 +38,7 @@ namespace Baracuda.Mediator
 
         //--------------------------------------------------------------------------------------------------------------
 
+
         #region Add Listener
 
         /// <inheritdoc />
@@ -58,14 +58,14 @@ namespace Baracuda.Mediator
         {
             Assert.IsNotNull(listener);
 
-            if (_listener.Length <= _nextIndex)
+            if (_listener.Length <= Count)
             {
                 IncreaseCapacity();
             }
 
-            _listener[_nextIndex] = listener;
+            _listener[Count] = listener;
 
-            _nextIndex++;
+            Count++;
         }
 
         private void IncreaseCapacity()
@@ -83,7 +83,7 @@ namespace Baracuda.Mediator
         /// <inheritdoc />
         public bool Contains(Action listener)
         {
-            for (var i = 0; i < _nextIndex; i++)
+            for (var i = 0; i < Count; i++)
             {
                 if (_listener[i].Equals(listener))
                 {
@@ -102,7 +102,7 @@ namespace Baracuda.Mediator
         /// <inheritdoc />
         public bool Remove(Action listener)
         {
-            for (var i = 0; i < _nextIndex; i++)
+            for (var i = 0; i < Count; i++)
             {
                 if (_listener[i] == listener)
                 {
@@ -116,19 +116,19 @@ namespace Baracuda.Mediator
 
         private void RemoveAt(int index)
         {
-            --_nextIndex;
-            for (var i = index; i < _nextIndex; ++i)
+            --Count;
+            for (var i = index; i < Count; ++i)
             {
                 _listener[i] = _listener[i + 1];
             }
 
-            _listener[_nextIndex] = null;
+            _listener[Count] = null;
         }
 
         /// <inheritdoc />
         public void Clear()
         {
-            _nextIndex = 0;
+            Count = 0;
             for (var i = _listener.Length - 1; i >= 0; i--)
             {
                 _listener[i] = null;
@@ -138,7 +138,7 @@ namespace Baracuda.Mediator
         /// <inheritdoc />
         public void ClearInvalid()
         {
-            for (var i = _nextIndex - 1; i >= 0; i--)
+            for (var i = Count - 1; i >= 0; i--)
             {
                 if (_listener[i] is null || _listener[i].Target == null)
                 {
@@ -155,9 +155,25 @@ namespace Baracuda.Mediator
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void RaiseInternal()
         {
-            for (var i = 0; i < _nextIndex; i++)
+            for (var i = Count - 1; i >= 0; i--)
             {
                 _listener[i]();
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void RaiseCriticalInternal()
+        {
+            for (var i = Count - 1; i >= 0; i--)
+            {
+                try
+                {
+                    _listener[i]();
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException("Event", exception);
+                }
             }
         }
 
@@ -170,7 +186,10 @@ namespace Baracuda.Mediator
 
         public Action<T> this[int index] => _listener[index];
 
-        private int _nextIndex;
+        public int Count { get; private set; }
+
+        public IReadOnlyCollection<Action<T>> GetListenerCollection => _listener.Take(Count).ToList();
+
         private Action<T>[] _listener;
 
         #endregion
@@ -190,7 +209,9 @@ namespace Baracuda.Mediator
 
         #endregion
 
+
         //--------------------------------------------------------------------------------------------------------------
+
 
         #region Add Listener
 
@@ -209,16 +230,14 @@ namespace Baracuda.Mediator
         /// <inheritdoc />
         public void Add(Action<T> listener)
         {
-            Assert.IsNotNull(listener);
-
-            if (_listener.Length <= _nextIndex)
+            if (_listener.Length <= Count)
             {
                 IncreaseCapacity();
             }
 
-            _listener[_nextIndex] = listener;
+            _listener[Count] = listener;
 
-            _nextIndex++;
+            Count++;
         }
 
         private void IncreaseCapacity()
@@ -236,7 +255,7 @@ namespace Baracuda.Mediator
         /// <inheritdoc />
         public bool Contains(Action<T> listener)
         {
-            for (var i = 0; i < _nextIndex; i++)
+            for (var i = 0; i < Count; i++)
             {
                 if (_listener[i].Equals(listener))
                 {
@@ -255,7 +274,7 @@ namespace Baracuda.Mediator
         /// <inheritdoc />
         public bool Remove(Action<T> listener)
         {
-            for (var i = 0; i < _nextIndex; i++)
+            for (var i = 0; i < Count; i++)
             {
                 if (_listener[i].Equals(listener))
                 {
@@ -269,19 +288,19 @@ namespace Baracuda.Mediator
 
         private void RemoveAt(int index)
         {
-            --_nextIndex;
-            for (var i = index; i < _nextIndex; ++i)
+            --Count;
+            for (var i = index; i < Count; ++i)
             {
                 _listener[i] = _listener[i + 1];
             }
 
-            _listener[_nextIndex] = null;
+            _listener[Count] = null;
         }
 
         /// <inheritdoc />
         public void Clear()
         {
-            _nextIndex = 0;
+            Count = 0;
             for (var i = _listener.Length - 1; i >= 0; i--)
             {
                 _listener[i] = null;
@@ -291,7 +310,7 @@ namespace Baracuda.Mediator
         /// <inheritdoc />
         public void ClearInvalid()
         {
-            for (var i = _nextIndex - 1; i >= 0; i--)
+            for (var i = Count - 1; i >= 0; i--)
             {
                 if (_listener[i] is null || _listener[i].Target == null)
                 {
@@ -308,9 +327,25 @@ namespace Baracuda.Mediator
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void RaiseInternal(T arg)
         {
-            for (var i = 0; i < _nextIndex; i++)
+            for (var i = Count - 1; i >= 0; i--)
             {
                 _listener[i](arg);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void RaiseCriticalInternal(T value)
+        {
+            for (var i = Count - 1; i >= 0; i--)
+            {
+                try
+                {
+                    _listener[i](value);
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException("Event", exception);
+                }
             }
         }
 
@@ -321,13 +356,10 @@ namespace Baracuda.Mediator
     {
         #region Member Variables
 
-        /*
-         * State
-         */
-
         public Action<T1, T2> this[int index] => _listener[index];
 
-        private int _nextIndex;
+        public int Count { get; private set; }
+        public IReadOnlyCollection<Action<T1, T2>> GetListenerCollection => _listener.Take(Count).ToList();
         private Action<T1, T2>[] _listener;
 
         #endregion
@@ -347,7 +379,9 @@ namespace Baracuda.Mediator
 
         #endregion
 
+
         //--------------------------------------------------------------------------------------------------------------
+
 
         #region Add Listener
 
@@ -368,14 +402,14 @@ namespace Baracuda.Mediator
         {
             Assert.IsNotNull(listener);
 
-            if (_listener.Length <= _nextIndex)
+            if (_listener.Length <= Count)
             {
                 IncreaseCapacity();
             }
 
-            _listener[_nextIndex] = listener;
+            _listener[Count] = listener;
 
-            _nextIndex++;
+            Count++;
         }
 
         private void IncreaseCapacity()
@@ -393,7 +427,7 @@ namespace Baracuda.Mediator
         /// <inheritdoc />
         public bool Contains(Action<T1, T2> listener)
         {
-            for (var i = 0; i < _nextIndex; i++)
+            for (var i = 0; i < Count; i++)
             {
                 if (_listener[i].Equals(listener))
                 {
@@ -412,7 +446,7 @@ namespace Baracuda.Mediator
         /// <inheritdoc />
         public bool Remove(Action<T1, T2> listener)
         {
-            for (var i = 0; i < _nextIndex; i++)
+            for (var i = 0; i < Count; i++)
             {
                 if (_listener[i].Equals(listener))
                 {
@@ -426,19 +460,19 @@ namespace Baracuda.Mediator
 
         private void RemoveAt(int index)
         {
-            --_nextIndex;
-            for (var i = index; i < _nextIndex; ++i)
+            --Count;
+            for (var i = index; i < Count; ++i)
             {
                 _listener[i] = _listener[i + 1];
             }
 
-            _listener[_nextIndex] = null;
+            _listener[Count] = null;
         }
 
         /// <inheritdoc />
         public void Clear()
         {
-            _nextIndex = 0;
+            Count = 0;
             for (var i = _listener.Length - 1; i >= 0; i--)
             {
                 _listener[i] = null;
@@ -448,7 +482,7 @@ namespace Baracuda.Mediator
         /// <inheritdoc />
         public void ClearInvalid()
         {
-            for (var i = _nextIndex - 1; i >= 0; i--)
+            for (var i = Count - 1; i >= 0; i--)
             {
                 if (_listener[i] is null || _listener[i].Target == null)
                 {
@@ -465,9 +499,25 @@ namespace Baracuda.Mediator
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void RaiseInternal(T1 first, T2 second)
         {
-            for (var i = 0; i < _nextIndex; i++)
+            for (var i = Count - 1; i >= 0; i--)
             {
                 _listener[i](first, second);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void RaiseCriticalInternal(T1 arg1, T2 arg2)
+        {
+            for (var i = Count - 1; i >= 0; i--)
+            {
+                try
+                {
+                    _listener[i](arg1, arg2);
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException("Event", exception);
+                }
             }
         }
 
@@ -478,13 +528,10 @@ namespace Baracuda.Mediator
     {
         #region Member Variables
 
-        /*
-         * State
-         */
-
         public Action<T1, T2, T3> this[int index] => _listener[index];
 
-        private int _nextIndex;
+        public int Count { get; private set; }
+        public IReadOnlyCollection<Action<T1, T2, T3>> GetListenerCollection => _listener.Take(Count).ToList();
         private Action<T1, T2, T3>[] _listener;
 
         #endregion
@@ -504,7 +551,9 @@ namespace Baracuda.Mediator
 
         #endregion
 
+
         //--------------------------------------------------------------------------------------------------------------
+
 
         #region Add Listener
 
@@ -525,14 +574,14 @@ namespace Baracuda.Mediator
         {
             Assert.IsNotNull(listener);
 
-            if (_listener.Length <= _nextIndex)
+            if (_listener.Length <= Count)
             {
                 IncreaseCapacity();
             }
 
-            _listener[_nextIndex] = listener;
+            _listener[Count] = listener;
 
-            _nextIndex++;
+            Count++;
         }
 
         private void IncreaseCapacity()
@@ -550,7 +599,7 @@ namespace Baracuda.Mediator
         /// <inheritdoc />
         public bool Contains(Action<T1, T2, T3> listener)
         {
-            for (var i = 0; i < _nextIndex; i++)
+            for (var i = 0; i < Count; i++)
             {
                 if (_listener[i].Equals(listener))
                 {
@@ -569,7 +618,7 @@ namespace Baracuda.Mediator
         /// <inheritdoc />
         public bool Remove(Action<T1, T2, T3> listener)
         {
-            for (var i = 0; i < _nextIndex; i++)
+            for (var i = 0; i < Count; i++)
             {
                 if (_listener[i].Equals(listener))
                 {
@@ -583,19 +632,19 @@ namespace Baracuda.Mediator
 
         private void RemoveAt(int index)
         {
-            --_nextIndex;
-            for (var i = index; i < _nextIndex; ++i)
+            --Count;
+            for (var i = index; i < Count; ++i)
             {
                 _listener[i] = _listener[i + 1];
             }
 
-            _listener[_nextIndex] = null;
+            _listener[Count] = null;
         }
 
         /// <inheritdoc />
         public void Clear()
         {
-            _nextIndex = 0;
+            Count = 0;
             for (var i = _listener.Length - 1; i >= 0; i--)
             {
                 _listener[i] = null;
@@ -605,7 +654,7 @@ namespace Baracuda.Mediator
         /// <inheritdoc />
         public void ClearInvalid()
         {
-            for (var i = _nextIndex - 1; i >= 0; i--)
+            for (var i = Count - 1; i >= 0; i--)
             {
                 if (_listener[i] is null || _listener[i].Target == null)
                 {
@@ -622,9 +671,25 @@ namespace Baracuda.Mediator
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void RaiseInternal(T1 first, T2 second, T3 third)
         {
-            for (var i = 0; i < _nextIndex; i++)
+            for (var i = Count - 1; i >= 0; i--)
             {
                 _listener[i](first, second, third);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void RaiseCriticalInternal(T1 arg1, T2 arg2, T3 arg3)
+        {
+            for (var i = Count - 1; i >= 0; i--)
+            {
+                try
+                {
+                    _listener[i](arg1, arg2, arg3);
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException("Event", exception);
+                }
             }
         }
 
@@ -635,16 +700,14 @@ namespace Baracuda.Mediator
     {
         #region Member Variables
 
-        /*
-         * State
-         */
-
         public Action<T1, T2, T3, T4> this[int index] => _listener[index];
 
-        private int _nextIndex;
+        public int Count { get; private set; }
+        public IReadOnlyCollection<Action<T1, T2, T3, T4>> GetListenerCollection => _listener.Take(Count).ToList();
         private Action<T1, T2, T3, T4>[] _listener;
 
         #endregion
+
 
         #region Ctor
 
@@ -660,7 +723,9 @@ namespace Baracuda.Mediator
 
         #endregion
 
+
         //--------------------------------------------------------------------------------------------------------------
+
 
         #region Add Listener
 
@@ -681,14 +746,14 @@ namespace Baracuda.Mediator
         {
             Assert.IsNotNull(listener);
 
-            if (_listener.Length <= _nextIndex)
+            if (_listener.Length <= Count)
             {
                 IncreaseCapacity();
             }
 
-            _listener[_nextIndex] = listener;
+            _listener[Count] = listener;
 
-            _nextIndex++;
+            Count++;
         }
 
         private void IncreaseCapacity()
@@ -706,7 +771,7 @@ namespace Baracuda.Mediator
         /// <inheritdoc />
         public bool Contains(Action<T1, T2, T3, T4> listener)
         {
-            for (var i = 0; i < _nextIndex; i++)
+            for (var i = 0; i < Count; i++)
             {
                 if (_listener[i].Equals(listener))
                 {
@@ -725,7 +790,7 @@ namespace Baracuda.Mediator
         /// <inheritdoc />
         public bool Remove(Action<T1, T2, T3, T4> listener)
         {
-            for (var i = 0; i < _nextIndex; i++)
+            for (var i = 0; i < Count; i++)
             {
                 if (_listener[i].Equals(listener))
                 {
@@ -739,19 +804,19 @@ namespace Baracuda.Mediator
 
         private void RemoveAt(int index)
         {
-            --_nextIndex;
-            for (var i = index; i < _nextIndex; ++i)
+            --Count;
+            for (var i = index; i < Count; ++i)
             {
                 _listener[i] = _listener[i + 1];
             }
 
-            _listener[_nextIndex] = null;
+            _listener[Count] = null;
         }
 
         /// <inheritdoc />
         public void Clear()
         {
-            _nextIndex = 0;
+            Count = 0;
             for (var i = _listener.Length - 1; i >= 0; i--)
             {
                 _listener[i] = null;
@@ -761,7 +826,7 @@ namespace Baracuda.Mediator
         /// <inheritdoc />
         public void ClearInvalid()
         {
-            for (var i = _nextIndex - 1; i >= 0; i--)
+            for (var i = Count - 1; i >= 0; i--)
             {
                 if (_listener[i] is null || _listener[i].Target == null)
                 {
@@ -778,9 +843,25 @@ namespace Baracuda.Mediator
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void RaiseInternal(T1 first, T2 second, T3 third, T4 fourth)
         {
-            for (var i = 0; i < _nextIndex; i++)
+            for (var i = Count - 1; i >= 0; i--)
             {
                 _listener[i](first, second, third, fourth);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void RaiseCriticalInternal(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+        {
+            for (var i = Count - 1; i >= 0; i--)
+            {
+                try
+                {
+                    _listener[i](arg1, arg2, arg3, arg4);
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException("Event", exception);
+                }
             }
         }
 

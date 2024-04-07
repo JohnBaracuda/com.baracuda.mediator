@@ -1,19 +1,19 @@
 ﻿using System;
 
-namespace Baracuda.Mediator
+namespace Baracuda.Mediator.Events
 {
     public readonly struct LambdaHandle : IDisposable
     {
-        private readonly Action dispose;
+        private readonly Action _dispose;
 
         public LambdaHandle(Action dispose)
         {
-            this.dispose = dispose;
+            _dispose = dispose;
         }
 
         public void Dispose()
         {
-            dispose();
+            _dispose();
         }
     }
 }

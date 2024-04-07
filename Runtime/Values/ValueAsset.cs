@@ -1,102 +1,89 @@
-﻿using Baracuda.Utilities.Callbacks;
-using Baracuda.Utilities.Inspector;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using UnityEngine;
+﻿using JetBrains.Annotations;
+using Sirenix.OdinInspector;
+using System;
 
-namespace Baracuda.Mediator
+namespace Baracuda.Mediator.Values
 {
     /// <summary>
-    /// Scriptable object holding a value that can be accessed and set during runtime.
+    ///     A flexible readable and writable ValueAsset.
+    ///     Instances of this type can be used as a serialized, runtime, persistent or property value.
     /// </summary>
-    public abstract class ValueAsset<TValue> : ScriptableObject, IOnExitEdit, IOnEnterEdit
+    /// <typeparam name="TValue">The type of the contained value</typeparam>
+    public abstract partial class ValueAsset<TValue> : ValueAssetRW<TValue>, IValueAsset<TValue>,
+        IPropertyAsset<TValue>, IPersistentDataAsset<TValue>
     {
-        [SerializeField] private TValue value;
-
-        [Readonly]
-        [SerializeField] private TValue cached;
-
-        private readonly Broadcast<TValue> _changedEvent = new();
+        #region Properties
 
         /// <summary>
-        /// Event, called every time the value changed.
+        ///     Get or set the value of the asset.
         /// </summary>
-        public IReceiver<TValue> Changed => _changedEvent;
+        [PublicAPI]
+        [ShowInInspector]
+        [HideIf(nameof(valueAssetType), ValueAssetType.Constant)]
+        public override TValue Value
+        {
+            get => GetValue();
+            set => SetValue(value);
+        }
 
         /// <summary>
-        /// Get or set the underlying value.
+        ///     Called when the value was changed.
         /// </summary>
-        public TValue Value
+        [PublicAPI]
+        public override event Action<TValue> Changed
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => value;
-            set
-            {
-                if (EqualityComparer<TValue>.Default.Equals(value, this.value))
-                {
-                    return;
-                }
-                this.value = value;
-                _changedEvent.Raise(value);
-            }
+            add => _changedEvent.AddUnique(value);
+            remove => _changedEvent.Remove(value);
         }
 
-        public static implicit operator TValue(ValueAsset<TValue> valueAsset)
+        /// <summary>
+        ///     Set this object dirty, saving it and raising changed events.
+        /// </summary>
+        [PublicAPI]
+        public void Save()
         {
-            return valueAsset.Value;
+            SaveInternal();
         }
 
-        protected virtual void OnEnable()
+        /// <summary>
+        ///     Get the content if it is not null.
+        /// </summary>
+        [PublicAPI]
+        public bool TryGetValue(out TValue value)
         {
-#if UNITY_EDITOR
-            EngineCallbacks.AddExitEditModeListener(this);
-            EngineCallbacks.AddEnterEditModeListener(this);
-#else
-            // Set the cached value to a default value (null for reference types) to release potential
-            // references, keeping them in memory indefinitely.
-            cached = default;
-#endif
+            value = Value;
+            return value != null;
         }
 
-        public void OnExitEditMode()
+        #endregion
+
+
+        #region Property Binding
+
+        [PublicAPI]
+        public void BindGetter(Func<TValue> getter)
         {
-#if UNITY_EDITOR
-            UpdateCached();
-#endif
+            BindGetterInternal(getter);
         }
 
-        public void OnEnterEditMode()
+        [PublicAPI]
+        public void ReleaseGetter(Func<TValue> getter)
         {
-#if UNITY_EDITOR
-            ResetValue();
-#endif
+            ReleaseGetterInternal(getter);
         }
 
-#if UNITY_EDITOR
-        [SpaceBefore]
-        [Button(ButtonType.Center)]
-        [Tooltip("Reset the current value to the cached value")]
-        private void ResetValue()
+        [PublicAPI]
+        public void BindSetter(Action<TValue> setter)
         {
-            Value = cached;
+            BindSetterInternal(setter);
         }
 
-        private void UpdateCached()
+        [PublicAPI]
+        public void ReleaseSetter(Action<TValue> setter)
         {
-            cached = Value;
+            ReleaseSetterInternal(setter);
         }
 
-        private void OnValidate()
-        {
-            if (!Application.isPlaying)
-            {
-                cached = Value;
-            }
-            else
-            {
-                _changedEvent.Raise(value);
-            }
-        }
-#endif
+        #endregion
     }
 }

@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Baracuda.Mediator
+namespace Baracuda.Mediator.Events
 {
     public static class EventExtensions
     {
         #region Null Check Event Raise
 
         /// <summary>
-        /// Raise the event if it is not null.
+        ///     Raise the event if it is not null.
         /// </summary>
         /// <returns>true if the event was not null</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -24,7 +24,7 @@ namespace Baracuda.Mediator
         }
 
         /// <summary>
-        /// Raise the event if it is not null.
+        ///     Raise the event if it is not null.
         /// </summary>
         /// <returns>true if the event was not null</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -40,7 +40,7 @@ namespace Baracuda.Mediator
         }
 
         /// <summary>
-        /// Raise the event if it is not null.
+        ///     Raise the event if it is not null.
         /// </summary>
         /// <returns>true if the event was not null</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -56,7 +56,7 @@ namespace Baracuda.Mediator
         }
 
         /// <summary>
-        /// Raise the event if it is not null.
+        ///     Raise the event if it is not null.
         /// </summary>
         /// <returns>true if the event was not null</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -72,11 +72,12 @@ namespace Baracuda.Mediator
         }
 
         /// <summary>
-        /// Raise the event if it is not null.
+        ///     Raise the event if it is not null.
         /// </summary>
         /// <returns>true if the event was not null</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryRaise<T1, T2, T3, T4>(this EventAsset<T1, T2, T3, T4> eventAsset, T1 value1, T2 value2, T3 value3, T4 value4)
+        public static bool TryRaise<T1, T2, T3, T4>(this EventAsset<T1, T2, T3, T4> eventAsset, T1 value1, T2 value2,
+            T3 value3, T4 value4)
         {
             if (eventAsset == null)
             {
@@ -87,14 +88,14 @@ namespace Baracuda.Mediator
             return true;
         }
 
-
         #endregion
+
 
         #region Lambda Subscriptions
 
         /// <summary>
-        /// Subscribe an anonymous lambda to an event.
-        /// Returns a handle that can be used to remove the lambda from the event.
+        ///     Subscribe an anonymous lambda to an event.
+        ///     Returns a handle that can be used to remove the lambda from the event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LambdaHandle AddLambda(this IReceiver receiver, Action lambda)
@@ -104,8 +105,8 @@ namespace Baracuda.Mediator
         }
 
         /// <summary>
-        /// Subscribe an anonymous lambda to an event.
-        /// Returns a handle that can be used to remove the lambda from the event.
+        ///     Subscribe an anonymous lambda to an event.
+        ///     Returns a handle that can be used to remove the lambda from the event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LambdaHandle AddLambda<T>(this IReceiver<T> receiver, Action<T> lambda)
@@ -115,8 +116,8 @@ namespace Baracuda.Mediator
         }
 
         /// <summary>
-        /// Subscribe an anonymous lambda to an event.
-        /// Returns a handle that can be used to remove the lambda from the event.
+        ///     Subscribe an anonymous lambda to an event.
+        ///     Returns a handle that can be used to remove the lambda from the event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LambdaHandle AddLambda<T1, T2>(this IReceiver<T1, T2> receiver, Action<T1, T2> lambda)
@@ -126,8 +127,8 @@ namespace Baracuda.Mediator
         }
 
         /// <summary>
-        /// Subscribe an anonymous lambda to an event.
-        /// Returns a handle that can be used to remove the lambda from the event.
+        ///     Subscribe an anonymous lambda to an event.
+        ///     Returns a handle that can be used to remove the lambda from the event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LambdaHandle AddLambda<T1, T2, T3>(this IReceiver<T1, T2, T3> receiver, Action<T1, T2, T3> lambda)
@@ -137,11 +138,12 @@ namespace Baracuda.Mediator
         }
 
         /// <summary>
-        /// Subscribe an anonymous lambda to an event.
-        /// Returns a handle that can be used to remove the lambda from the event.
+        ///     Subscribe an anonymous lambda to an event.
+        ///     Returns a handle that can be used to remove the lambda from the event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static LambdaHandle AddLambda<T1, T2, T3, T4>(this IReceiver<T1, T2, T3, T4> receiver, Action<T1, T2, T3, T4> lambda)
+        public static LambdaHandle AddLambda<T1, T2, T3, T4>(this IReceiver<T1, T2, T3, T4> receiver,
+            Action<T1, T2, T3, T4> lambda)
         {
             receiver.Add(lambda);
             return new LambdaHandle(() => { receiver.Remove(lambda); });

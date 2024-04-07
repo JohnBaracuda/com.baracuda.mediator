@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 
-namespace Baracuda.Mediator
+namespace Baracuda.Mediator.Events
 {
     public interface IReceiver
     {
@@ -21,9 +22,15 @@ namespace Baracuda.Mediator
 
         /// <summary> Remove all null listener from the event </summary>
         public void ClearInvalid();
+
+        /// <summary> The count of subscribed listeners </summary>
+        public int Count { get; }
+
+        /// <summary> Active listener </summary>
+        public IReadOnlyCollection<Action> GetListenerCollection { get; }
     }
 
-    public interface IReceiver<out T>
+    public interface IReceiver<T>
     {
         /// <summary> Add a listener to the event </summary>
         public void Add(Action<T> listener);
@@ -42,9 +49,15 @@ namespace Baracuda.Mediator
 
         /// <summary> Remove all null listener from the event </summary>
         public void ClearInvalid();
+
+        /// <summary> The count of subscribed listeners </summary>
+        public int Count { get; }
+
+        /// <summary> Active listener </summary>
+        public IReadOnlyCollection<Action<T>> GetListenerCollection { get; }
     }
 
-    public interface IReceiver<out T1, out T2>
+    public interface IReceiver<T1, T2>
     {
         /// <summary> Add a listener to the event </summary>
         public void Add(Action<T1, T2> listener);
@@ -63,9 +76,15 @@ namespace Baracuda.Mediator
 
         /// <summary> Remove all null listener from the event </summary>
         public void ClearInvalid();
+
+        /// <summary> The count of subscribed listeners </summary>
+        public int Count { get; }
+
+        /// <summary> Active listener </summary>
+        public IReadOnlyCollection<Action<T1, T2>> GetListenerCollection { get; }
     }
 
-    public interface IReceiver<out T1, out T2, out T3>
+    public interface IReceiver<T1, T2, T3>
     {
         /// <summary> Add a listener to the event </summary>
         public void Add(Action<T1, T2, T3> listener);
@@ -84,9 +103,15 @@ namespace Baracuda.Mediator
 
         /// <summary> Remove all null listener from the event </summary>
         public void ClearInvalid();
+
+        /// <summary> The count of subscribed listeners </summary>
+        public int Count { get; }
+
+        /// <summary> Active listener </summary>
+        public IReadOnlyCollection<Action<T1, T2, T3>> GetListenerCollection { get; }
     }
 
-    public interface IReceiver<out T1, out T2, out T3, out T4>
+    public interface IReceiver<T1, T2, T3, T4>
     {
         /// <summary> Add a listener to the event </summary>
         public void Add(Action<T1, T2, T3, T4> listener);
@@ -105,5 +130,11 @@ namespace Baracuda.Mediator
 
         /// <summary> Remove all null listener from the event </summary>
         public void ClearInvalid();
+
+        /// <summary> The count of subscribed listeners </summary>
+        public int Count { get; }
+
+        /// <summary> Active listener </summary>
+        public IReadOnlyCollection<Action<T1, T2, T3, T4>> GetListenerCollection { get; }
     }
 }

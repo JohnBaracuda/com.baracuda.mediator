@@ -1,26 +1,27 @@
-﻿using Baracuda.Utilities.Collections;
-using Baracuda.Utilities.Inspector;
+﻿using Baracuda.Mediator.Collections.Abstractions;
+using Baracuda.Tools;
 using JetBrains.Annotations;
+using Sirenix.OdinInspector;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace Baracuda.Mediator
+namespace Baracuda.Mediator.Collections
 {
-    public abstract class StackAsset<T> : RuntimeCollectionAsset<T>, IStack<T>
+    public abstract class StackAsset<T> : RuntimeCollectionAsset<T>, IEnumerable<T>
     {
-        [Readonly]
+        [ReadOnly]
         [ShowInInspector]
-        [Foldout(FoldoutName.HumanizedObjectName)]
-        private readonly Stack<T> stack = new(8);
+        [Foldout("Elements")]
+        private readonly List<T> _stack = new(8);
 
         /// <summary>Returns an enumerator that iterates through the collection.</summary>
         /// <returns>An enumerator that can be used to iterate through the collection.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Stack<T>.Enumerator GetEnumerator()
+        public List<T>.Enumerator GetEnumerator()
         {
-            return stack.GetEnumerator();
+            return _stack.GetEnumerator();
         }
 
         /// <summary>Returns an enumerator that iterates through the collection.</summary>
@@ -28,7 +29,7 @@ namespace Baracuda.Mediator
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            return stack.GetEnumerator();
+            return _stack.GetEnumerator();
         }
 
         /// <summary>Returns an enumerator that iterates through a collection.</summary>
@@ -36,15 +37,32 @@ namespace Baracuda.Mediator
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return stack.GetEnumerator();
+            return _stack.GetEnumerator();
         }
 
         /// <summary>Inserts an object at the top of the <see cref="T:System.Collections.Generic.Stack`1" />.</summary>
-        /// <param name="item">The object to push onto the <see cref="T:System.Collections.Generic.Stack`1" />. The value can be <see langword="null" /> for reference types.</param>
+        /// <param name="item">
+        ///     The object to push onto the <see cref="T:System.Collections.Generic.Stack`1" />. The value can be
+        ///     <see langword="null" /> for reference types.
+        /// </param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Push(T item)
         {
-            stack.Push(item);
+            _stack.Add(item);
+            Repaint();
+        }
+
+        /// <summary>Inserts an object at the top of the stack and ensure that it is only contained once in the stack</summary>
+        /// <param name="item">
+        ///     The object to push onto the <see cref="T:System.Collections.Generic.Stack`1" />. The value can be
+        ///     <see langword="null" /> for reference types.
+        /// </param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void PushUnique(T item)
+        {
+            Remove(item);
+            _stack.Add(item);
+            Repaint();
         }
 
         /// <summary>Removes and returns the object at the top of the <see cref="T:System.Collections.Generic.Stack`1" />.</summary>
@@ -53,22 +71,65 @@ namespace Baracuda.Mediator
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Pop()
         {
-            return stack.Pop();
+            if (_stack.Count <= 0)
+            {
+                return default(T);
+            }
+
+            var index = _stack.Count - 1;
+            var result = _stack[index];
+            _stack.RemoveAt(index);
+            Repaint();
+            return result;
         }
 
         /// <summary>Returns the object at the top of the <see cref="T:System.Collections.Generic.Stack`1" /> without removing it.</summary>
         /// <returns>The object at the top of the <see cref="T:System.Collections.Generic.Stack`1" />.</returns>
-        /// <exception cref="T:System.InvalidOperationException">The <see cref="T:System.Collections.Generic.Stack`1" /> is empty.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Peek()
         {
-            return stack.Peek();
+            if (_stack.Count <= 0)
+            {
+                return default(T);
+            }
+
+            var index = _stack.Count - 1;
+            var result = _stack[index];
+            return result;
+        }
+
+        /// <summary>Returns the object at the root of the <see cref="T:System.Collections.Generic.Stack`1" /> without removing it.</summary>
+        /// <returns>The object at the root of the <see cref="T:System.Collections.Generic.Stack`1" />.</returns>
+        public T Root()
+        {
+            if (_stack.Count <= 0)
+            {
+                return default(T);
+            }
+
+            return _stack[0];
+        }
+
+        /// <summary>
+        ///     Removes the item from the stack if it is contained. The item does not need to be at the top of the stack.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Remove(T item)
+        {
+            var result = _stack.Remove(item);
+            Repaint();
+            return result;
         }
 
         /// <summary>Adds the elements of the specified collection to the stack />.</summary>
-        /// <param name="collection">The collection whose elements should be added to the stack. The collection itself cannot be <see langword="null" />, but it can contain elements that are <see langword="null" />, if type T is a reference type.</param>
+        /// <param name="collection">
+        ///     The collection whose elements should be added to the stack. The collection itself cannot be
+        ///     <see langword="null" />, but it can contain elements that are <see langword="null" />, if type T is a reference
+        ///     type.
+        /// </param>
         /// <exception cref="T:System.ArgumentNullException">
-        /// <paramref name="collection" /> is <see langword="null" />.</exception>
+        ///     <paramref name="collection" /> is <see langword="null" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PushRange([NotNull] IEnumerable<T> collection)
         {
@@ -79,52 +140,86 @@ namespace Baracuda.Mediator
 
             foreach (var element in collection)
             {
-                stack.Push(element);
+                _stack.Add(element);
             }
+            Repaint();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryPeek(out T item)
         {
-            return stack.TryPeek(out item);
+            if (_stack.Count > 0)
+            {
+                item = Peek();
+                return true;
+            }
+            item = default(T);
+            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryPop(out T item)
         {
-            return stack.TryPop(out item);
+            if (_stack.Count > 0)
+            {
+                item = Pop();
+                return true;
+            }
+            item = default(T);
+            return false;
         }
 
         /// <summary>Removes all items from the <see cref="T:System.Collections.Generic.ICollection`1" />.</summary>
-        /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.</exception>
+        /// <exception cref="T:System.NotSupportedException">
+        ///     The <see cref="T:System.Collections.Generic.ICollection`1" /> is
+        ///     read-only.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear()
         {
-            stack.Clear();
+            _stack.Clear();
+            Repaint();
         }
 
         /// <summary>Determines whether the <see cref="T:System.Collections.Generic.ICollection`1" /> contains a specific value.</summary>
         /// <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
         /// <returns>
-        /// <see langword="true" /> if <paramref name="item" /> is found in the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, <see langword="false" />.</returns>
+        ///     <see langword="true" /> if <paramref name="item" /> is found in the
+        ///     <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, <see langword="false" />.
+        /// </returns>
+        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Contains(T item)
         {
-            return stack.Contains(item);
+            return _stack.Contains(item);
         }
 
-        /// <summary>Copies the elements of the <see cref="T:System.Collections.Generic.ICollection`1" /> to an <see cref="T:System.Array" />, starting at a particular <see cref="T:System.Array" /> index.</summary>
-        /// <param name="array">The one-dimensional <see cref="T:System.Array" /> that is the destination of the elements copied from <see cref="T:System.Collections.Generic.ICollection`1" />. The <see cref="T:System.Array" /> must have zero-based indexing.</param>
+        /// <summary>
+        ///     Copies the elements of the <see cref="T:System.Collections.Generic.ICollection`1" /> to an
+        ///     <see cref="T:System.Array" />, starting at a particular <see cref="T:System.Array" /> index.
+        /// </summary>
+        /// <param name="array">
+        ///     The one-dimensional <see cref="T:System.Array" /> that is the destination of the elements copied
+        ///     from <see cref="T:System.Collections.Generic.ICollection`1" />. The <see cref="T:System.Array" /> must have
+        ///     zero-based indexing.
+        /// </param>
         /// <param name="arrayIndex">The zero-based index in <paramref name="array" /> at which copying begins.</param>
         /// <exception cref="T:System.ArgumentNullException">
-        /// <paramref name="array" /> is <see langword="null" />.</exception>
+        ///     <paramref name="array" /> is <see langword="null" />.
+        /// </exception>
         /// <exception cref="T:System.ArgumentOutOfRangeException">
-        /// <paramref name="arrayIndex" /> is less than 0.</exception>
-        /// <exception cref="T:System.ArgumentException">The number of elements in the source <see cref="T:System.Collections.Generic.ICollection`1" /> is greater than the available space from <paramref name="arrayIndex" /> to the end of the destination <paramref name="array" />.</exception>
+        ///     <paramref name="arrayIndex" /> is less than 0.
+        /// </exception>
+        /// <exception cref="T:System.ArgumentException">
+        ///     The number of elements in the source
+        ///     <see cref="T:System.Collections.Generic.ICollection`1" /> is greater than the available space from
+        ///     <paramref name="arrayIndex" /> to the end of the destination <paramref name="array" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CopyTo(T[] array, int arrayIndex)
         {
-            stack.CopyTo(array, arrayIndex);
+            _stack.CopyTo(array, arrayIndex);
+            Repaint();
         }
 
         /// <summary>Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.</summary>
@@ -132,12 +227,14 @@ namespace Baracuda.Mediator
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => stack.Count;
+            get => _stack.Count;
         }
 
         /// <summary>Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.</summary>
         /// <returns>
-        /// <see langword="true" /> if the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only; otherwise, <see langword="false" />.</returns>
+        ///     <see langword="true" /> if the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only; otherwise,
+        ///     <see langword="false" />.
+        /// </returns>
         public bool IsReadOnly
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -145,16 +242,16 @@ namespace Baracuda.Mediator
         }
 
         /// <summary>
-        /// Internal call to get the underlying collection.
+        ///     Internal call to get the underlying collection.
         /// </summary>
         private protected sealed override IEnumerable<T> CollectionInternal
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => stack;
+            get => _stack;
         }
 
         /// <summary>
-        /// Internal call to clear the underlying collection.
+        ///     Internal call to clear the underlying collection.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private protected sealed override void ClearInternal()
@@ -163,12 +260,31 @@ namespace Baracuda.Mediator
         }
 
         /// <summary>
-        /// Internal call to get the count of the underlying collection.
+        ///     Internal call to get the count of the underlying collection.
         /// </summary>
         private protected sealed override int CountInternal
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Count;
+        }
+
+        /// <summary>Gets or sets the element at the specified index.</summary>
+        /// <param name="index">The zero-based index of the element to get or set.</param>
+        /// <returns>The element at the specified index.</returns>
+        /// <exception cref="T:System.ArgumentOutOfRangeException">
+        ///     <paramref name="index" /> is not a valid index in the <see cref="T:System.Collections.Generic.IList`1" />.
+        /// </exception>
+        /// <exception cref="T:System.NotSupportedException">
+        ///     The property is set and the
+        ///     <see cref="T:System.Collections.Generic.IList`1" /> is read-only.
+        /// </exception>
+        public T this[int index]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _stack[index];
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => _stack[index] = value;
         }
     }
 }

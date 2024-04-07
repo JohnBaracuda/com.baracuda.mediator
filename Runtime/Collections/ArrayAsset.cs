@@ -1,23 +1,24 @@
-﻿using Baracuda.Utilities;
-using Baracuda.Utilities.Inspector;
+﻿using Baracuda.Tools;
+using Baracuda.Utilities;
+using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace Baracuda.Mediator
+namespace Baracuda.Mediator.Collections
 {
     /// <summary>
-    /// Collection Asset representing a constant value list that is serialized in the inspector and cannot be modified during runtime.
+    ///     Collection Asset representing a constant value list that is serialized in the inspector and cannot be modified
+    ///     during runtime.
     /// </summary>
-    public abstract class ArrayAsset<T> : CollectionAsset, IReadOnlyList<T>, IReadOnlyCollection<T>
+    public abstract class ArrayAsset<T> : MediatorAsset, IReadOnlyList<T>, IReadOnlyCollection<T>
     {
 #pragma warning disable 414
         [Foldout("Options")]
-        [SerializeField] private bool showMoreOptions = false;
+        [SerializeField] private bool showMoreOptions;
 
-        [ListOptions(DisplayHeader = false)]
-        [Foldout(FoldoutName.HumanizedObjectName)]
+        [Foldout("Elements")]
         [SerializeField] private List<T> items = new(16);
 
         /// <summary>Returns an enumerator that iterates through the collection.</summary>
@@ -47,7 +48,9 @@ namespace Baracuda.Mediator
         /// <summary>Determines whether the <see cref="T:System.Collections.Generic.ICollection`1" /> contains a specific value.</summary>
         /// <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
         /// <returns>
-        /// <see langword="true" /> if <paramref name="item" /> is found in the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, <see langword="false" />.</returns>
+        ///     <see langword="true" /> if <paramref name="item" /> is found in the
+        ///     <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, <see langword="false" />.
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Contains(T item)
         {
@@ -56,7 +59,7 @@ namespace Baracuda.Mediator
 
         /// <summary>Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.</summary>
         /// <returns>The number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.</returns>
-        [ConditionalShow(nameof(showMoreOptions))]
+        [ShowIf(nameof(showMoreOptions))]
         [Foldout("Options")]
         public int Count
         {
@@ -66,7 +69,9 @@ namespace Baracuda.Mediator
 
         /// <summary>Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.</summary>
         /// <returns>
-        /// <see langword="true" /> if the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only; otherwise, <see langword="false" />.</returns>
+        ///     <see langword="true" /> if the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only; otherwise,
+        ///     <see langword="false" />.
+        /// </returns>
         public bool IsReadOnly
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -86,19 +91,24 @@ namespace Baracuda.Mediator
         /// <param name="index">The zero-based index of the element to get or set.</param>
         /// <returns>The element at the specified index.</returns>
         /// <exception cref="T:System.ArgumentOutOfRangeException">
-        /// <paramref name="index" /> is not a valid index in the <see cref="T:System.Collections.Generic.IList`1" />.</exception>
-        /// <exception cref="T:System.NotSupportedException">The property is set and the <see cref="T:System.Collections.Generic.IList`1" /> is read-only.</exception>
+        ///     <paramref name="index" /> is not a valid index in the <see cref="T:System.Collections.Generic.IList`1" />.
+        /// </exception>
+        /// <exception cref="T:System.NotSupportedException">
+        ///     The property is set and the
+        ///     <see cref="T:System.Collections.Generic.IList`1" /> is read-only.
+        /// </exception>
         public T this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => items[index];
         }
 
+
         #region Editor
 
         [Button]
         [Foldout("Options")]
-        [ConditionalShow(nameof(showMoreOptions))]
+        [ShowIf(nameof(showMoreOptions))]
         private void RemoveDuplicates()
         {
             items.RemoveDuplicates();
@@ -106,7 +116,7 @@ namespace Baracuda.Mediator
 
         [Button]
         [Foldout("Options")]
-        [ConditionalShow(nameof(showMoreOptions))]
+        [ShowIf(nameof(showMoreOptions))]
         private void RemoveNullObjects()
         {
             items.RemoveNull();
