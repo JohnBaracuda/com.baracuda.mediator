@@ -72,7 +72,7 @@ namespace Baracuda.Mediator.States
         [ReadOnly]
         [ShowInInspector]
         [Foldout("Debug")]
-        public StateMachine<T> StateMachine
+        protected internal StateMachine<T> StateMachine
         {
             get => stateMachine;
             set => stateMachine = value;

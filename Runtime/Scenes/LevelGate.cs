@@ -12,11 +12,11 @@ namespace Baracuda.Mediator.Scenes
     [RequireComponent(typeof(Collider))]
     public class LevelGate : MonoBehaviour
     {
-        [FormerlySerializedAs("levelAsset")]
+        [FormerlySerializedAs("addressableLevelAsset")]
         [FormerlySerializedAs("sceneLayoutAsset")]
         [FormerlySerializedAs("multiSceneAsset")]
         [RequiredIn(PrefabKind.InstanceInScene)]
-        [SerializeField] private AddressableLevelAsset addressableLevelAsset;
+        [SerializeField] private LevelAsset levelAsset;
 
         private void OnTriggerEnter(Collider other)
         {
@@ -28,7 +28,7 @@ namespace Baracuda.Mediator.Scenes
 
         private async UniTask PreformSceneTransitionAsync()
         {
-            await addressableLevelAsset.LoadAsync();
+            await levelAsset.LoadAsync();
         }
     }
 }

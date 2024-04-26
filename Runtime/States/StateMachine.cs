@@ -3,7 +3,6 @@ using Baracuda.Mediator.Events;
 using Baracuda.Mediator.Registry;
 using Baracuda.Serialization;
 using Baracuda.Utilities;
-using Baracuda.Utilities.Reflection;
 using Baracuda.Utilities.Types;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector;
@@ -18,7 +17,6 @@ namespace Baracuda.Mediator.States
     /// <summary>
     ///     Base class for scriptable object based state machines.
     /// </summary>
-    [AddressablesGroup("State-Machine")]
     public abstract class StateMachine : RegisteredAsset
     {
     }

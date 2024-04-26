@@ -1,9 +1,8 @@
 using Baracuda.Mediator.Callbacks;
-using Baracuda.Mediator.Singleton;
+using Baracuda.Mediator.Injection;
 using Baracuda.Tools;
 using Baracuda.Utilities;
 using Baracuda.Utilities.Types;
-using Sirenix.OdinInspector;
 using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
@@ -14,28 +13,15 @@ namespace Baracuda.Mediator.Cursor
     /// <summary>
     ///     Base class for managing cursor state / textures / animations.
     /// </summary>
-    public class CursorManager : SingletonAsset<CursorManager>
+    public class CursorSystem : MonoBehaviour
     {
-        #region Inspector
-
-        [Foldout("Cursor Assets")]
-        [SerializeField] private CursorType startCursor;
-        [SerializeField] [Required] private CursorSet startCursorSet;
-
-        [Foldout("Mediator")]
-        [SerializeField] [Required] private HideCursorLocks cursorHide;
-        [SerializeField] [Required] private ConfineCursorLocks cursorConfine;
-        [SerializeField] [Required] private LockCursorLocks cursorLock;
-
-        private readonly StackList<CursorFile> _cursorStack = new();
-
-        #endregion
-
-
         #region Properties
 
+        [Inject] [Debug] private readonly CursorSystemSettings _settings;
         public CursorSet ActiveCursorSet { get; private set; }
         public CursorFile ActiveCursor => _cursorStack.Peek();
+
+        private readonly StackList<CursorFile> _cursorStack = new();
 
         public static CursorLockMode LockState
         {
@@ -95,29 +81,29 @@ namespace Baracuda.Mediator.Cursor
 
         #region Setup
 
-        [CallbackOnInitialization]
-        protected void Initialize()
+        private void Awake()
         {
-            ActiveCursorSet = startCursorSet;
-            AddCursorOverride(startCursor);
+            Inject.Dependencies(this);
 
-            cursorHide.FirstAdded += UpdateCursorState;
-            cursorHide.LastRemoved += UpdateCursorState;
-            cursorConfine.FirstAdded += UpdateCursorState;
-            cursorConfine.LastRemoved += UpdateCursorState;
-            cursorLock.FirstAdded += UpdateCursorState;
-            cursorLock.LastRemoved += UpdateCursorState;
+            ActiveCursorSet = _settings.StartCursorSet;
+            AddCursorOverride(_settings.StartCursor);
+
+            _settings.CursorHide.FirstAdded += UpdateCursorState;
+            _settings.CursorHide.LastRemoved += UpdateCursorState;
+            _settings.CursorConfine.FirstAdded += UpdateCursorState;
+            _settings.CursorConfine.LastRemoved += UpdateCursorState;
+            _settings.CursorLock.FirstAdded += UpdateCursorState;
+            _settings.CursorLock.LastRemoved += UpdateCursorState;
         }
 
-        [CallbackOnApplicationQuit]
-        private void Shutdown()
+        private void OnDestroy()
         {
-            cursorHide.FirstAdded -= UpdateCursorState;
-            cursorHide.LastRemoved -= UpdateCursorState;
-            cursorConfine.FirstAdded -= UpdateCursorState;
-            cursorConfine.LastRemoved -= UpdateCursorState;
-            cursorLock.FirstAdded -= UpdateCursorState;
-            cursorLock.LastRemoved -= UpdateCursorState;
+            _settings.CursorHide.FirstAdded -= UpdateCursorState;
+            _settings.CursorHide.LastRemoved -= UpdateCursorState;
+            _settings.CursorConfine.FirstAdded -= UpdateCursorState;
+            _settings.CursorConfine.LastRemoved -= UpdateCursorState;
+            _settings.CursorLock.FirstAdded -= UpdateCursorState;
+            _settings.CursorLock.LastRemoved -= UpdateCursorState;
             _cursorStack.Clear();
         }
 
@@ -128,15 +114,15 @@ namespace Baracuda.Mediator.Cursor
 
         private void UpdateCursorState()
         {
-            Visible = cursorHide.HasAny() is false;
+            Visible = _settings.CursorHide.HasAny() is false;
 
-            if (cursorLock.HasAny())
+            if (_settings.CursorLock.HasAny())
             {
                 LockState = CursorLockMode.Locked;
                 return;
             }
 
-            if (cursorConfine.HasAny())
+            if (_settings.CursorConfine.HasAny())
             {
                 LockState = CursorLockMode.Confined;
                 return;

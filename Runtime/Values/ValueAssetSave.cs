@@ -43,6 +43,23 @@ namespace Baracuda.Mediator.Values
 
         public override TValue GetValue()
         {
+#if UNITY_EDITOR
+            if (FileSystem.IsInitialized is false)
+            {
+                FileSystem.Initialize(new FileSystemArgs
+                {
+                    RootFolder = "Editor",
+                    AppendVersionToRootFolder = true,
+                    ForceSynchronous = true,
+                    UseUnityVersion = true,
+                    FileEnding = ".sav",
+                    DefaultProfileName = "save",
+                    LoggingLevel = LoggingLevel.Exception,
+                    LogMissingFileExtensionWarning = false,
+                    ForceSynchronousShutdown = true
+                });
+            }
+#endif
             return Profile.LoadFile<TValue>(Key, _storeOptions);
         }
 

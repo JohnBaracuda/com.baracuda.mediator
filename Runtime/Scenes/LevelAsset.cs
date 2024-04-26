@@ -10,23 +10,20 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 
 namespace Baracuda.Mediator.Scenes
 {
     /// <summary>
     ///     Asset contains a reference for an active scene as well as multiple subscenes that can be loaded all at once.
     /// </summary>
-    [AddressablesGroup("Level Assets")]
-    public class AddressableLevelAsset : RegisteredAsset
+    public class LevelAsset : RegisteredAsset
     {
         #region Inspector
 
-        [FormerlySerializedAs("sceneAsset")]
         [Foldout("Scenes")]
-        [SerializeField] private AddressableSceneAsset addressableSceneAsset;
+        [SerializeField] private SceneAsset sceneAsset;
         [Space]
-        [SerializeField] private AddressableSceneAsset[] subscenesAssets;
+        [SerializeField] private SceneAsset[] subscenesAssets;
 
         #endregion
 
@@ -39,12 +36,12 @@ namespace Baracuda.Mediator.Scenes
         [Line]
         [ShowInInspector]
         [ReadOnly]
-        public static AddressableLevelAsset LoadedAddressableLevel { get; private set; }
+        public static LevelAsset LoadedLevel { get; private set; }
 
         /// <summary>
         ///     Called when the loading process of a LevelAsset has started.
         /// </summary>
-        public static event Action<AddressableLevelAsset> BeforeLoad
+        public static event Action<LevelAsset> BeforeLoad
         {
             add => beforeLoad.Add(value);
             remove => beforeLoad.Remove(value);
@@ -53,17 +50,17 @@ namespace Baracuda.Mediator.Scenes
         /// <summary>
         ///     Called when the loading process of a LevelAsset has completed.
         /// </summary>
-        public static event Action<AddressableLevelAsset> AfterLoad
+        public static event Action<LevelAsset> AfterLoad
         {
             add => afterLoad.Add(value);
             remove => afterLoad.Remove(value);
         }
 
-        private static readonly Broadcast<AddressableLevelAsset> beforeLoad = new();
-        private static readonly Broadcast<AddressableLevelAsset> afterLoad = new();
+        private static readonly Broadcast<LevelAsset> beforeLoad = new();
+        private static readonly Broadcast<LevelAsset> afterLoad = new();
 
-        public AddressableSceneAsset MainAddressableScene => addressableSceneAsset;
-        public IReadOnlyList<AddressableSceneAsset> Subscenes => subscenesAssets;
+        public SceneAsset MainScene => sceneAsset;
+        public IReadOnlyList<SceneAsset> Subscenes => subscenesAssets;
 
         #endregion
 
@@ -81,8 +78,8 @@ namespace Baracuda.Mediator.Scenes
 
             beforeLoad.Raise(this);
 
-            await addressableSceneAsset.LoadAsync(LoadSceneMode.Single);
-            LoadedAddressableLevel = this;
+            await sceneAsset.LoadAsync(LoadSceneMode.Single);
+            LoadedLevel = this;
 
             var processes = ListPool<UniTask>.Get();
             foreach (var subscene in subscenesAssets)
@@ -108,22 +105,22 @@ namespace Baracuda.Mediator.Scenes
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void SetupEditorLevel()
         {
-            LoadedAddressableLevel = ActiveEditorLayoutAsset;
+            LoadedLevel = ActiveEditorLayoutAsset;
         }
 
-        public static AddressableLevelAsset ActiveEditorLayoutAsset
+        public static LevelAsset ActiveEditorLayoutAsset
         {
             get
             {
-                var guid = UnityEditor.EditorPrefs.GetString(nameof(AddressableLevelAsset));
+                var guid = UnityEditor.EditorPrefs.GetString(nameof(LevelAsset));
                 var path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
-                return UnityEditor.AssetDatabase.LoadAssetAtPath<AddressableLevelAsset>(path);
+                return UnityEditor.AssetDatabase.LoadAssetAtPath<LevelAsset>(path);
             }
             private set
             {
                 var path = UnityEditor.AssetDatabase.GetAssetPath(value);
                 var guid = UnityEditor.AssetDatabase.GUIDFromAssetPath(path);
-                UnityEditor.EditorPrefs.SetString(nameof(AddressableLevelAsset), guid.ToString());
+                UnityEditor.EditorPrefs.SetString(nameof(LevelAsset), guid.ToString());
             }
         }
 
@@ -135,16 +132,16 @@ namespace Baracuda.Mediator.Scenes
             var sceneAssets = GetSceneAssets();
 
             var mainScene = SceneManager.GetActiveScene();
-            if (!TryGetSceneAsset(mainScene, out addressableSceneAsset))
+            if (!TryGetSceneAsset(mainScene, out sceneAsset))
             {
-                var instance = CreateInstance<AddressableSceneAsset>();
+                var instance = CreateInstance<SceneAsset>();
                 var guid = UnityEditor.AssetDatabase.GUIDFromAssetPath(mainScene.path);
                 instance.SetFieldValue("sceneReference", new AssetReferenceScene(guid.ToString()));
                 UnityEditor.AssetDatabase.CreateAsset(instance, mainScene.path.Replace(".unity", ".asset"));
-                addressableSceneAsset = instance;
+                sceneAsset = instance;
             }
 
-            var subsceneBuffer = new List<AddressableSceneAsset>();
+            var subsceneBuffer = new List<SceneAsset>();
             for (var i = 1; i < SceneManager.sceneCount; i++)
             {
                 var scene = SceneManager.GetSceneAt(i);
@@ -160,7 +157,7 @@ namespace Baracuda.Mediator.Scenes
                 }
                 else
                 {
-                    asset = CreateInstance<AddressableSceneAsset>();
+                    asset = CreateInstance<SceneAsset>();
                     var guid = UnityEditor.AssetDatabase.GUIDFromAssetPath(scene.path);
                     asset.SetFieldValue("sceneReference", new AssetReferenceScene(guid.ToString()));
                     UnityEditor.AssetDatabase.CreateAsset(asset, scene.path.Replace(".unity", ".asset"));
@@ -172,29 +169,29 @@ namespace Baracuda.Mediator.Scenes
             UnityEditor.EditorUtility.SetDirty(this);
             return;
 
-            bool TryGetSceneAsset(Scene scene, out AddressableSceneAsset result)
+            bool TryGetSceneAsset(Scene scene, out SceneAsset result)
             {
                 foreach (var asset in sceneAssets)
                 {
-                    var scenePath = UnityEditor.AssetDatabase.GetAssetPath(asset.SceneReference.editorAsset);
+                    var scenePath = UnityEditor.AssetDatabase.GetAssetPath(asset.EditorSceneAsset);
                     if (scenePath == scene.path)
                     {
                         result = asset;
                         return true;
                     }
                 }
-                result = default(AddressableSceneAsset);
+                result = default(SceneAsset);
                 return false;
             }
 
-            static List<AddressableSceneAsset> GetSceneAssets()
+            static List<SceneAsset> GetSceneAssets()
             {
-                var assets = new List<AddressableSceneAsset>();
-                var guids = UnityEditor.AssetDatabase.FindAssets($"t:{typeof(AddressableSceneAsset)}");
+                var assets = new List<SceneAsset>();
+                var guids = UnityEditor.AssetDatabase.FindAssets($"t:{typeof(SceneAsset)}");
                 foreach (var guid in guids)
                 {
                     var assetPath = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
-                    var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<AddressableSceneAsset>(assetPath);
+                    var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<SceneAsset>(assetPath);
                     if (asset != null)
                     {
                         assets.Add(asset);
@@ -207,7 +204,7 @@ namespace Baracuda.Mediator.Scenes
         [UnityEditor.Callbacks.OnOpenAssetAttribute]
         public static bool OpenSceneTemplate(int instanceID, int line)
         {
-            if (UnityEditor.EditorUtility.InstanceIDToObject(instanceID) is not AddressableLevelAsset levelAsset)
+            if (UnityEditor.EditorUtility.InstanceIDToObject(instanceID) is not LevelAsset levelAsset)
             {
                 return false;
             }
@@ -230,13 +227,13 @@ namespace Baracuda.Mediator.Scenes
             }
 
             UnityEditor.SceneManagement.EditorSceneManager.OpenScene(
-                UnityEditor.AssetDatabase.GetAssetPath(addressableSceneAsset.SceneReference.editorAsset),
+                UnityEditor.AssetDatabase.GetAssetPath(sceneAsset.EditorSceneAsset),
                 UnityEditor.SceneManagement.OpenSceneMode.Single);
 
             foreach (var subsceneAsset in subscenesAssets)
             {
                 UnityEditor.SceneManagement.EditorSceneManager.OpenScene(
-                    UnityEditor.AssetDatabase.GetAssetPath(subsceneAsset.SceneReference.editorAsset),
+                    UnityEditor.AssetDatabase.GetAssetPath(subsceneAsset.EditorSceneAsset),
                     UnityEditor.SceneManagement.OpenSceneMode.Additive);
             }
 

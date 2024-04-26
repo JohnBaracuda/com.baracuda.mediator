@@ -14,11 +14,11 @@ namespace Baracuda.Mediator.Scenes
         [Header("Loading")]
         [SerializeField] private bool loadScenes;
         [ShowIf(nameof(loadScenes))]
-        [SerializeField] private AddressableSceneAsset[] loadSceneAssets;
+        [SerializeField] private SceneAsset[] loadSceneAssets;
         [Header("Unloading")]
         [SerializeField] private bool unloadScenes;
         [ShowIf(nameof(unloadScenes))]
-        [SerializeField] private AddressableSceneAsset[] unloadSceneAssets;
+        [SerializeField] private SceneAsset[] unloadSceneAssets;
 
         private void OnTriggerEnter(Collider other)
         {

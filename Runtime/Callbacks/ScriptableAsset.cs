@@ -1,9 +1,11 @@
-﻿using Baracuda.Mediator.Utility;
+﻿using Baracuda.Mediator.Injection;
+using Baracuda.Mediator.Utility;
 using Baracuda.Tools;
 using Baracuda.Utilities;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -25,17 +27,25 @@ namespace Baracuda.Mediator.Callbacks
             /// <summary>
             ///     When enabled, the asset will receive custom runtime and editor callbacks.
             /// </summary>
+            [Description("When enabled, the asset will receive custom runtime and editor callbacks.")]
             ReceiveCallbacks = 1,
 
             /// <summary>
             ///     When enabled, a developer annotation field is displayed.
             /// </summary>
+            [Description("When enabled, a developer annotation field is displayed.")]
             Annotation = 2,
 
             /// <summary>
             ///     When enabled, changes to this asset during runtime are reset when entering edit mode.
             /// </summary>
-            ResetRuntimeChanges = 4
+            [Description("When enabled, changes to this asset during runtime are reset when entering edit mode.")]
+            ResetRuntimeChanges = 4,
+
+            /// <summary>
+            ///     When enabled, dependencies are not automatically injected after the first scene was loaded.
+            /// </summary>
+            DontInjectDependencies = 8
         }
 
         [PropertySpace(0, 8)]
@@ -50,7 +60,8 @@ namespace Baracuda.Mediator.Callbacks
         [UsedImplicitly]
         [ShowIf(nameof(ShowAnnotation))]
         [FormerlySerializedAs("description")]
-        [PropertyOrder(-10000)]
+        [PropertyOrder(-9999)]
+        [PropertySpace(0, 8)]
         [SerializeField] private string annotation;
 #pragma warning restore
 
@@ -99,22 +110,21 @@ namespace Baracuda.Mediator.Callbacks
             }
         }
 
-        protected virtual void OnDisable()
-        {
-            Gameloop.Unregister(this);
-        }
-
-        protected virtual void OnDestroy()
-        {
-            Gameloop.Unregister(this);
-        }
-
         /// <summary>
         ///     Reset the asset to its default values.
         /// </summary>
         public void ResetAsset()
         {
             ScriptableAssetUtility.ResetAsset(this);
+        }
+
+        [CallbackMethod("Dependencies")]
+        protected void HandleDependencies()
+        {
+            if (assetOptions.HasFlagFast(Options.DontInjectDependencies) is false)
+            {
+                Inject.Dependencies(this);
+            }
         }
 
 

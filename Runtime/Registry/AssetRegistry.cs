@@ -1,8 +1,9 @@
 ﻿using Baracuda.Mediator.Callbacks;
+using Baracuda.Serialization;
 using Baracuda.Tools;
 using Baracuda.Utilities;
-using Baracuda.Utilities.Reflection;
 using Baracuda.Utilities.Types;
+using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -18,15 +19,17 @@ namespace Baracuda.Mediator.Registry
     [UnityEditor.InitializeOnLoadAttribute]
 #endif
     [CreateAssetMenu]
-    [AddressablesGroup("Preload", CreateLabel = true)]
     public sealed class AssetRegistry : ScriptableObject, ISerializationCallbackReceiver
     {
-        #region Inspector
+        #region Fields
 
+        [SerializeField] private List<Installer.Installer> installer = new();
         [Space]
         [SerializeField] private List<Object> singletons;
         [Line]
         [SerializeField] private Map<int, Object> registry = new();
+
+        [NonSerialized] private bool _isOrHasBeenInstalled;
 
         #endregion
 
@@ -166,6 +169,59 @@ namespace Baracuda.Mediator.Registry
         #endregion
 
 
+        #region Installer API
+
+        public static void RegisterInstaller<T>(T instance) where T : Installer.Installer
+        {
+            Singleton.installer.AddUnique(instance);
+        }
+
+        #endregion
+
+
+        #region Installer
+
+        [CallbackOnInitialization]
+        [CallbackOnBeforeFirstSceneLoad]
+        private void Initialize()
+        {
+            InstallRuntimeSystemsAsync().Forget();
+        }
+
+        [CallbackOnApplicationQuit]
+        private void Shutdown()
+        {
+            _isOrHasBeenInstalled = false;
+        }
+
+        public async UniTask InstallRuntimeSystemsAsync()
+        {
+            if (_isOrHasBeenInstalled)
+            {
+                return;
+            }
+
+            _isOrHasBeenInstalled = true;
+
+            if (FileSystem.IsInitialized is false)
+            {
+                await FileSystem.AwaitInitializationAsync();
+            }
+
+            installer.Sort();
+            foreach (var installation in installer)
+            {
+                await installation.InstallAsync();
+            }
+            foreach (var installation in installer)
+            {
+                installation.OnPostProcessInstallation();
+            }
+        }
+
+        #endregion
+
+
         #region Internal
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -285,6 +341,10 @@ namespace Baracuda.Mediator.Registry
         {
             get
             {
+                if (singleton == null)
+                {
+                    singleton = Resources.Load<AssetRegistry>("AssetRegistry");
+                }
                 // In the editor we load the singleton from the asset database.
 #if UNITY_EDITOR
                 if (singleton != null)
@@ -321,6 +381,7 @@ namespace Baracuda.Mediator.Registry
         private void OnEnable()
         {
             singleton = this;
+            Gameloop.Register(this);
         }
 
         public void OnAfterDeserialize()
@@ -369,6 +430,16 @@ namespace Baracuda.Mediator.Registry
         static AssetRegistry()
         {
             Gameloop.BeforeDeleteAsset += OnBeforeDeleteAsset;
+            ValidateRegistryAsync().Forget();
+        }
+
+        private static async UniTaskVoid ValidateRegistryAsync()
+        {
+            await Gameloop.DelayedCallAsync();
+            if (Singleton == null)
+            {
+                Debug.LogWarning("Asset Registry Not Found!");
+            }
         }
 
         private static void OnBeforeDeleteAsset(string assetPath, Object asset)
@@ -376,6 +447,11 @@ namespace Baracuda.Mediator.Registry
             var guid = UnityEditor.AssetDatabase.AssetPathToGUID(assetPath);
             Singleton.registry.TryRemove(guid.GetHashCode());
             Singleton.singletons.Remove(asset);
+
+            if (asset is Installer.Installer installation)
+            {
+                Singleton.installer.Remove(installation);
+            }
         }
 
 #endif

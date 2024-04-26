@@ -166,7 +166,6 @@ namespace Baracuda.Mediator.Callbacks
             }
 
             var callback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
-            Debug.Log("Gameloop", $"Adding callback to {target.name}");
             list.Add(callback);
         }
 

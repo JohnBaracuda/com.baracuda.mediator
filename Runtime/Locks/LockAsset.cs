@@ -195,7 +195,7 @@ namespace Baracuda.Mediator.Locks
         #endregion
     }
 
-    public class LockAsset : MediatorAsset
+    public class LockAsset : MediatorAsset, ILock
     {
         #region Inspector
 
@@ -207,9 +207,9 @@ namespace Baracuda.Mediator.Locks
 
         [ReadOnly]
         [ShowInInspector]
-        private readonly HashSet<object> _locks = new(4);
-        private readonly IBroadcast _firstAddedEvent = new Broadcast();
-        private readonly IBroadcast _lastRemovedEvent = new Broadcast();
+        private HashSet<object> Locks => _lock.Locks;
+
+        private readonly Lock _lock = new();
 
         #endregion
 
@@ -222,15 +222,8 @@ namespace Baracuda.Mediator.Locks
         [PublicAPI]
         public event Action FirstAdded
         {
-            add
-            {
-                _firstAddedEvent.Add(value);
-                if (HasAny())
-                {
-                    value();
-                }
-            }
-            remove => _firstAddedEvent.Remove(value);
+            add => _lock.FirstAdded += value;
+            remove => _lock.FirstAdded -= value;
         }
 
         /// <summary>
@@ -239,15 +232,8 @@ namespace Baracuda.Mediator.Locks
         [PublicAPI]
         public event Action LastRemoved
         {
-            add
-            {
-                _lastRemovedEvent.Add(value);
-                if (HasAny() is false)
-                {
-                    value();
-                }
-            }
-            remove => _lastRemovedEvent.Remove(value);
+            add => _lock.LastRemoved += value;
+            remove => _lock.LastRemoved -= value;
         }
 
         /// <summary>
@@ -256,7 +242,7 @@ namespace Baracuda.Mediator.Locks
         [PublicAPI]
         public bool HasAny()
         {
-            return _locks.Any();
+            return _lock.HasAny();
         }
 
         /// <summary>
@@ -265,7 +251,7 @@ namespace Baracuda.Mediator.Locks
         [PublicAPI]
         public bool IsObjectRegistered(object instance)
         {
-            return _locks.Contains(instance);
+            return _lock.IsObjectRegistered(instance);
         }
 
         /// <summary>
@@ -273,14 +259,9 @@ namespace Baracuda.Mediator.Locks
         /// </summary>
         /// <returns>true if the object was added, false if it was already added</returns>
         [PublicAPI]
-        public bool Add(object lockInstance)
+        public bool Add(object instance)
         {
-            var wasAdded = _locks.Add(lockInstance);
-            if (wasAdded && _locks.Count == 1)
-            {
-                _firstAddedEvent.Raise();
-            }
-            return wasAdded;
+            return _lock.Add(instance);
         }
 
         /// <summary>
@@ -290,12 +271,7 @@ namespace Baracuda.Mediator.Locks
         [PublicAPI]
         public bool Remove(object instance)
         {
-            var wasRemoved = _locks.Remove(instance);
-            if (wasRemoved && _locks.Count == 0)
-            {
-                _lastRemovedEvent.Raise();
-            }
-            return wasRemoved;
+            return _lock.Add(instance);
         }
 
         /// <summary>
@@ -306,13 +282,7 @@ namespace Baracuda.Mediator.Locks
         [PublicAPI]
         public int ReleaseAll(bool discrete = false)
         {
-            var count = _locks.Count;
-            _locks.Clear();
-            if (count > 0 && discrete is false)
-            {
-                _lastRemovedEvent.Raise();
-            }
-            return count;
+            return _lock.ReleaseAll(discrete);
         }
 
         #endregion
@@ -333,13 +303,13 @@ namespace Baracuda.Mediator.Locks
         [CallbackOnEnterEditMode]
         private void OnEnterEditMode()
         {
-            if (logLeaks && _locks.Count > 0)
+            if (logLeaks && Locks.Count > 0)
             {
                 Debug.LogWarning("Lock Asset!",
-                    $"Leak detected in provider collection: {name}\n{_locks.ToCollectionString()}", this);
+                    $"Leak detected in provider collection: {name}\n{Locks.ToCollectionString()}", this);
             }
 
-            if (clearLeaks && _locks.Count > 0)
+            if (clearLeaks && Locks.Count > 0)
             {
                 ReleaseAll();
             }

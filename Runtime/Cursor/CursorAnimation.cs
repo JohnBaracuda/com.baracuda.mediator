@@ -1,3 +1,4 @@
+using Baracuda.Mediator.Injection;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -14,6 +15,8 @@ namespace Baracuda.Mediator.Cursor
         [SerializeField] public CursorAnimationType cursorAnimationType;
         [SerializeField] public Texture2D[] frames;
 
+        [Inject] private CursorSystem _cursorSystem;
+
         internal WaitForSeconds Delay { get; private set; }
 
         public static implicit operator Texture2D(CursorAnimation file)
@@ -21,8 +24,9 @@ namespace Baracuda.Mediator.Cursor
             return file ? file.frames?.Length > 0 ? file.frames[0] : null : null;
         }
 
-        private void OnEnable()
+        protected override void OnEnable()
         {
+            base.OnEnable();
             Delay = new WaitForSeconds(1 / framesPerSecond);
         }
 
@@ -39,7 +43,7 @@ namespace Baracuda.Mediator.Cursor
         {
             if (Application.isPlaying)
             {
-                CursorManager.Singleton.AddCursorOverride(this);
+                _cursorSystem.AddCursorOverride(this);
             }
         }
 
@@ -49,7 +53,7 @@ namespace Baracuda.Mediator.Cursor
         {
             if (Application.isPlaying)
             {
-                CursorManager.Singleton.RemoveCursorOverride(this);
+                _cursorSystem.RemoveCursorOverride(this);
             }
         }
 #endif

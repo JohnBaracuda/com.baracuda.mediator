@@ -1,5 +1,5 @@
+using Baracuda.Mediator.Callbacks;
 using Baracuda.Tools;
-using Baracuda.Utilities.Reflection;
 using UnityEngine;
 
 namespace Baracuda.Mediator.Cursor
@@ -7,8 +7,7 @@ namespace Baracuda.Mediator.Cursor
     /// <summary>
     ///     Class for storing custom cursor animation / texture data.
     /// </summary>
-    [AddressablesGroup("Cursor")]
-    public class CursorFile : ScriptableObject
+    public class CursorFile : ScriptableAsset
     {
         [Foldout("Cursor")]
         [SerializeField] private Vector2 hotSpot = Vector2.zero;

@@ -74,13 +74,6 @@ namespace Baracuda.Mediator.Statistics
 #endif
         }
 
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-            FileSystem.InitializationCompleted -= Initialize;
-            FileSystem.InitializationCompleted -= Shutdown;
-        }
-
         private void Initialize()
         {
             Profile.TryLoadFile(guid, out _statData);

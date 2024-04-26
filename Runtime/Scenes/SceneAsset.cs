@@ -1,29 +1,47 @@
 ﻿using Baracuda.Mediator.Callbacks;
 using Baracuda.Mediator.Events;
 using Baracuda.Mediator.Registry;
-using Baracuda.Utilities.Reflection;
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 
 namespace Baracuda.Mediator.Scenes
 {
-    [AddressablesGroup("Scene Assets")]
-    public class AddressableSceneAsset : RegisteredAsset
+    public class SceneAsset : RegisteredAsset
     {
         #region Instance
 
+        [SerializeField] private SceneProvider sceneProvider = SceneProvider.Addressable;
+        [ShowIf(nameof(sceneProvider), SceneProvider.Addressable)]
         [SerializeField] [Required] private AssetReferenceScene sceneReference;
+        [ShowIf(nameof(sceneProvider), SceneProvider.BuildIndex)]
+        [SerializeField] [Required] private int buildIndex;
 
         [ShowInInspector] [ReadOnly]
         public SceneState State { get; internal set; }
 
-        public AssetReferenceScene SceneReference => sceneReference;
+#if UNITY_EDITOR
+        public UnityEditor.SceneAsset EditorSceneAsset
+        {
+            get
+            {
+                switch (sceneProvider)
+                {
+                    case SceneProvider.BuildIndex:
+                        var path = SceneUtility.GetScenePathByBuildIndex(buildIndex);
+                        return UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditor.SceneAsset>(path);
+                    case SceneProvider.Addressable:
+                        return sceneReference.editorAsset;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+#endif
 
         #endregion
 
@@ -34,27 +52,27 @@ namespace Baracuda.Mediator.Scenes
         ///     Set of all currently loaded scene assets.
         /// </summary>
         [ShowInInspector] [ReadOnly]
-        public static HashSet<AddressableSceneAsset> LoadedScenes { get; } = new();
+        public static HashSet<SceneAsset> LoadedScenes { get; } = new();
 
-        public static event Action<AddressableSceneAsset> BeforeLoad
+        public static event Action<SceneAsset> BeforeLoad
         {
             add => beforeLoad.Add(value);
             remove => beforeLoad.Remove(value);
         }
 
-        public static event Action<AddressableSceneAsset> AfterLoad
+        public static event Action<SceneAsset> AfterLoad
         {
             add => afterLoad.Add(value);
             remove => afterLoad.Remove(value);
         }
 
-        public static event Action<AddressableSceneAsset> BeforeUnload
+        public static event Action<SceneAsset> BeforeUnload
         {
             add => beforeUnload.Add(value);
             remove => beforeUnload.Remove(value);
         }
 
-        public static event Action<AddressableSceneAsset> AfterUnload
+        public static event Action<SceneAsset> AfterUnload
         {
             add => afterUnload.Add(value);
             remove => afterUnload.Remove(value);
@@ -65,10 +83,10 @@ namespace Baracuda.Mediator.Scenes
 
         #region Fields
 
-        private static readonly Broadcast<AddressableSceneAsset> beforeLoad = new();
-        private static readonly Broadcast<AddressableSceneAsset> afterLoad = new();
-        private static readonly Broadcast<AddressableSceneAsset> beforeUnload = new();
-        private static readonly Broadcast<AddressableSceneAsset> afterUnload = new();
+        private static readonly Broadcast<SceneAsset> beforeLoad = new();
+        private static readonly Broadcast<SceneAsset> afterLoad = new();
+        private static readonly Broadcast<SceneAsset> beforeUnload = new();
+        private static readonly Broadcast<SceneAsset> afterUnload = new();
 
         #endregion
 
@@ -115,10 +133,24 @@ namespace Baracuda.Mediator.Scenes
         private async UniTask LoadAdditiveAsyncInternal()
         {
 #if UNITY_EDITOR
-            if (SceneReference.editorAsset == null)
+            switch (sceneProvider)
             {
-                Debug.LogError("Scene Reference is not set!", this);
-                return;
+                case SceneProvider.BuildIndex:
+                    if (SceneManager.GetSceneByBuildIndex(buildIndex).IsValid() is false)
+                    {
+                        Debug.LogError("Scene Build Index is not valid!", this);
+                        return;
+                    }
+                    break;
+                case SceneProvider.Addressable:
+                    if (sceneReference.editorAsset == null)
+                    {
+                        Debug.LogError("Scene Reference is not set!", this);
+                        return;
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 #endif
 
@@ -133,7 +165,17 @@ namespace Baracuda.Mediator.Scenes
             State = SceneState.Loading;
             beforeLoad.Raise(this);
 
-            await sceneReference.LoadSceneAsync(LoadSceneMode.Additive);
+            switch (sceneProvider)
+            {
+                case SceneProvider.BuildIndex:
+                    await SceneManager.LoadSceneAsync(buildIndex, LoadSceneMode.Additive);
+                    break;
+                case SceneProvider.Addressable:
+                    await sceneReference.LoadSceneAsync(LoadSceneMode.Additive);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
             LoadedScenes.Add(this);
             State = SceneState.Loaded;
@@ -143,7 +185,7 @@ namespace Baracuda.Mediator.Scenes
         private async UniTask LoadSingleAsyncInternal()
         {
 #if UNITY_EDITOR
-            if (SceneReference.editorAsset == null)
+            if (sceneReference.editorAsset == null)
             {
                 Debug.LogError("Scene Reference is not set!", this);
                 return;
@@ -167,7 +209,17 @@ namespace Baracuda.Mediator.Scenes
             State = SceneState.Loading;
             beforeLoad.Raise(this);
 
-            await sceneReference.LoadSceneAsync();
+            switch (sceneProvider)
+            {
+                case SceneProvider.BuildIndex:
+                    await SceneManager.LoadSceneAsync(buildIndex);
+                    break;
+                case SceneProvider.Addressable:
+                    await sceneReference.LoadSceneAsync();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
             foreach (var activeScene in scenes)
             {
@@ -191,7 +243,7 @@ namespace Baracuda.Mediator.Scenes
         private async UniTask UnloadSceneAsyncInternal()
         {
 #if UNITY_EDITOR
-            if (SceneReference.editorAsset == null)
+            if (sceneReference.editorAsset == null)
             {
                 Debug.LogError("Scene Reference is not set!", this);
                 return;
@@ -217,22 +269,25 @@ namespace Baracuda.Mediator.Scenes
                 return;
             }
 #endif
-            await UnloadSceneAsync(SceneReference);
+
+            switch (sceneProvider)
+            {
+                case SceneProvider.BuildIndex:
+                    await SceneManager.UnloadSceneAsync(buildIndex);
+                    break;
+                case SceneProvider.Addressable:
+                    if (sceneReference.IsValid())
+                    {
+                        await sceneReference.UnLoadScene();
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
             LoadedScenes.Remove(this);
             State = SceneState.Unloaded;
             afterUnload.Raise(this);
-            return;
-
-            async UniTask<SceneInstance> UnloadSceneAsync(AssetReferenceScene scene)
-            {
-                if (!scene.IsValid())
-                {
-                    return default(SceneInstance);
-                }
-
-                var sceneInstance = await scene.UnLoadScene();
-                return sceneInstance;
-            }
         }
 
         #endregion
@@ -256,22 +311,22 @@ namespace Baracuda.Mediator.Scenes
         [UnityEditor.Callbacks.OnOpenAssetAttribute]
         public static bool OpenSceneTemplate(int instanceID, int line)
         {
-            if (UnityEditor.EditorUtility.InstanceIDToObject(instanceID) is not AddressableSceneAsset sceneAsset)
+            if (UnityEditor.EditorUtility.InstanceIDToObject(instanceID) is not SceneAsset sceneAsset)
             {
                 return false;
             }
 
             UnityEditor.SceneManagement.EditorSceneManager.OpenScene(
-                UnityEditor.AssetDatabase.GetAssetPath(sceneAsset.SceneReference.editorAsset),
+                UnityEditor.AssetDatabase.GetAssetPath(sceneAsset.EditorSceneAsset),
                 UnityEditor.SceneManagement.OpenSceneMode.Single);
 
             return false;
         }
 
-        private async UniTask UnloadEditorScene(AddressableSceneAsset addressableSceneAsset)
+        private async UniTask UnloadEditorScene(SceneAsset sceneAsset)
         {
             var sceneCount = SceneManager.sceneCount;
-            var path = UnityEditor.AssetDatabase.GetAssetPath(addressableSceneAsset.SceneReference.editorAsset);
+            var path = UnityEditor.AssetDatabase.GetAssetPath(sceneAsset.EditorSceneAsset);
             for (var sceneIndex = 0; sceneIndex < sceneCount; sceneIndex++)
             {
                 if (SceneManager.GetSceneAt(sceneIndex).path != path)
@@ -279,8 +334,8 @@ namespace Baracuda.Mediator.Scenes
                     continue;
                 }
                 await SceneManager.UnloadSceneAsync(path).ToUniTask();
-                addressableSceneAsset._isLoadedInEditor = false;
-                LoadedScenes.Remove(addressableSceneAsset);
+                sceneAsset._isLoadedInEditor = false;
+                LoadedScenes.Remove(sceneAsset);
                 return;
             }
         }
@@ -289,12 +344,12 @@ namespace Baracuda.Mediator.Scenes
         public static void TrackEditorScenes()
         {
             LoadedScenes.Clear();
-            var assets = new List<AddressableSceneAsset>();
-            var guids = UnityEditor.AssetDatabase.FindAssets($"t:{typeof(AddressableSceneAsset)}");
+            var assets = new List<SceneAsset>();
+            var guids = UnityEditor.AssetDatabase.FindAssets($"t:{typeof(SceneAsset)}");
             for (var i = 0; i < guids.Length; i++)
             {
                 var assetPath = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[i]);
-                var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<AddressableSceneAsset>(assetPath);
+                var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<SceneAsset>(assetPath);
                 if (asset != null)
                 {
                     assets.Add(asset);
@@ -303,7 +358,7 @@ namespace Baracuda.Mediator.Scenes
 
             foreach (var sceneAsset in assets)
             {
-                var path = UnityEditor.AssetDatabase.GetAssetPath(sceneAsset.SceneReference.editorAsset);
+                var path = UnityEditor.AssetDatabase.GetAssetPath(sceneAsset.EditorSceneAsset);
                 for (var i = 0; i < SceneManager.sceneCount; i++)
                 {
                     var active = SceneManager.GetSceneAt(i);
