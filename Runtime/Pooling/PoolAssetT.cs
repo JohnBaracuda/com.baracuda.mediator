@@ -2,7 +2,7 @@
 using UnityEngine.AddressableAssets;
 #endif
 using Baracuda.Bedrock.Callbacks;
-using Baracuda.Tools;
+using Baracuda.Bedrock.Odin;
 using Baracuda.Utilities.Reflection;
 using Sirenix.OdinInspector;
 using System;

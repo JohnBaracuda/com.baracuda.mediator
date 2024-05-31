@@ -1,5 +1,5 @@
 using Baracuda.Bedrock.Callbacks;
-using Baracuda.Tools;
+using Baracuda.Bedrock.Odin;
 using UnityEngine;
 
 namespace Baracuda.Bedrock.Cursor

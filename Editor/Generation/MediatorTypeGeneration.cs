@@ -1,11 +1,12 @@
 using Baracuda.Bedrock.Collections;
+using Baracuda.Bedrock.Editor.Mediator;
+using Baracuda.Bedrock.Editor.ScriptGeneration;
 using Baracuda.Bedrock.Events;
 using Baracuda.Bedrock.Generation;
 using Baracuda.Bedrock.Locks;
 using Baracuda.Bedrock.Pooling;
 using Baracuda.Bedrock.Requests;
 using Baracuda.Bedrock.Values;
-using Baracuda.Tools.Editor.ScriptGeneration;
 using Baracuda.Utilities;
 using Baracuda.Utilities.Pools;
 using Baracuda.Utilities.Reflection;
@@ -17,7 +18,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Baracuda.Mediation.Editor.Generation
+namespace Baracuda.Bedrock.Editor.Generation
 {
     public static class MediatorTypeGeneration
     {

@@ -1,5 +1,5 @@
-﻿using Baracuda.Bedrock.Settings;
-using Baracuda.Tools;
+﻿using Baracuda.Bedrock.Odin;
+using Baracuda.Bedrock.Settings;
 using Sirenix.OdinInspector;
 using UnityEngine;
 

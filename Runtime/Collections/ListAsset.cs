@@ -1,5 +1,5 @@
 ﻿using Baracuda.Bedrock.Events;
-using Baracuda.Tools;
+using Baracuda.Bedrock.Odin;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections;
