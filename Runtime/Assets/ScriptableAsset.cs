@@ -114,12 +114,12 @@ namespace Baracuda.Bedrock.Assets
             ScriptableAssetUtility.ResetAsset(this);
         }
 
-        [CallbackMethod("Dependencies")]
+        [CallbackOnInitializationFirstPass]
         protected void HandleDependencies()
         {
             if (assetOptions.HasFlagFast(Options.InjectDependencies))
             {
-                Inject.Dependencies(this);
+                Inject.Dependencies(this, false);
             }
         }
 

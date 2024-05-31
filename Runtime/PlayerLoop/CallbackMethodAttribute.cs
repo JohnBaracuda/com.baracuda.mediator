@@ -38,6 +38,20 @@ namespace Baracuda.Bedrock.PlayerLoop
     ///     Method is called when the games subsystems are initialized.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
+    public class CallbackOnInitializationFirstPassAttribute : CallbackMethodAttribute
+    {
+        /// <summary>
+        ///     Method is called when the games subsystems are initialized.
+        /// </summary>
+        public CallbackOnInitializationFirstPassAttribute() : base("RaiseInitializationCompletedFirstPass")
+        {
+        }
+    }
+
+    /// <summary>
+    ///     Method is called when the games subsystems are initialized.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
     public class CallbackOnInitializationAttribute : CallbackMethodAttribute
     {
         /// <summary>

@@ -56,6 +56,14 @@ namespace Baracuda.Bedrock.PlayerLoop
         }
 
         /// <summary>
+        ///     Game Systems installed callback.
+        /// </summary>
+        public static void RaiseInitializationCompletedFirstPass()
+        {
+            RaiseCallback("RaiseInitializationCompletedFirstPass");
+        }
+
+        /// <summary>
         ///     Begin an asynchronous shutdown process.
         /// </summary>
         public static void Shutdown()
