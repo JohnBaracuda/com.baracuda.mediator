@@ -1,3 +1,3 @@
-# Mediator
+# Bedrock
 
-Introducing a robust ScriptableObject-based Event and Mediation Framework for Unity, designed to streamline and organize a games internal architecture. This package offers a comprehensive generic set of mediation systems that harness the power of modular design and event-driven architecture. So far the system includes Value Assets, Event Assets, Collection Assets, Condition Assets, Action Assets, Pool Assets and Request Assets.
+Core game architecture, tooling and types. Includes a scriptable object based mediation system, service locator, dependecy injection, game installer and more.
