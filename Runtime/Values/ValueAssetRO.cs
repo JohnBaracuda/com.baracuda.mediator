@@ -1,3 +1,4 @@
+using Baracuda.Bedrock.Mediator;
 using System;
 
 namespace Baracuda.Bedrock.Values

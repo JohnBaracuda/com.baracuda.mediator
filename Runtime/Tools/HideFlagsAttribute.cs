@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Baracuda.Tools
+namespace Baracuda.Bedrock.Tools
 {
     /// <summary>
     ///     Set the <see cref="HideFlags" /> fot the target <see cref="GameObject" /> and/or <see cref="MonoBehaviour" />.

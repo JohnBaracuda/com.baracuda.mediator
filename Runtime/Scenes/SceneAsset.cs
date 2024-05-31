@@ -1,6 +1,6 @@
-﻿using Baracuda.Bedrock.Callbacks;
+﻿using Baracuda.Bedrock.Assets;
 using Baracuda.Bedrock.Events;
-using Baracuda.Bedrock.Registry;
+using Baracuda.Bedrock.PlayerLoop;
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using System;

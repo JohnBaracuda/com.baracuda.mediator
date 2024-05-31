@@ -1,6 +1,6 @@
-﻿using Baracuda.Bedrock.Callbacks;
-using Baracuda.Bedrock.Events;
+﻿using Baracuda.Bedrock.Events;
 using Baracuda.Bedrock.Odin;
+using Baracuda.Bedrock.PlayerLoop;
 using Baracuda.Serialization;
 using Baracuda.Utilities;
 using Baracuda.Utilities.Types;

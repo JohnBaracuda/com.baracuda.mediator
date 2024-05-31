@@ -1,7 +1,7 @@
 ﻿using System;
 using Object = UnityEngine.Object;
 
-namespace Baracuda.Bedrock.Callbacks
+namespace Baracuda.Bedrock.PlayerLoop
 {
 #if UNITY_EDITOR
     public sealed partial class Gameloop : UnityEditor.AssetModificationProcessor

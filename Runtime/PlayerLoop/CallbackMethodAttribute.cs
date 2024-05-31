@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using System;
 
-namespace Baracuda.Bedrock.Callbacks
+namespace Baracuda.Bedrock.PlayerLoop
 {
     /// <summary>
     ///     Mark a method in a registered scriptable object or behaviour that is then called during a specific callback.

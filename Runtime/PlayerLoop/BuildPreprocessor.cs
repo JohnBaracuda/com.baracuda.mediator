@@ -1,4 +1,4 @@
-﻿namespace Baracuda.Bedrock.Callbacks
+﻿namespace Baracuda.Bedrock.PlayerLoop
 {
 #if UNITY_EDITOR
     internal class BuildPreprocessor : UnityEditor.Build.IPreprocessBuildWithReport

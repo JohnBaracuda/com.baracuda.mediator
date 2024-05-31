@@ -1,9 +1,8 @@
-﻿using Baracuda.Tools;
-using Baracuda.Utilities;
+﻿using Baracuda.Utilities;
 using System;
 using UnityEngine;
 
-namespace Baracuda.Bedrock.Callbacks
+namespace Baracuda.Bedrock.PlayerLoop
 {
     [DisallowMultipleComponent]
     [ExecutionOrder(0)]

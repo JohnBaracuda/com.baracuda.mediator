@@ -1,7 +1,7 @@
 using Baracuda.Bedrock.Generation;
 using Baracuda.Utilities.Types;
 using UnityEngine;
-using static Baracuda.Bedrock.Generated.MediatorDefinitions;
+using static Baracuda.Bedrock.Mediator.MediatorDefinitions;
 
 [assembly: GenerateMediatorFor(typeof(bool), NameSpace = NameSpace, Subfolder = Subfolder)]
 [assembly: GenerateMediatorFor(typeof(string), NameSpace = NameSpace, Subfolder = Subfolder)]
@@ -32,7 +32,7 @@ using static Baracuda.Bedrock.Generated.MediatorDefinitions;
 [assembly: GenerateMediatorFor(typeof(Object), NameSpace = NameSpace, Subfolder = Subfolder)]
 [assembly: GenerateMediatorFor(typeof(FullScreenMode), NameSpace = NameSpace, Subfolder = Subfolder)]
 
-namespace Baracuda.Bedrock.Generated
+namespace Baracuda.Bedrock.Mediator
 {
     internal static class MediatorDefinitions
     {

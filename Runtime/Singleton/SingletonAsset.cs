@@ -1,5 +1,5 @@
-using Baracuda.Bedrock.Callbacks;
-using Baracuda.Bedrock.Registry;
+using Baracuda.Bedrock.Assets;
+using Baracuda.Bedrock.PlayerLoop;
 using JetBrains.Annotations;
 
 namespace Baracuda.Bedrock.Singleton

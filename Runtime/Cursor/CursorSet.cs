@@ -1,4 +1,4 @@
-using Baracuda.Bedrock.Callbacks;
+using Baracuda.Bedrock.Assets;
 using Baracuda.Bedrock.Injection;
 using Baracuda.Bedrock.Odin;
 using Baracuda.Utilities.Collections;

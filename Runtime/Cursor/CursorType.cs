@@ -1,8 +1,11 @@
-﻿using Baracuda.Bedrock.Values;
+﻿using UnityEngine;
 
 namespace Baracuda.Bedrock.Cursor
 {
-    public class CursorType : EnumAsset<CursorType>
+    public class CursorType : ScriptableObject
     {
+        public static CursorType None => none ??= CreateInstance<CursorType>();
+
+        private static CursorType none;
     }
 }

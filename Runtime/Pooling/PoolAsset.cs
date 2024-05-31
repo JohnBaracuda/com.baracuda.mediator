@@ -1,4 +1,5 @@
-﻿using Baracuda.Bedrock.Odin;
+﻿using Baracuda.Bedrock.Mediator;
+using Baracuda.Bedrock.Odin;
 using Sirenix.OdinInspector;
 
 namespace Baracuda.Bedrock.Pooling

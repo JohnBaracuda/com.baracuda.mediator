@@ -1,6 +1,6 @@
 using System;
 
-namespace Baracuda.Tools
+namespace Baracuda.Bedrock.PlayerLoop
 {
     /// <summary>
     ///     Apply this attribute to a MonoScript to ensure that it is executed after the passed type.

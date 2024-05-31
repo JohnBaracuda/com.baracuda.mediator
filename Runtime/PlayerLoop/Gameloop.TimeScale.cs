@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Baracuda.Bedrock.Callbacks
+namespace Baracuda.Bedrock.PlayerLoop
 {
     public delegate void TimeScaleDelegate(ref float timeScale);
 

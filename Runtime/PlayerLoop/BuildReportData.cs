@@ -1,4 +1,4 @@
-﻿namespace Baracuda.Bedrock.Callbacks
+﻿namespace Baracuda.Bedrock.PlayerLoop
 {
     public struct BuildReportData
     {

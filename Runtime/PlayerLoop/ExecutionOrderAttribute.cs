@@ -1,6 +1,6 @@
 using System;
 
-namespace Baracuda.Tools
+namespace Baracuda.Bedrock.PlayerLoop
 {
     /// <summary>
     ///     Apply this attribute to a MonoScript to set its script execution order to the order value.

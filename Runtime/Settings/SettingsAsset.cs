@@ -1,4 +1,4 @@
-﻿using Baracuda.Bedrock.Callbacks;
+﻿using Baracuda.Bedrock.Assets;
 
 namespace Baracuda.Bedrock.Settings
 {

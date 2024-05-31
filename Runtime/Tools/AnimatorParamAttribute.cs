@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Baracuda.Tools
+namespace Baracuda.Bedrock.Tools
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class AnimatorParamAttribute : PropertyAttribute

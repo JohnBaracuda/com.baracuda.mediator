@@ -1,4 +1,4 @@
-﻿using Baracuda.Bedrock.Callbacks;
+﻿using Baracuda.Bedrock.PlayerLoop;
 using Baracuda.Utilities;
 using JetBrains.Annotations;
 using System;

@@ -1,10 +1,11 @@
-﻿using Sirenix.OdinInspector;
+﻿using Baracuda.Bedrock.Mediator;
+using Sirenix.OdinInspector;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Baracuda.Bedrock.Events
 {
-    public abstract class EventMediatorAsset : MediatorAsset
+    public abstract class EventAssetBase : MediatorAsset
     {
         [PropertySpace(0, 8)]
         [Tooltip("When enabled, the event is meant to be used during runtime only.")]
@@ -29,7 +30,7 @@ namespace Baracuda.Bedrock.Events
 
 #if UNITY_EDITOR
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected static bool IsIllegalCall(EventMediatorAsset target, [CallerMemberName] string callerName = "")
+        protected static bool IsIllegalCall(EventAssetBase target, [CallerMemberName] string callerName = "")
         {
             if (target.RuntimeOnly && Application.isPlaying is false && target.OmitCalls)
             {

@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using Object = UnityEngine.Object;
 
-namespace Baracuda.Bedrock.Callbacks
+namespace Baracuda.Bedrock.PlayerLoop
 {
     public partial class Gameloop
     {

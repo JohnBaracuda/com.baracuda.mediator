@@ -1,6 +1,6 @@
-﻿using Baracuda.Bedrock.Callbacks;
-using Baracuda.Bedrock.Installer;
+﻿using Baracuda.Bedrock.Installer;
 using Baracuda.Bedrock.Odin;
+using Baracuda.Bedrock.PlayerLoop;
 using Baracuda.Utilities;
 using Baracuda.Utilities.Collections;
 using Baracuda.Utilities.Types;
@@ -15,7 +15,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using Object = UnityEngine.Object;
 
-namespace Baracuda.Bedrock.Registry
+namespace Baracuda.Bedrock.Assets
 {
 #if UNITY_EDITOR
     [UnityEditor.InitializeOnLoadAttribute]

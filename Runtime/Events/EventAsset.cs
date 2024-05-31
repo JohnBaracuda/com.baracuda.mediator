@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Baracuda.Bedrock.Events
 {
-    public abstract class EventAsset : EventMediatorAsset, IReceiver
+    public abstract class EventAsset : EventAssetBase, IReceiver
     {
         private protected readonly IBroadcast Event = new Broadcast();
 
@@ -108,7 +108,7 @@ namespace Baracuda.Bedrock.Events
         public IReadOnlyCollection<Action> GetListenerCollection => Event.GetListenerCollection;
     }
 
-    public abstract class EventAsset<T> : EventMediatorAsset, IReceiver<T>
+    public abstract class EventAsset<T> : EventAssetBase, IReceiver<T>
     {
         public event Action<T> Invoked
         {
@@ -216,7 +216,7 @@ namespace Baracuda.Bedrock.Events
         public IReadOnlyCollection<Action<T>> GetListenerCollection => Event.GetListenerCollection;
     }
 
-    public abstract class EventAsset<T1, T2> : EventMediatorAsset, IReceiver<T1, T2>
+    public abstract class EventAsset<T1, T2> : EventAssetBase, IReceiver<T1, T2>
     {
         private protected readonly IBroadcast<T1, T2> Event = new Broadcast<T1, T2>();
 
@@ -318,7 +318,7 @@ namespace Baracuda.Bedrock.Events
         public IReadOnlyCollection<Action<T1, T2>> GetListenerCollection => Event.GetListenerCollection;
     }
 
-    public abstract class EventAsset<T1, T2, T3> : EventMediatorAsset, IReceiver<T1, T2, T3>
+    public abstract class EventAsset<T1, T2, T3> : EventAssetBase, IReceiver<T1, T2, T3>
     {
         private protected readonly IBroadcast<T1, T2, T3> Event = new Broadcast<T1, T2, T3>();
 
@@ -420,7 +420,7 @@ namespace Baracuda.Bedrock.Events
         public IReadOnlyCollection<Action<T1, T2, T3>> GetListenerCollection => Event.GetListenerCollection;
     }
 
-    public abstract class EventAsset<T1, T2, T3, T4> : EventMediatorAsset, IReceiver<T1, T2, T3, T4>
+    public abstract class EventAsset<T1, T2, T3, T4> : EventAssetBase, IReceiver<T1, T2, T3, T4>
     {
         private protected readonly IBroadcast<T1, T2, T3, T4> Event = new Broadcast<T1, T2, T3, T4>();
 

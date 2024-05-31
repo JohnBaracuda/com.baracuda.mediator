@@ -2,7 +2,7 @@
 using System;
 using UnityEngine;
 
-namespace Baracuda.Bedrock.Callbacks
+namespace Baracuda.Bedrock.PlayerLoop
 {
 #if UNITY_EDITOR
     [UnityEditor.InitializeOnLoadAttribute]

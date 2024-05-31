@@ -1,5 +1,5 @@
 ﻿#if UNITY_EDITOR
-namespace Baracuda.Bedrock.Callbacks
+namespace Baracuda.Bedrock.PlayerLoop
 {
     internal class BuildPostprocessor : UnityEditor.Build.IPostprocessBuildWithReport
     {

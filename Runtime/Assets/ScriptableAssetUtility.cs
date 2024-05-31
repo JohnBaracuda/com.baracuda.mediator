@@ -1,10 +1,10 @@
-using Baracuda.Bedrock.Callbacks;
+using Baracuda.Bedrock.PlayerLoop;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Baracuda.Bedrock.Utility
+namespace Baracuda.Bedrock.Assets
 {
     public static class ScriptableAssetUtility
     {

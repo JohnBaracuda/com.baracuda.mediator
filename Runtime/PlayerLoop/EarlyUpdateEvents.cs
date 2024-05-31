@@ -1,10 +1,9 @@
-﻿using Baracuda.Tools;
-using Baracuda.Utilities;
+﻿using Baracuda.Utilities;
 using JetBrains.Annotations;
 using System;
 using UnityEngine;
 
-namespace Baracuda.Bedrock.Callbacks
+namespace Baracuda.Bedrock.PlayerLoop
 {
     [ExecutionOrder(-10000)]
     internal sealed class EarlyUpdateEvents : MonoBehaviour

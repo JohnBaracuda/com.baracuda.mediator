@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Baracuda.Bedrock.Callbacks
+namespace Baracuda.Bedrock.PlayerLoop
 {
     /// <summary>
     ///     Class handles custom gameloop specific callbacks as well as other gameloop relevant data.

@@ -24,9 +24,8 @@ namespace Baracuda.Bedrock.Cursor
             return file ? file.frames?.Length > 0 ? file.frames[0] : null : null;
         }
 
-        protected override void OnEnable()
+        protected void OnEnable()
         {
-            base.OnEnable();
             Delay = new WaitForSeconds(1 / framesPerSecond);
         }
 

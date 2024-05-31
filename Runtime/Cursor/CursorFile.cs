@@ -1,4 +1,3 @@
-using Baracuda.Bedrock.Callbacks;
 using Baracuda.Bedrock.Odin;
 using UnityEngine;
 
@@ -7,7 +6,7 @@ namespace Baracuda.Bedrock.Cursor
     /// <summary>
     ///     Class for storing custom cursor animation / texture data.
     /// </summary>
-    public class CursorFile : ScriptableAsset
+    public abstract class CursorFile : ScriptableObject
     {
         [Foldout("Cursor")]
         [SerializeField] private Vector2 hotSpot = Vector2.zero;

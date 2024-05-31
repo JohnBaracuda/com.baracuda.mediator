@@ -1,9 +1,8 @@
-﻿using Baracuda.Bedrock.Callbacks;
-using Baracuda.Utilities.Types;
+﻿using Baracuda.Utilities.Types;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Baracuda.Bedrock.Registry
+namespace Baracuda.Bedrock.Assets
 {
     /// <summary>
     ///     Registered assets are always included in a build and loaded during startup.

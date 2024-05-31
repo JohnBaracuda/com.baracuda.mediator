@@ -1,8 +1,8 @@
 ﻿#if UNITY_ADDRESSABLES
 using UnityEngine.AddressableAssets;
 #endif
-using Baracuda.Bedrock.Callbacks;
 using Baracuda.Bedrock.Odin;
+using Baracuda.Bedrock.PlayerLoop;
 using Baracuda.Utilities.Reflection;
 using Sirenix.OdinInspector;
 using System;

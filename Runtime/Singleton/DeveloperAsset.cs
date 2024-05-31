@@ -1,6 +1,6 @@
-using Baracuda.Bedrock.Callbacks;
+using Baracuda.Bedrock.Assets;
 using Baracuda.Bedrock.Odin;
-using Baracuda.Bedrock.Registry;
+using Baracuda.Bedrock.PlayerLoop;
 using Sirenix.OdinInspector;
 using System;
 

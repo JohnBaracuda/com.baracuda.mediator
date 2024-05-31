@@ -1,6 +1,6 @@
 ﻿using Baracuda.Bedrock.Injection;
 using Baracuda.Bedrock.Odin;
-using Baracuda.Bedrock.Utility;
+using Baracuda.Bedrock.PlayerLoop;
 using Baracuda.Utilities;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector;
@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using Object = UnityEngine.Object;
 
-namespace Baracuda.Bedrock.Callbacks
+namespace Baracuda.Bedrock.Assets
 {
     /// <summary>
     ///     Abstract base class for <see cref="ScriptableObject" />s that can receive <see cref="Gameloop" /> callbacks.

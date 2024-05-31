@@ -1,4 +1,4 @@
-﻿using Baracuda.Bedrock.Callbacks;
+﻿using Baracuda.Bedrock.Assets;
 using Baracuda.Bedrock.Events;
 using Baracuda.Bedrock.Odin;
 using Baracuda.Serialization;

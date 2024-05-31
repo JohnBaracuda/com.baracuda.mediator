@@ -1,7 +1,7 @@
-using Baracuda.Bedrock.Callbacks;
 using Baracuda.Bedrock.Injection;
 using Baracuda.Bedrock.Locks;
 using Baracuda.Bedrock.Odin;
+using Baracuda.Bedrock.PlayerLoop;
 using Baracuda.Utilities;
 using Baracuda.Utilities.Collections;
 using System;

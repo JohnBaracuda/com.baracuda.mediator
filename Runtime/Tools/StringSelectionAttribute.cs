@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using UnityEngine;
 
-namespace Baracuda.Tools
+namespace Baracuda.Bedrock.Tools
 {
     public enum SelectionPreset
     {
