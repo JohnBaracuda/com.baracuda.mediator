@@ -354,8 +354,8 @@ namespace Baracuda.Bedrock.Assets
                 }
                 if (singleton == null)
                 {
-                    Debug.LogError("Singleton",
-                        "Singleton Registry is null! Please create a new Singleton Registry (ScriptableObject)");
+                    Debug.LogError("AssetRegistry",
+                        "Registry is null! Please create a new AssetRegistry");
                 }
 #endif
 
