@@ -2,15 +2,18 @@
 using Sirenix.OdinInspector;
 using System;
 
-namespace Baracuda.Mediator.Values
+namespace Baracuda.Bedrock.Values
 {
     /// <summary>
     ///     A flexible readable and writable ValueAsset.
     ///     Instances of this type can be used as a serialized, runtime, persistent or property value.
     /// </summary>
     /// <typeparam name="TValue">The type of the contained value</typeparam>
-    public abstract partial class ValueAsset<TValue> : ValueAssetRW<TValue>, IValueAsset<TValue>,
-        IPropertyAsset<TValue>, IPersistentDataAsset<TValue>
+    public abstract partial class ValueAsset<TValue> : ValueAssetRW<TValue>,
+        IValueAsset<TValue>,
+        IPropertyAsset<TValue>,
+        ISaveDataAsset<TValue>,
+        IObservable<TValue>
     {
         #region Properties
 

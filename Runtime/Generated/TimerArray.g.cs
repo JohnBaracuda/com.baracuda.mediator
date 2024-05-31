@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using Baracuda.Utilities.Types;
 
 namespace Baracuda.Mediator
 {
-    public class TimerArray : ArrayAsset<Timer>
+    public class TimerArray : ArrayAsset<Baracuda.Utilities.Types.Timer>
     {
     }
 }

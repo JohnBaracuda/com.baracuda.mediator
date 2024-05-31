@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Baracuda.Mediator.Pooling
+namespace Baracuda.Bedrock.Pooling
 {
     /// <summary>
     ///     Asset represents a collection of pools that can be loaded and unloaded at once.

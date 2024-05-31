@@ -1,156 +1,383 @@
-﻿using Baracuda.Utilities;
+﻿using Baracuda.Bedrock.Injection;
+using Baracuda.Utilities;
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
-namespace Baracuda.Mediator.Services
+namespace Baracuda.Bedrock.Services
 {
-    public class ServiceContainer : IServiceProvider<ServiceContainer>
+    public class ServiceContainer
     {
+        #region Fields
+
         private readonly Dictionary<Type, object> _services = new();
+        private readonly Dictionary<Type, Delegate> _transientServices = new();
+        private readonly Dictionary<Type, Delegate> _lazyServices = new();
+        private readonly HashSet<Type> _registeredServiceTypes = new();
 
-        private readonly Dictionary<Type, List<Delegate>> _registrationCallbacks = new();
+        private readonly LogCategory _category = nameof(ServiceContainer);
 
-        public IEnumerable<object> Services => _services.Values;
+        #endregion
+
+
+        #region Public API: Get
 
         [PublicAPI]
-        public T Get<T>() where T : class
+        public IEnumerable<object> GetAllServices()
         {
+            return _services.Values;
+        }
+
+        [PublicAPI]
+        public T Resolve<T>() where T : class
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+
             var type = typeof(T);
             if (_services.TryGetValue(type, out var value))
             {
                 return value as T;
             }
 
-            throw new ArgumentException($"ServiceContainer.Get: Service of type {type.FullName} not registered");
+            if (_lazyServices.TryGetValue(type, out var lazyFunc))
+            {
+                var service = lazyFunc.CastExplicit<Func<T>>()();
+                _services.Add(type, service);
+                _lazyServices.Remove(type);
+                return service;
+            }
+
+            if (_transientServices.TryGetValue(type, out var transientFunc))
+            {
+                return transientFunc.CastExplicit<Func<T>>()();
+            }
+
+            Debug.LogWarning(_category, $"Service of type {type.FullName} not registered");
+            return null;
         }
 
         [PublicAPI]
-        public object Get(Type type)
+        public object Resolve(Type type)
         {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+
             if (_services.TryGetValue(type, out var value))
             {
                 return value;
             }
 
-            throw new ArgumentException($"ServiceContainer.Get: Service of type {type.FullName} not registered");
+            if (_lazyServices.TryGetValue(type, out var lazyFunc))
+            {
+                var service = lazyFunc.DynamicInvoke();
+                Inject.Dependencies(service);
+                _services.Add(type, service);
+                _lazyServices.Remove(type);
+                return service;
+            }
+
+            if (_transientServices.TryGetValue(type, out var transientFunc))
+            {
+                return transientFunc.DynamicInvoke();
+            }
+
+            Debug.LogWarning(_category, $"Service of type {type.FullName} not registered");
+            return null;
         }
 
+        #endregion
+
+
+        #region Public API: Try Get
+
         [PublicAPI]
-        public bool TryGet<T>(out T service) where T : class
+        public bool TryResolve<T>(out T service) where T : class
         {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
             var type = typeof(T);
-            if (_services.TryGetValue(type, out var obj))
+            if (_services.TryGetValue(type, out var value))
             {
-                service = obj as T;
+                service = value as T;
                 return true;
             }
 
-            service = null;
+            if (_lazyServices.TryGetValue(type, out var lazyFunc))
+            {
+                var result = lazyFunc.CastExplicit<Func<T>>()();
+                Inject.Dependencies(result);
+                _services.Add(type, result);
+                _lazyServices.Remove(type);
+                service = result;
+                return true;
+            }
+
+            if (_transientServices.TryGetValue(type, out var transientFunc))
+            {
+                service = transientFunc.CastExplicit<Func<T>>()();
+                return true;
+            }
+
+            service = default(T);
             return false;
         }
 
         [PublicAPI]
-        public bool TryGet(Type type, out object value)
+        public bool TryResolve(Type type, out object service)
         {
-            if (_services.TryGetValue(type, out value))
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
             {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+            if (_services.TryGetValue(type, out var value))
+            {
+                service = value;
                 return true;
             }
 
+            if (_lazyServices.TryGetValue(type, out var lazyFunc))
+            {
+                var result = lazyFunc.DynamicInvoke();
+                _services.Add(type, result);
+                _lazyServices.Remove(type);
+                service = result;
+                return true;
+            }
+
+            if (_transientServices.TryGetValue(type, out var transientFunc))
+            {
+                service = transientFunc.DynamicInvoke();
+                return true;
+            }
+
+            service = default(object);
             return false;
         }
 
+        #endregion
+
+
+        #region Public API: Add Singleton
+
         [PublicAPI]
-        public ServiceContainer Register<T>(T service)
+        public ServiceContainer AddSingleton<T>(T service)
         {
-            if (!_services.TryAdd(typeof(T), service))
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
             {
-                Debug.LogError(nameof(ServiceContainer),
-                    $"ServiceContainer.Register: Service of type {typeof(T).FullName} is already registered!");
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+            if (!Application.isPlaying)
+            {
+                return null;
             }
 
-            if (_registrationCallbacks.TryGetValue(typeof(T), out var callbacks))
+            var type = typeof(T);
+
+            if (!_registeredServiceTypes.Add(type))
             {
-                foreach (var callback in callbacks)
-                {
-                    var action = (Action<T>) callback;
-                    action.Invoke(service);
-                }
+                Debug.LogWarning(_category, $"Service of type {type.FullName} is already registered!");
+                return this;
             }
+
+            _services.Add(typeof(T), service);
 
             return this;
         }
 
         [PublicAPI]
+        public ServiceContainer AddSingleton(Type type, object service)
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+
+            if (!type.IsInstanceOfType(service))
+            {
+                Debug.LogWarning(_category, "Type of service does not match type of service interface!");
+                return this;
+            }
+
+            if (!_registeredServiceTypes.Add(type))
+            {
+                Debug.LogWarning(_category, $"Service of type {type.FullName} is already registered!");
+                return this;
+            }
+
+            _services.Add(type, service);
+
+            return this;
+        }
+
+        [PublicAPI]
+        public ServiceContainer AddTransient<T>(Func<T> func)
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+
+            var type = typeof(T);
+
+            if (!_registeredServiceTypes.Add(type))
+            {
+                Debug.LogWarning(_category, $"Service of type {type.FullName} is already registered!");
+                return this;
+            }
+
+            _transientServices.Add(type, func);
+
+            return this;
+        }
+
+        [PublicAPI]
+        public ServiceContainer AddTransient(Type type, Delegate func)
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+
+            if (!_registeredServiceTypes.Add(type))
+            {
+                Debug.LogWarning(_category, $"Service of type {type.FullName} is already registered!");
+                return this;
+            }
+
+            if (func.Method.ReturnType != type)
+            {
+                Debug.LogWarning(_category, "Delegate of transient service is invalid!");
+                return this;
+            }
+
+            _transientServices.Add(type, func);
+
+            return this;
+        }
+
+        [PublicAPI]
+        public ServiceContainer AddLazy<T>(Func<T> func)
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+
+            var type = typeof(T);
+
+            if (!_registeredServiceTypes.Add(type))
+            {
+                Debug.LogWarning(_category, $"Service of type {type.FullName} is already registered!");
+                return this;
+            }
+
+            _lazyServices.Add(type, func);
+
+            return this;
+        }
+
+        [PublicAPI]
+        public ServiceContainer AddLazy(Type type, Delegate func)
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+
+            if (!_registeredServiceTypes.Add(type))
+            {
+                Debug.LogWarning(_category, $"Service of type {type.FullName} is already registered!");
+                return this;
+            }
+
+            if (func.Method.ReturnType != type)
+            {
+                Debug.LogWarning(_category, "Delegate of transient service is invalid!");
+                return this;
+            }
+
+            _lazyServices.Add(type, func);
+
+            return this;
+        }
+
+        #endregion
+
+
+        #region Public API: Remove
+
+        [PublicAPI]
         public ServiceContainer Remove<T>(T service)
         {
-            _services.TryRemove(typeof(T));
-            _registrationCallbacks.TryRemove(typeof(T));
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+            var type = typeof(T);
+
+            if (!_registeredServiceTypes.Remove(type))
+            {
+                return this;
+            }
+
+            _services.TryRemove(type);
+            _transientServices.TryRemove(type);
+            _lazyServices.TryRemove(type);
             return this;
         }
 
         [PublicAPI]
         public ServiceContainer Remove<T>()
         {
-            _services.TryRemove(typeof(T));
-            _registrationCallbacks.TryRemove(typeof(T));
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+            var type = typeof(T);
+
+            if (!_registeredServiceTypes.Remove(type))
+            {
+                return this;
+            }
+
+            _services.TryRemove(type);
+            _transientServices.TryRemove(type);
+            _lazyServices.TryRemove(type);
             return this;
         }
 
-        [PublicAPI]
-        public ServiceContainer Register(Type type, object service)
-        {
-            if (!type.IsInstanceOfType(service))
-            {
-                throw new ArgumentException(
-                    "ServiceContainer.Register: Type of service does not match type of service interface",
-                    nameof(service));
-            }
-
-            if (!_services.TryAdd(type, service))
-            {
-                Debug.LogError(nameof(ServiceContainer),
-                    $"ServiceContainer.Register: Service of type {type.FullName} is already registered!");
-            }
-
-            if (_registrationCallbacks.TryGetValue(type, out var callbacks))
-            {
-                var dynamicArguments = new[] {service};
-                foreach (var callback in callbacks)
-                {
-                    callback.DynamicInvoke(dynamicArguments);
-                }
-            }
-
-            return this;
-        }
-
-        [PublicAPI]
-        public void AddRegistrationCallback<T>(Action<T> callback, bool callRetroactively = true) where T : class
-        {
-            if (_registrationCallbacks.TryGetValue(typeof(T), out var list))
-            {
-                list.Add(callback);
-            }
-            else
-            {
-                _registrationCallbacks.Add(typeof(T), new List<Delegate> {callback});
-            }
-
-            if (callRetroactively && TryGet<T>(out var service))
-            {
-                callback(service);
-            }
-        }
-
-        [PublicAPI]
-        public void RemoveRegistrationCallback<T>(Action<T> callback)
-        {
-            if (_registrationCallbacks.TryGetValue(typeof(T), out var list))
-            {
-                list.Remove(callback);
-            }
-        }
+        #endregion
     }
 }

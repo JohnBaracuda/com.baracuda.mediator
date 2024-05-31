@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Baracuda.Mediator.Events
+namespace Baracuda.Bedrock.Events
 {
     public class Broadcast : Receiver, IBroadcast
     {

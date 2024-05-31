@@ -2,7 +2,7 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Pooling
+namespace Baracuda.Bedrock.Pooling
 {
     internal sealed class PoolTransform : MonoBehaviour
     {

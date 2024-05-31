@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class Vector4PropertyAsset : ValueAssetProperty<Vector4>
+    public class Vector4PropertyAsset : ValueAssetProperty<UnityEngine.Vector4>
     {
     }
 }

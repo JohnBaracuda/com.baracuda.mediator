@@ -1,5 +1,5 @@
-﻿using Baracuda.Mediator.Callbacks;
-using Baracuda.Mediator.Events;
+﻿using Baracuda.Bedrock.Callbacks;
+using Baracuda.Bedrock.Events;
 using Baracuda.Tools;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector;
@@ -7,9 +7,11 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Values
+namespace Baracuda.Bedrock.Values
 {
-    public abstract class ValueAssetRuntime<TValue> : ValueAssetRW<TValue>, IValueAsset<TValue>
+    public abstract class ValueAssetRuntime<TValue> : ValueAssetRW<TValue>,
+        IValueAsset<TValue>,
+        IObservable<TValue>
     {
         private readonly Broadcast<TValue> _changed = new();
         [NonSerialized] private TValue _value;

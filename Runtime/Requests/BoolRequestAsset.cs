@@ -1,4 +1,4 @@
-﻿namespace Baracuda.Mediator.Requests
+﻿namespace Baracuda.Bedrock.Requests
 {
     public class BoolRequestAsset : RequestAsset<bool>
     {

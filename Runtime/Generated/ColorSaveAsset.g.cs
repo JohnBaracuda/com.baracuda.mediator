@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class ColorSaveAsset : ValueAssetSave<Color>
+    public class ColorSaveAsset : ValueAssetSave<UnityEngine.Color>
     {
     }
 }

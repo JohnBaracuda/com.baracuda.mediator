@@ -2,7 +2,7 @@ using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Scenes
+namespace Baracuda.Bedrock.Scenes
 {
     /// <summary>
     ///     Trigger to perform async scene loading / unloading

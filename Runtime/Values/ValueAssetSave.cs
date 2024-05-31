@@ -1,7 +1,8 @@
-﻿using Baracuda.Mediator.Callbacks;
-using Baracuda.Mediator.Events;
+﻿using Baracuda.Bedrock.Callbacks;
+using Baracuda.Bedrock.Events;
 using Baracuda.Serialization;
 using Baracuda.Tools;
+using Baracuda.Utilities;
 using Baracuda.Utilities.Types;
 using Sirenix.OdinInspector;
 using System;
@@ -9,10 +10,10 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Values
+namespace Baracuda.Bedrock.Values
 {
     public abstract class ValueAssetSave<TValue> : ValueAssetRW<TValue>, IValueAsset<TValue>,
-        IPersistentDataAsset<TValue>
+        ISaveDataAsset<TValue>, ISaveDataAsset
     {
         [Line]
         [LabelText("Default Value")]
@@ -20,6 +21,8 @@ namespace Baracuda.Mediator.Values
         [SerializeField] private RuntimeGUID guid;
         [Tooltip("The level to store the data on. Either profile specific or shared between profiles")]
         [SerializeField] private StorageLevel storageLevel = StorageLevel.Profile;
+        [ListDrawerSettings(DefaultExpandedState = false)]
+        [SerializeField] private string[] tags;
 
         [NonSerialized] private readonly Broadcast<TValue> _changedEvent = new();
         [NonSerialized] private StoreOptions _storeOptions;
@@ -75,10 +78,14 @@ namespace Baracuda.Mediator.Values
 
         #region Initialization
 
-        protected override void OnEnable()
+        protected async override void OnEnable()
         {
             base.OnEnable();
-            _storeOptions = new StoreOptions(name);
+            await Gameloop.DelayedCallAsync();
+            RuntimeGUID.Create(this, ref guid);
+            tags ??= Array.Empty<string>();
+            ArrayUtility.AddUnique(ref tags, name);
+            _storeOptions = new StoreOptions(tags);
             if (FileSystem.IsInitialized)
             {
                 LoadPersistentData();

@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class Color32Queue : QueueAsset<Color32>
+    public class Color32Queue : QueueAsset<UnityEngine.Color32>
     {
     }
 }

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Values
+namespace Baracuda.Bedrock.Values
 {
     /// <summary>
     ///     Proxy variable that either points to a <see cref="ValueAsset{TValue}" /> or a locally serialized value.

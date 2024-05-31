@@ -1,19 +1,21 @@
 {
-  "name": "com.baracuda.mediator",
+  "name": "com.baracuda.bedrock",
   "version": "1.0.0",
-  "displayName": "Mediator",
-  "description": "Scriptable object based event and mediation system.",
+  "displayName": "Bedrock",
+  "description": "Game architecture and framework system.",
   "unity": "2023.2",
-  "documentationUrl": "https://github.com/JohnBaracuda/com.baracuda.mediator",
-  "changelogUrl": "https://github.com/JohnBaracuda/com.baracuda.mediator/blob/main/CHANGELOG.md",
-  "licensesUrl": "https://github.com/JohnBaracuda/com.baracuda.mediator/blob/main/LICENSE.md",
+  "documentationUrl": "https://github.com/JohnBaracuda/com.baracuda.bedrock",
+  "changelogUrl": "https://github.com/JohnBaracuda/com.baracuda.bedrock/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/JohnBaracuda/com.baracuda.bedrock/blob/main/LICENSE.md",
   "keywords": [
     "event",
     "event system",
     "framework",
     "scriptable object",
     "mediator",
-    "medium"
+    "medium",
+    "framework",
+    "architecture"
   ],
   "author": {
     "name": "John Baracuda",

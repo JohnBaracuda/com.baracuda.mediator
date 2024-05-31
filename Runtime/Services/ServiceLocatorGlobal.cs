@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Baracuda.Mediator.Services
+namespace Baracuda.Bedrock.Services
 {
     [AddComponentMenu("ServiceLocator/ServiceLocator Global")]
     public class ServiceLocatorGlobal : ServiceLocator
@@ -26,7 +26,7 @@ namespace Baracuda.Mediator.Services
 
         private void Bootstrap()
         {
-            Global = this;
+            GlobalLocator = this;
             if (dontDestroyOnLoad)
             {
                 DontDestroyOnLoad(gameObject);

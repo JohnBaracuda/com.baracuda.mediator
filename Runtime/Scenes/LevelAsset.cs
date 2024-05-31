@@ -1,5 +1,5 @@
-﻿using Baracuda.Mediator.Events;
-using Baracuda.Mediator.Registry;
+﻿using Baracuda.Bedrock.Events;
+using Baracuda.Bedrock.Registry;
 using Baracuda.Tools;
 using Baracuda.Utilities.Reflection;
 using Cysharp.Threading.Tasks;
@@ -11,7 +11,7 @@ using UnityEngine.Assertions;
 using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 
-namespace Baracuda.Mediator.Scenes
+namespace Baracuda.Bedrock.Scenes
 {
     /// <summary>
     ///     Asset contains a reference for an active scene as well as multiple subscenes that can be loaded all at once.
@@ -74,7 +74,7 @@ namespace Baracuda.Mediator.Scenes
 
         public async UniTask LoadAsync()
         {
-            Debug.Log("Scene", $"Begin Loading {name} Level Setup");
+            Debug.Log("Level Asset", $"Begin Loading {name} Level Setup");
 
             beforeLoad.Raise(this);
 
@@ -92,7 +92,7 @@ namespace Baracuda.Mediator.Scenes
             ListPool<UniTask>.Release(processes);
 
             afterLoad.Raise(this);
-            Debug.Log("Scene", $"Successfully Loaded {name} Scene Setup");
+            Debug.Log("Level Asset", $"Successfully Loaded {name} Level Setup");
         }
 
         #endregion

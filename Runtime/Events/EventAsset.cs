@@ -4,7 +4,7 @@ using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 
-namespace Baracuda.Mediator.Events
+namespace Baracuda.Bedrock.Events
 {
     public abstract class EventAsset : EventMediatorAsset, IReceiver
     {

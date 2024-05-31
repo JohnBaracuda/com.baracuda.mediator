@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class Vector2Queue : QueueAsset<Vector2>
+    public class Vector2Queue : QueueAsset<UnityEngine.Vector2>
     {
     }
 }

@@ -2,7 +2,7 @@ using JetBrains.Annotations;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Singleton
+namespace Baracuda.Bedrock.Singleton
 {
     public abstract class SingletonBehaviour<T> : MonoBehaviour where T : SingletonBehaviour<T>
     {

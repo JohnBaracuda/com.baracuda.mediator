@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Pooling;
+using Baracuda.Bedrock.Pooling;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class ScriptableObjectPool : PoolAsset<ScriptableObject>
+    public class ScriptableObjectPool : PoolAsset<UnityEngine.ScriptableObject>
     {
     }
 }

@@ -1,9 +1,9 @@
-﻿using Baracuda.Mediator.Callbacks;
+﻿using Baracuda.Bedrock.Callbacks;
 using Baracuda.Utilities.Types;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Registry
+namespace Baracuda.Bedrock.Registry
 {
     /// <summary>
     ///     Registered assets are always included in a build and loaded during startup.

@@ -1,11 +1,10 @@
-﻿using Baracuda.Mediator.Collections.Abstractions;
-using Baracuda.Tools;
+﻿using Baracuda.Tools;
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace Baracuda.Mediator.Collections
+namespace Baracuda.Bedrock.Collections
 {
     /// <summary>
     ///     Collection Asset representing a dictionary that can be modified during runtime.

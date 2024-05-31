@@ -1,4 +1,4 @@
-﻿namespace Baracuda.Mediator.Values
+﻿namespace Baracuda.Bedrock.Values
 {
     /// <summary>
     ///     Read & Write value asset.

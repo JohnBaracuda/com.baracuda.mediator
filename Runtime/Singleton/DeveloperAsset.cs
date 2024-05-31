@@ -1,10 +1,10 @@
-using Baracuda.Mediator.Callbacks;
-using Baracuda.Mediator.Registry;
+using Baracuda.Bedrock.Callbacks;
+using Baracuda.Bedrock.Registry;
 using Baracuda.Tools;
 using Sirenix.OdinInspector;
 using System;
 
-namespace Baracuda.Mediator.Singleton
+namespace Baracuda.Bedrock.Singleton
 {
     /// <summary>
     ///     Base type for developer specific configuration files.
@@ -16,7 +16,7 @@ namespace Baracuda.Mediator.Singleton
         /// <summary>
         ///     The locally saved/applied configuration file.
         /// </summary>
-        public static T LocalInstance
+        public static T Singleton
         {
             get
             {
@@ -29,7 +29,7 @@ namespace Baracuda.Mediator.Singleton
                     var path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
                     var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<T>(path);
 
-                    LocalInstance = asset;
+                    Singleton = asset;
                 }
 
                 if (local == null)
@@ -49,12 +49,12 @@ namespace Baracuda.Mediator.Singleton
                     UnityEditor.AssetDatabase.CreateAsset(asset, assetPath);
                     UnityEditor.AssetDatabase.SaveAssets();
                     Debug.Log("Singleton", $"Creating new {typeof(T).Name} instance at {assetPath}!");
-                    LocalInstance = asset;
+                    Singleton = asset;
                 }
 
                 if (local == null)
                 {
-                    LocalInstance = AssetRegistry.ResolveSingleton<T>();
+                    Singleton = AssetRegistry.ResolveSingleton<T>();
                 }
 
                 return local;
@@ -84,7 +84,7 @@ namespace Baracuda.Mediator.Singleton
 
         private bool IsLocal()
         {
-            return this == LocalInstance;
+            return this == Singleton;
         }
 
         private bool IsGlobal()
@@ -97,7 +97,7 @@ namespace Baracuda.Mediator.Singleton
         [HideIf(nameof(IsLocal))]
         public void DeclareAsLocal()
         {
-            LocalInstance = (T) this;
+            Singleton = (T) this;
         }
 
         [Button]

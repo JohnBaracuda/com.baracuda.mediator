@@ -1,6 +1,6 @@
-﻿using Baracuda.Mediator.Events;
+﻿using Baracuda.Bedrock.Events;
 
-namespace Baracuda.Mediator.Statistics
+namespace Baracuda.Bedrock.Statistics
 {
     public class StatAssetEvent : EventAsset<StatAsset>
     {

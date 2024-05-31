@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class DoubleValueAsset : ValueAsset<double>
+    public class DoubleValueAsset : ValueAsset<System.Double>
     {
     }
 }

@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Events;
+using Baracuda.Bedrock.Events;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class BoolEvent : EventAsset<bool>
+    public class BoolEvent : EventAsset<System.Boolean>
     {
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Baracuda.Mediator.Generation
+﻿namespace Baracuda.Bedrock.Generation
 {
     public enum MediatorType
     {
@@ -15,7 +15,7 @@
         QueueAsset = 10,
         DictionaryAsset = 11,
         MapAsset = 12,
-        ValueAssetConstant = 13,
+        ValueAssetSerialized = 13,
         ValueAssetRuntime = 14,
         ValueAssetSave = 15,
         ValueAssetProperty = 16,

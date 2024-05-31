@@ -1,4 +1,4 @@
-using Baracuda.Mediator.Events;
+using Baracuda.Bedrock.Events;
 using System;
 
 namespace Baracuda.Mediator

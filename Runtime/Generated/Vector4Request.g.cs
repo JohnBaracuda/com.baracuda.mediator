@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Requests;
+using Baracuda.Bedrock.Requests;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class Vector4Request : RequestAsset<Vector4>
+    public class Vector4Request : RequestAsset<UnityEngine.Vector4>
     {
     }
 }

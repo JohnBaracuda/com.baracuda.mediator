@@ -1,7 +1,7 @@
 ﻿using Baracuda.Tools;
 using Sirenix.OdinInspector;
 
-namespace Baracuda.Mediator.Pooling
+namespace Baracuda.Bedrock.Pooling
 {
     public abstract class PoolAsset : MediatorAsset
     {

@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Events;
+using Baracuda.Bedrock.Events;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class ColorEvent : EventAsset<Color>
+    public class ColorEvent : EventAsset<UnityEngine.Color>
     {
     }
 }

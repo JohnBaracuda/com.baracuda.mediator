@@ -1,6 +1,6 @@
-using Baracuda.Mediator.Callbacks;
+using Baracuda.Bedrock.Callbacks;
 
-namespace Baracuda.Mediator
+namespace Baracuda.Bedrock
 {
     public class MediatorAsset : ScriptableAsset
     {

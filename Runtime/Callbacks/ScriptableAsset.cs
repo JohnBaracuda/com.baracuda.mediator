@@ -1,17 +1,16 @@
-﻿using Baracuda.Mediator.Injection;
-using Baracuda.Mediator.Utility;
+﻿using Baracuda.Bedrock.Injection;
+using Baracuda.Bedrock.Utility;
 using Baracuda.Tools;
 using Baracuda.Utilities;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector;
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Object = UnityEngine.Object;
 
-namespace Baracuda.Mediator.Callbacks
+namespace Baracuda.Bedrock.Callbacks
 {
     /// <summary>
     ///     Abstract base class for <see cref="ScriptableObject" />s that can receive <see cref="Gameloop" /> callbacks.
@@ -27,25 +26,22 @@ namespace Baracuda.Mediator.Callbacks
             /// <summary>
             ///     When enabled, the asset will receive custom runtime and editor callbacks.
             /// </summary>
-            [Description("When enabled, the asset will receive custom runtime and editor callbacks.")]
             ReceiveCallbacks = 1,
 
             /// <summary>
             ///     When enabled, a developer annotation field is displayed.
             /// </summary>
-            [Description("When enabled, a developer annotation field is displayed.")]
             Annotation = 2,
 
             /// <summary>
             ///     When enabled, changes to this asset during runtime are reset when entering edit mode.
             /// </summary>
-            [Description("When enabled, changes to this asset during runtime are reset when entering edit mode.")]
             ResetRuntimeChanges = 4,
 
             /// <summary>
             ///     When enabled, dependencies are not automatically injected after the first scene was loaded.
             /// </summary>
-            DontInjectDependencies = 8
+            InjectDependencies = 8
         }
 
         [PropertySpace(0, 8)]
@@ -121,14 +117,11 @@ namespace Baracuda.Mediator.Callbacks
         [CallbackMethod("Dependencies")]
         protected void HandleDependencies()
         {
-            if (assetOptions.HasFlagFast(Options.DontInjectDependencies) is false)
+            if (assetOptions.HasFlagFast(Options.InjectDependencies))
             {
                 Inject.Dependencies(this);
             }
         }
-
-
-        #region Editor
 
 #if UNITY_EDITOR
 
@@ -153,7 +146,5 @@ namespace Baracuda.Mediator.Callbacks
         }
 
 #endif
-
-        #endregion
     }
 }

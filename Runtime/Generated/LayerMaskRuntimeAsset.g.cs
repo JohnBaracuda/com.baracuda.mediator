@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class LayerMaskRuntimeAsset : ValueAssetRuntime<LayerMask>
+    public class LayerMaskRuntimeAsset : ValueAssetRuntime<UnityEngine.LayerMask>
     {
     }
 }

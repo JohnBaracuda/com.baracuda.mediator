@@ -1,5 +1,4 @@
-﻿using Baracuda.Mediator.Collections.Abstractions;
-using Baracuda.Tools;
+﻿using Baracuda.Tools;
 using JetBrains.Annotations;
 using Sirenix.OdinInspector;
 using System;
@@ -7,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace Baracuda.Mediator.Collections
+namespace Baracuda.Bedrock.Collections
 {
     public abstract class StackAsset<T> : RuntimeCollectionAsset<T>, IEnumerable<T>
     {

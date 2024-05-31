@@ -1,5 +1,5 @@
 ﻿#if UNITY_EDITOR
-namespace Baracuda.Mediator.Callbacks
+namespace Baracuda.Bedrock.Callbacks
 {
     internal class BuildPostprocessor : UnityEditor.Build.IPostprocessBuildWithReport
     {

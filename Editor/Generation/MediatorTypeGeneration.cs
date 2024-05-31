@@ -1,10 +1,10 @@
-using Baracuda.Mediator.Collections;
-using Baracuda.Mediator.Events;
-using Baracuda.Mediator.Generation;
-using Baracuda.Mediator.Locks;
-using Baracuda.Mediator.Pooling;
-using Baracuda.Mediator.Requests;
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Collections;
+using Baracuda.Bedrock.Events;
+using Baracuda.Bedrock.Generation;
+using Baracuda.Bedrock.Locks;
+using Baracuda.Bedrock.Pooling;
+using Baracuda.Bedrock.Requests;
+using Baracuda.Bedrock.Values;
 using Baracuda.Tools.Editor.ScriptGeneration;
 using Baracuda.Utilities;
 using Baracuda.Utilities.Pools;
@@ -259,7 +259,7 @@ namespace Baracuda.Mediation.Editor.Generation
                         {
                             var mediator = CreateMediator(
                                 types,
-                                typeof(ValueAssetConstant<>),
+                                typeof(ValueAssetSerialized<>),
                                 suffix,
                                 attributePath,
                                 nameSpaceOverride);
@@ -267,7 +267,7 @@ namespace Baracuda.Mediation.Editor.Generation
                             {
                                 FilePath = mediator.filePath,
                                 FileContent = mediator.script,
-                                MediatorType = MediatorType.ValueAssetConstant
+                                MediatorType = MediatorType.ValueAssetSerialized
                             };
                             results.Add(result);
                         }
@@ -788,7 +788,7 @@ namespace Baracuda.Mediation.Editor.Generation
                 .WithBaseClass(mediatorType.MakeGenericType(types))
                 .WithName(StringBuilderPool.BuildAndRelease(typeNameBuilder))
                 .WithNameSpace(nameSpaceOverride ?? types.First().Namespace)
-                .WithAccessibility(types.All(type => type.IsPublic)
+                .WithAccessibility(types.All(type => type.IsPublic || type.IsNestedPublic)
                     ? AccessibilityModifiers.Public
                     : AccessibilityModifiers.Internal)
                 .WithDependency(types);
@@ -950,9 +950,8 @@ namespace Baracuda.Mediation.Editor.Generation
                     return MediatorType.DictionaryAsset;
                 case MediatorTypes.MapAsset:
                     return MediatorType.MapAsset;
-
                 case MediatorTypes.ValueAssetConstant:
-                    return MediatorType.ValueAssetConstant;
+                    return MediatorType.ValueAssetSerialized;
                 case MediatorTypes.ValueAssetRuntime:
                     return MediatorType.ValueAssetRuntime;
                 case MediatorTypes.ValueAssetSave:

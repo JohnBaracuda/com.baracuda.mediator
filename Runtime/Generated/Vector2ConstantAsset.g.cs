@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class Vector2ConstantAsset : ValueAssetConstant<Vector2>
+    public class Vector2ConstantAsset : ValueAssetSerialized<UnityEngine.Vector2>
     {
     }
 }

@@ -1,7 +1,8 @@
-﻿using Baracuda.Mediator.Callbacks;
-using Baracuda.Serialization;
+﻿using Baracuda.Bedrock.Callbacks;
+using Baracuda.Bedrock.Installer;
 using Baracuda.Tools;
 using Baracuda.Utilities;
+using Baracuda.Utilities.Collections;
 using Baracuda.Utilities.Types;
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
@@ -11,9 +12,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Assertions;
 using Object = UnityEngine.Object;
 
-namespace Baracuda.Mediator.Registry
+namespace Baracuda.Bedrock.Registry
 {
 #if UNITY_EDITOR
     [UnityEditor.InitializeOnLoadAttribute]
@@ -23,7 +25,7 @@ namespace Baracuda.Mediator.Registry
     {
         #region Fields
 
-        [SerializeField] private List<Installer.Installer> installer = new();
+        [SerializeField] private List<SystemInstallerAsset> installer = new();
         [Space]
         [SerializeField] private List<Object> singletons;
         [Line]
@@ -44,7 +46,7 @@ namespace Baracuda.Mediator.Registry
         #region Singleton API
 
         /// <summary>
-        ///     Register a singleton object. The object is then cached persistently and can be resolved with by its type.
+        ///     AddSingleton a singleton object. The object is then cached persistently and can be resolved with by its type.
         /// </summary>
         public static void RegisterSingleton<T>(T instance) where T : Object
         {
@@ -77,7 +79,7 @@ namespace Baracuda.Mediator.Registry
         public static IReadOnlyDictionary<int, Object> Registry => Singleton.registry;
 
         /// <summary>
-        ///     Register a unique asset. Registered assets can be resolved using their <see cref="RuntimeGUID" />
+        ///     AddSingleton a unique asset. Registered assets can be resolved using their <see cref="RuntimeGUID" />
         /// </summary>
         public static void RegisterAsset<T>(T asset) where T : Object, IAssetGUID
         {
@@ -94,7 +96,7 @@ namespace Baracuda.Mediator.Registry
         }
 
         /// <summary>
-        ///     Resolve an asset of type T by its GUID
+        ///     Get an asset of type T by its GUID
         /// </summary>
         public static T ResolveAsset<T>(string guid) where T : Object
         {
@@ -102,7 +104,7 @@ namespace Baracuda.Mediator.Registry
         }
 
         /// <summary>
-        ///     Resolve an asset of type T by its GUID Hash
+        ///     Get an asset of type T by its GUID Hash
         /// </summary>
         public static T ResolveAsset<T>(int hash) where T : Object
         {
@@ -110,7 +112,7 @@ namespace Baracuda.Mediator.Registry
         }
 
         /// <summary>
-        ///     Resolve an asset of type T by its GUID
+        ///     Get an asset of type T by its GUID
         /// </summary>
         public static T ResolveAsset<T>(RuntimeGUID guid) where T : Object
         {
@@ -118,7 +120,7 @@ namespace Baracuda.Mediator.Registry
         }
 
         /// <summary>
-        ///     Try Resolve an asset of type T by its GUID
+        ///     Try Get an asset of type T by its GUID
         /// </summary>
         public static bool TryResolveAsset<T>(string guid, out T result) where T : Object
         {
@@ -133,7 +135,7 @@ namespace Baracuda.Mediator.Registry
         }
 
         /// <summary>
-        ///     Try Resolve an asset of type T by its GUID
+        ///     Try Get an asset of type T by its GUID
         /// </summary>
         public static bool TryResolveAsset<T>(int hash, out T result) where T : Object
         {
@@ -169,9 +171,9 @@ namespace Baracuda.Mediator.Registry
         #endregion
 
 
-        #region Installer API
+        #region SystemInstallerAsset API
 
-        public static void RegisterInstaller<T>(T instance) where T : Installer.Installer
+        public static void RegisterInstaller<T>(T instance) where T : SystemInstallerAsset
         {
             Singleton.installer.AddUnique(instance);
         }
@@ -179,14 +181,7 @@ namespace Baracuda.Mediator.Registry
         #endregion
 
 
-        #region Installer
-
-        [CallbackOnInitialization]
-        [CallbackOnBeforeFirstSceneLoad]
-        private void Initialize()
-        {
-            InstallRuntimeSystemsAsync().Forget();
-        }
+        #region SystemInstallerAsset
 
         [CallbackOnApplicationQuit]
         private void Shutdown()
@@ -194,7 +189,7 @@ namespace Baracuda.Mediator.Registry
             _isOrHasBeenInstalled = false;
         }
 
-        public async UniTask InstallRuntimeSystemsAsync()
+        public void InstallRuntimeSystems()
         {
             if (_isOrHasBeenInstalled)
             {
@@ -203,15 +198,10 @@ namespace Baracuda.Mediator.Registry
 
             _isOrHasBeenInstalled = true;
 
-            if (FileSystem.IsInitialized is false)
-            {
-                await FileSystem.AwaitInitializationAsync();
-            }
-
             installer.Sort();
             foreach (var installation in installer)
             {
-                await installation.InstallAsync();
+                installation.Install();
             }
             foreach (var installation in installer)
             {
@@ -436,9 +426,17 @@ namespace Baracuda.Mediator.Registry
         private static async UniTaskVoid ValidateRegistryAsync()
         {
             await Gameloop.DelayedCallAsync();
-            if (Singleton == null)
+
+            // We load installer asset to make sure they are loaded in the editor when starting a game.
+            var guids = UnityEditor.AssetDatabase.FindAssets($"t:{typeof(SystemInstallerAsset)}");
+            for (var i = 0; i < guids.Length; i++)
             {
-                Debug.LogWarning("Asset Registry Not Found!");
+                var assetPath = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[i]);
+                var assets = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(assetPath);
+                foreach (var asset in assets)
+                {
+                    Assert.IsNotNull(asset);
+                }
             }
         }
 
@@ -448,7 +446,7 @@ namespace Baracuda.Mediator.Registry
             Singleton.registry.TryRemove(guid.GetHashCode());
             Singleton.singletons.Remove(asset);
 
-            if (asset is Installer.Installer installation)
+            if (asset is SystemInstallerAsset installation)
             {
                 Singleton.installer.Remove(installation);
             }

@@ -1,4 +1,4 @@
-﻿namespace Baracuda.Mediator.Pooling
+﻿namespace Baracuda.Bedrock.Pooling
 {
     public interface IPoolObject
     {

@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using Object = UnityEngine.Object;
 
-namespace Baracuda.Mediator.Callbacks
+namespace Baracuda.Bedrock.Callbacks
 {
     public partial class Gameloop
     {

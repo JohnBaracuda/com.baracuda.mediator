@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Baracuda.Mediator.Pooling
+namespace Baracuda.Bedrock.Pooling
 {
     public class LineRendererPool : ComponentPool<LineRenderer>
     {

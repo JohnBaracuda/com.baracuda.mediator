@@ -1,4 +1,4 @@
-using Baracuda.Mediator.Locks;
+using Baracuda.Bedrock.Locks;
 using System;
 
 namespace Baracuda.Mediator

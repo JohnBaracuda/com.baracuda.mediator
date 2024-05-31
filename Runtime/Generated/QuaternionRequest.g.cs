@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Requests;
+using Baracuda.Bedrock.Requests;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class QuaternionRequest : RequestAsset<Quaternion>
+    public class QuaternionRequest : RequestAsset<UnityEngine.Quaternion>
     {
     }
 }

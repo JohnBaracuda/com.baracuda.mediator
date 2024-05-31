@@ -1,10 +1,10 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using Baracuda.Utilities.Types;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class OptionalStringSaveAsset : ValueAssetSave<Optional<string>>
+    public class OptionalStringSaveAsset : ValueAssetSave<Baracuda.Utilities.Types.Optional<System.String>>
     {
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Baracuda.Mediator.Events
+namespace Baracuda.Bedrock.Events
 {
     public readonly struct LambdaHandle : IDisposable
     {

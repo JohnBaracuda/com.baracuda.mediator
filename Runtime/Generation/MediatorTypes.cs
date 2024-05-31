@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Baracuda.Mediator.Generation
+namespace Baracuda.Bedrock.Generation
 {
     [Flags]
     public enum MediatorTypes

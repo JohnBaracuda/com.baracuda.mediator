@@ -1,10 +1,10 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using Baracuda.Utilities.Types;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class OptionalIntQueue : QueueAsset<Optional<int>>
+    public class OptionalIntQueue : QueueAsset<Baracuda.Utilities.Types.Optional<System.Int32>>
     {
     }
 }

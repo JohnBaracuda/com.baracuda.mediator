@@ -1,8 +1,8 @@
-using Baracuda.Mediator.Callbacks;
+using Baracuda.Bedrock.Callbacks;
 using Baracuda.Tools;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Cursor
+namespace Baracuda.Bedrock.Cursor
 {
     /// <summary>
     ///     Class for storing custom cursor animation / texture data.

@@ -1,5 +1,5 @@
-using Baracuda.Mediator.Callbacks;
-using Baracuda.Mediator.Events;
+using Baracuda.Bedrock.Callbacks;
+using Baracuda.Bedrock.Events;
 using Baracuda.Tools;
 using Baracuda.Utilities;
 using JetBrains.Annotations;
@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Locks
+namespace Baracuda.Bedrock.Locks
 {
     /// <summary>
     ///     Generic variant of a <see cref="LockAsset{T}" />.
@@ -112,7 +112,7 @@ namespace Baracuda.Mediator.Locks
         }
 
         /// <summary>
-        ///     Add a new object to the list of locks. An object can only be added once as a lock!
+        ///     AddSingleton a new object to the list of locks. An object can only be added once as a lock!
         /// </summary>
         /// <returns>true if the object was added, false if it was already added</returns>
         [PublicAPI]
@@ -255,7 +255,7 @@ namespace Baracuda.Mediator.Locks
         }
 
         /// <summary>
-        ///     Add a new object to the list of locks. An object can only be added once as a lock!
+        ///     AddSingleton a new object to the list of locks. An object can only be added once as a lock!
         /// </summary>
         /// <returns>true if the object was added, false if it was already added</returns>
         [PublicAPI]

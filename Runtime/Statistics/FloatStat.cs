@@ -4,7 +4,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Baracuda.Mediator.Statistics
+namespace Baracuda.Bedrock.Statistics
 {
     public class FloatStat : StatAsset<double>
     {

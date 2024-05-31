@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using Baracuda.Utilities.Types;
 
 namespace Baracuda.Mediator
 {
-    public class TimerConstantAsset : ValueAssetConstant<Timer>
+    public class TimerConstantAsset : ValueAssetSerialized<Baracuda.Utilities.Types.Timer>
     {
     }
 }

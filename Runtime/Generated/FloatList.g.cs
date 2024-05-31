@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class FloatList : ListAsset<float>
+    public class FloatList : ListAsset<System.Single>
     {
     }
 }

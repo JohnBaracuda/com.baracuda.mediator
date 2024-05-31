@@ -1,5 +1,5 @@
-﻿using Baracuda.Mediator.Generation;
-using Baracuda.Utilities.Types;
+﻿using Baracuda.Bedrock.Generation;
+using Baracuda.Utilities.Collections;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine;
@@ -29,7 +29,7 @@ namespace Baracuda.Mediation.Editor
             {MediatorType.QueueAsset, "Queue"},
             {MediatorType.DictionaryAsset, "Dictionary"},
             {MediatorType.MapAsset, "Map"},
-            {MediatorType.ValueAssetConstant, "SerializedAsset"},
+            {MediatorType.ValueAssetSerialized, "SerializedAsset"},
             {MediatorType.ValueAssetRuntime, "RuntimeAsset"},
             {MediatorType.ValueAssetSave, "SaveAsset"},
             {MediatorType.ValueAssetProperty, "PropertyAsset"},

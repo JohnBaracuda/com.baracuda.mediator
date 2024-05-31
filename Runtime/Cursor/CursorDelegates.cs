@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Baracuda.Mediator.Cursor
+namespace Baracuda.Bedrock.Cursor
 {
     public delegate void LockStateDelegate(CursorLockMode lockState);
 

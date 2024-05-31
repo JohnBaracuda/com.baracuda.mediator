@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using System;
 
-namespace Baracuda.Mediator.Callbacks
+namespace Baracuda.Bedrock.Callbacks
 {
     /// <summary>
     ///     Mark a method in a registered scriptable object or behaviour that is then called during a specific callback.

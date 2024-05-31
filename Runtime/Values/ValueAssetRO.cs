@@ -1,6 +1,6 @@
 using System;
 
-namespace Baracuda.Mediator.Values
+namespace Baracuda.Bedrock.Values
 {
     /// <summary>
     ///     ReadOnly value asset.

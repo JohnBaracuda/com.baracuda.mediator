@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class ByteValueAsset : ValueAsset<byte>
+    public class ByteValueAsset : ValueAsset<System.Byte>
     {
     }
 }

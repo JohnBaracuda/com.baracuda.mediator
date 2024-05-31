@@ -1,4 +1,4 @@
-﻿namespace Baracuda.Mediator.Scenes
+﻿namespace Baracuda.Bedrock.Scenes
 {
     public interface ISceneLoadTrigger
     {

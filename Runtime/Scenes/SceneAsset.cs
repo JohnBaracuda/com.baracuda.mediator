@@ -1,6 +1,6 @@
-﻿using Baracuda.Mediator.Callbacks;
-using Baracuda.Mediator.Events;
-using Baracuda.Mediator.Registry;
+﻿using Baracuda.Bedrock.Callbacks;
+using Baracuda.Bedrock.Events;
+using Baracuda.Bedrock.Registry;
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using System;
@@ -9,7 +9,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Baracuda.Mediator.Scenes
+namespace Baracuda.Bedrock.Scenes
 {
     public class SceneAsset : RegisteredAsset
     {
@@ -138,14 +138,14 @@ namespace Baracuda.Mediator.Scenes
                 case SceneProvider.BuildIndex:
                     if (SceneManager.GetSceneByBuildIndex(buildIndex).IsValid() is false)
                     {
-                        Debug.LogError("Scene Build Index is not valid!", this);
+                        Debug.LogError("Scene Asset Build Index is not valid!", this);
                         return;
                     }
                     break;
                 case SceneProvider.Addressable:
                     if (sceneReference.editorAsset == null)
                     {
-                        Debug.LogError("Scene Reference is not set!", this);
+                        Debug.LogError("Scene Asset Reference is not set!", this);
                         return;
                     }
                     break;
@@ -156,11 +156,11 @@ namespace Baracuda.Mediator.Scenes
 
             if (State is not (SceneState.None or SceneState.Unloaded))
             {
-                Debug.LogWarning("Scene", $"Cannot load {this} because it is {State}");
+                Debug.LogWarning("Scene Asset", $"Cannot load {this} because it is {State}");
                 return;
             }
 
-            Debug.Log("Scene", $"Loading {this}");
+            Debug.Log("Scene Asset", $"Loading {this}");
 
             State = SceneState.Loading;
             beforeLoad.Raise(this);
@@ -187,18 +187,18 @@ namespace Baracuda.Mediator.Scenes
 #if UNITY_EDITOR
             if (sceneReference.editorAsset == null)
             {
-                Debug.LogError("Scene Reference is not set!", this);
+                Debug.LogError("Scene Asset Reference is not set!", this);
                 return;
             }
 #endif
 
             if (State is not (SceneState.None or SceneState.Unloaded))
             {
-                Debug.LogWarning("Scene", $"Cannot load {this} because it is {State}");
+                Debug.LogWarning("Scene Asset", $"Cannot load {this} because it is {State}");
                 return;
             }
 
-            Debug.Log("Scene", $"Loading {this}");
+            Debug.Log("Scene Asset", $"Loading {this}");
 
             var scenes = LoadedScenes.ToArray();
             foreach (var activeScene in scenes)
@@ -245,14 +245,14 @@ namespace Baracuda.Mediator.Scenes
 #if UNITY_EDITOR
             if (sceneReference.editorAsset == null)
             {
-                Debug.LogError("Scene Reference is not set!", this);
+                Debug.LogError("ForActiveScene Reference is not set!", this);
                 return;
             }
 #endif
 
             if (State is not SceneState.Loaded)
             {
-                Debug.LogWarning("Scene", $"Cannot unload {this} because it is {State}");
+                Debug.LogWarning("ForActiveScene", $"Cannot unload {this} because it is {State}");
                 return;
             }
 

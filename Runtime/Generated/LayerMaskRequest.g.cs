@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Requests;
+using Baracuda.Bedrock.Requests;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class LayerMaskRequest : RequestAsset<LayerMask>
+    public class LayerMaskRequest : RequestAsset<UnityEngine.LayerMask>
     {
     }
 }

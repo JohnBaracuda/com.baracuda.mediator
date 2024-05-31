@@ -1,6 +1,6 @@
 ﻿using Baracuda.Utilities.Types;
 
-namespace Baracuda.Mediator.Registry
+namespace Baracuda.Bedrock.Registry
 {
     public interface IAssetGUID
     {

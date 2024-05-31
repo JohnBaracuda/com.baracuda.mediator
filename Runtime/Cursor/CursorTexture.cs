@@ -2,7 +2,7 @@ using Baracuda.Tools;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Cursor
+namespace Baracuda.Bedrock.Cursor
 {
     public class CursorTexture : CursorFile
     {

@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Baracuda.Mediator.Events
+namespace Baracuda.Bedrock.Events
 {
     public static class EventExtensions
     {
-        #region Null Check Event Raise
+        #region Null Check Event Inject
 
         /// <summary>
-        ///     Raise the event if it is not null.
+        ///     Inject the event if it is not null.
         /// </summary>
         /// <returns>true if the event was not null</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -24,7 +24,7 @@ namespace Baracuda.Mediator.Events
         }
 
         /// <summary>
-        ///     Raise the event if it is not null.
+        ///     Inject the event if it is not null.
         /// </summary>
         /// <returns>true if the event was not null</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -40,7 +40,7 @@ namespace Baracuda.Mediator.Events
         }
 
         /// <summary>
-        ///     Raise the event if it is not null.
+        ///     Inject the event if it is not null.
         /// </summary>
         /// <returns>true if the event was not null</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -56,7 +56,7 @@ namespace Baracuda.Mediator.Events
         }
 
         /// <summary>
-        ///     Raise the event if it is not null.
+        ///     Inject the event if it is not null.
         /// </summary>
         /// <returns>true if the event was not null</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -72,7 +72,7 @@ namespace Baracuda.Mediator.Events
         }
 
         /// <summary>
-        ///     Raise the event if it is not null.
+        ///     Inject the event if it is not null.
         /// </summary>
         /// <returns>true if the event was not null</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

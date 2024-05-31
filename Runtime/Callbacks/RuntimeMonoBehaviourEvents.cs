@@ -3,7 +3,7 @@ using Baracuda.Utilities;
 using System;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Callbacks
+namespace Baracuda.Bedrock.Callbacks
 {
     [DisallowMultipleComponent]
     [ExecutionOrder(0)]

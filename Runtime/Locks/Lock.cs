@@ -1,10 +1,11 @@
-﻿using Baracuda.Mediator.Events;
+﻿using Baracuda.Bedrock.Events;
+using Baracuda.Utilities.Pools;
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Baracuda.Mediator.Locks
+namespace Baracuda.Bedrock.Locks
 {
     public class Lock : ILock
     {
@@ -67,6 +68,15 @@ namespace Baracuda.Mediator.Locks
         }
 
         /// <summary>
+        ///     Returns true if no object is currently registered.
+        /// </summary>
+        [PublicAPI]
+        public bool HasNone()
+        {
+            return !Locks.Any();
+        }
+
+        /// <summary>
         ///     Returns true if the passed object is registered.
         /// </summary>
         [PublicAPI]
@@ -76,7 +86,7 @@ namespace Baracuda.Mediator.Locks
         }
 
         /// <summary>
-        ///     Add a new object to the list of locks. An object can only be added once as a lock!
+        ///     AddSingleton a new object to the list of locks. An object can only be added once as a lock!
         /// </summary>
         /// <returns>true if the object was added, false if it was already added</returns>
         [PublicAPI]
@@ -122,6 +132,17 @@ namespace Baracuda.Mediator.Locks
             return count;
         }
 
+        /// <summary>
+        ///     Remove all providing objects and remove all callbacks.
+        /// </summary>
+        [PublicAPI]
+        public void Dispose()
+        {
+            _lastRemovedEvent.Clear();
+            _firstAddedEvent.Clear();
+            Locks.Clear();
+        }
+
         #endregion
 
 
@@ -130,6 +151,17 @@ namespace Baracuda.Mediator.Locks
         public static explicit operator bool(Lock lockAsset)
         {
             return lockAsset.HasAny();
+        }
+
+        public override string ToString()
+        {
+            var sb = StringBuilderPool.Get();
+            foreach (var @lock in Locks)
+            {
+                sb.Append(@lock);
+                sb.Append(", ");
+            }
+            return StringBuilderPool.BuildAndRelease(sb);
         }
 
         #endregion

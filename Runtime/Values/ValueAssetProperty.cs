@@ -1,11 +1,11 @@
-﻿using Baracuda.Mediator.Events;
+﻿using Baracuda.Bedrock.Events;
 using Baracuda.Tools;
 using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Baracuda.Mediator.Values
+namespace Baracuda.Bedrock.Values
 {
     public abstract class ValueAssetProperty<TValue> : ValueAssetRW<TValue>, IValueAsset<TValue>, IPropertyAsset<TValue>
     {

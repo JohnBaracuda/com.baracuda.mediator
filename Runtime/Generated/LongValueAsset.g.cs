@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class LongValueAsset : ValueAsset<long>
+    public class LongValueAsset : ValueAsset<System.Int64>
     {
     }
 }

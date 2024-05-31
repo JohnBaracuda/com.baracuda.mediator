@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class IntConstantAsset : ValueAssetConstant<int>
+    public class IntConstantAsset : ValueAssetSerialized<System.Int32>
     {
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Baracuda.Mediator.Statistics
+﻿namespace Baracuda.Bedrock.Statistics
 {
     public class StringStat : StatAsset<string>
     {

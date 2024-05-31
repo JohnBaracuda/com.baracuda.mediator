@@ -1,4 +1,4 @@
-﻿namespace Baracuda.Mediator.Events
+﻿namespace Baracuda.Bedrock.Events
 {
     public delegate void InAction<T>(in T arg);
     public delegate void InAction<T1, T2>(in T1 arg1, in T2 arg2);

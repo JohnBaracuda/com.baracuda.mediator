@@ -1,4 +1,4 @@
-using Baracuda.Mediator.Statistics;
+using Baracuda.Bedrock.Statistics;
 using Baracuda.Utilities;
 using Baracuda.Utilities.Editor.Helper;
 using System;

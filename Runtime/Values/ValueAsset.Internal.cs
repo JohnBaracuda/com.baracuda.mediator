@@ -1,5 +1,5 @@
-﻿using Baracuda.Mediator.Callbacks;
-using Baracuda.Mediator.Events;
+﻿using Baracuda.Bedrock.Callbacks;
+using Baracuda.Bedrock.Events;
 using Baracuda.Serialization;
 using Baracuda.Tools;
 using Baracuda.Utilities.Types;
@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Baracuda.Mediator.Values
+namespace Baracuda.Bedrock.Values
 {
     public abstract partial class ValueAsset<TValue>
     {

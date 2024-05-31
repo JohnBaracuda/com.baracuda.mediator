@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class FloatConstantAsset : ValueAssetConstant<float>
+    public class FloatConstantAsset : ValueAssetSerialized<System.Single>
     {
     }
 }

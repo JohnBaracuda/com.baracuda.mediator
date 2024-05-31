@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class IntRuntimeAsset : ValueAssetRuntime<int>
+    public class IntRuntimeAsset : ValueAssetRuntime<System.Int32>
     {
     }
 }

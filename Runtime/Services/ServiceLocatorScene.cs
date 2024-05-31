@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace Baracuda.Mediator.Services
+namespace Baracuda.Bedrock.Services
 {
-    [AddComponentMenu("ServiceLocator/ServiceLocator Scene")]
+    [AddComponentMenu("ServiceLocator/ServiceLocator ForActiveScene")]
     public class ServiceLocatorScene : ServiceLocator
     {
         private bool _hasBeenBootstrapped;

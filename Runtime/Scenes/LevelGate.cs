@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Baracuda.Mediator.Scenes
+namespace Baracuda.Bedrock.Scenes
 {
     /// <summary>
     ///     Trigger to perform async level loading

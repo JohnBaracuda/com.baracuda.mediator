@@ -1,10 +1,10 @@
-using Baracuda.Mediator.Callbacks;
+using Baracuda.Bedrock.Callbacks;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Baracuda.Mediator.Utility
+namespace Baracuda.Bedrock.Utility
 {
     public static class ScriptableAssetUtility
     {

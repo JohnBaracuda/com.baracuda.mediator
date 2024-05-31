@@ -1,7 +1,7 @@
 ﻿using Baracuda.Utilities;
 using TMPro;
 
-namespace Baracuda.Mediator.Pooling
+namespace Baracuda.Bedrock.Pooling
 {
     public class TextPool : PoolAsset<TMP_Text>
     {

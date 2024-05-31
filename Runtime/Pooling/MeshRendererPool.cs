@@ -1,7 +1,7 @@
 ﻿using Baracuda.Utilities;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Pooling
+namespace Baracuda.Bedrock.Pooling
 {
     public class MeshRendererPool : PoolAsset<MeshRenderer>
     {

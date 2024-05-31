@@ -1,7 +1,6 @@
-using Baracuda.Mediator.Callbacks;
+using Baracuda.Bedrock.Callbacks;
 using Baracuda.Utilities;
 using Baracuda.Utilities.Editor.Inspector;
-using Sirenix.OdinInspector.Editor;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,7 +9,7 @@ using Object = UnityEngine.Object;
 
 namespace Baracuda.Mediation.Editor
 {
-    public abstract class ProjectEditorWindow : OdinEditorWindow
+    public abstract class ProjectEditorWindow : Sirenix.OdinInspector.Editor.OdinEditorWindow
     {
         #region Settings
 

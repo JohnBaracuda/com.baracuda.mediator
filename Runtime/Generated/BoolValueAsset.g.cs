@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class BoolValueAsset : ValueAsset<bool>
+    public class BoolValueAsset : ValueAsset<System.Boolean>
     {
     }
 }

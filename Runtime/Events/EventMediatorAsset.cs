@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Events
+namespace Baracuda.Bedrock.Events
 {
     public abstract class EventMediatorAsset : MediatorAsset
     {

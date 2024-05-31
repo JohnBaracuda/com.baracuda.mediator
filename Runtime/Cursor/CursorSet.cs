@@ -1,12 +1,12 @@
-using Baracuda.Mediator.Callbacks;
-using Baracuda.Mediator.Injection;
+using Baracuda.Bedrock.Callbacks;
+using Baracuda.Bedrock.Injection;
 using Baracuda.Tools;
-using Baracuda.Utilities.Types;
+using Baracuda.Utilities.Collections;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Pool;
 
-namespace Baracuda.Mediator.Cursor
+namespace Baracuda.Bedrock.Cursor
 {
     public class CursorSet : ScriptableAsset
     {
@@ -43,7 +43,7 @@ namespace Baracuda.Mediator.Cursor
 
 #if UNITY_EDITOR
 
-        [Inject] private readonly CursorSystem _cursorSystem;
+        [Inject] private readonly CursorManager _cursorManager;
 
         [Button]
         [Line]
@@ -84,7 +84,7 @@ namespace Baracuda.Mediator.Cursor
         {
             if (Application.isPlaying)
             {
-                _cursorSystem.SwitchActiveCursorSet(this);
+                _cursorManager.SwitchActiveCursorSet(this);
             }
         }
 #endif

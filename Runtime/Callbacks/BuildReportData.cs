@@ -1,4 +1,4 @@
-﻿namespace Baracuda.Mediator.Callbacks
+﻿namespace Baracuda.Bedrock.Callbacks
 {
     public struct BuildReportData
     {

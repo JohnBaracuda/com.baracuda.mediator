@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Events;
+using Baracuda.Bedrock.Events;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class QuaternionEvent : EventAsset<Quaternion>
+    public class QuaternionEvent : EventAsset<UnityEngine.Quaternion>
     {
     }
 }

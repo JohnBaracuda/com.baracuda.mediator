@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class Vector4Array : ArrayAsset<Vector4>
+    public class Vector4Array : ArrayAsset<UnityEngine.Vector4>
     {
     }
 }

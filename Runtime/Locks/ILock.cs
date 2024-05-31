@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Baracuda.Mediator.Locks
+namespace Baracuda.Bedrock.Locks
 {
     public interface ILock
     {
@@ -24,7 +24,7 @@ namespace Baracuda.Mediator.Locks
         bool IsObjectRegistered(object instance);
 
         /// <summary>
-        ///     Add a new object to the list of locks. An object can only be added once as a lock!
+        ///     AddSingleton a new object to the list of locks. An object can only be added once as a lock!
         /// </summary>
         /// <returns>true if the object was added, false if it was already added</returns>
         bool Add(object lockInstance);

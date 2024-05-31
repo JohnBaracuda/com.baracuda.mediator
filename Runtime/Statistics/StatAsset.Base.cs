@@ -1,5 +1,5 @@
-﻿using Baracuda.Mediator.Callbacks;
-using Baracuda.Mediator.Events;
+﻿using Baracuda.Bedrock.Callbacks;
+using Baracuda.Bedrock.Events;
 using Baracuda.Serialization;
 using Baracuda.Tools;
 using JetBrains.Annotations;
@@ -8,7 +8,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Localization;
 
-namespace Baracuda.Mediator.Statistics
+namespace Baracuda.Bedrock.Statistics
 {
     public abstract class StatAsset : ScriptableAsset
     {

@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using System;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Callbacks
+namespace Baracuda.Bedrock.Callbacks
 {
     [ExecutionOrder(-10000)]
     internal sealed class EarlyUpdateEvents : MonoBehaviour

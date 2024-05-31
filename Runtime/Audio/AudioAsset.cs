@@ -1,4 +1,4 @@
-using Baracuda.Mediator.Callbacks;
+using Baracuda.Bedrock.Callbacks;
 using Baracuda.Utilities.Types;
 using FMOD.Studio;
 using FMODUnity;

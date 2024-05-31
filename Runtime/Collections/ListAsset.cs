@@ -1,5 +1,4 @@
-﻿using Baracuda.Mediator.Collections.Abstractions;
-using Baracuda.Mediator.Events;
+﻿using Baracuda.Bedrock.Events;
 using Baracuda.Tools;
 using Sirenix.OdinInspector;
 using System;
@@ -8,7 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 
-namespace Baracuda.Mediator.Collections
+namespace Baracuda.Bedrock.Collections
 {
     public abstract class ListAsset<T> : RuntimeCollectionAsset<T>, IList<T>, IReadOnlyList<T>
     {

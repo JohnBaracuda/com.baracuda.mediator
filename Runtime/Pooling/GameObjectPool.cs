@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Baracuda.Mediator.Pooling
+namespace Baracuda.Bedrock.Pooling
 {
     /// <summary>
     ///     Generic <see cref="GameObject" /> object pool.

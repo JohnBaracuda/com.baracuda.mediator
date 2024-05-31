@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Events;
+using Baracuda.Bedrock.Events;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class LayerMaskEvent : EventAsset<LayerMask>
+    public class LayerMaskEvent : EventAsset<UnityEngine.LayerMask>
     {
     }
 }

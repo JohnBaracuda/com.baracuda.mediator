@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Baracuda.Mediator.Generation
+namespace Baracuda.Bedrock.Generation
 {
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     public class GenerateMediatorForAttribute : Attribute

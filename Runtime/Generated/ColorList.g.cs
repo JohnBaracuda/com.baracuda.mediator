@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class ColorList : ListAsset<Color>
+    public class ColorList : ListAsset<UnityEngine.Color>
     {
     }
 }

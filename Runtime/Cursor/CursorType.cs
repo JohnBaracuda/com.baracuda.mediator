@@ -1,6 +1,6 @@
-﻿using Baracuda.Mediator.Enums;
+﻿using Baracuda.Bedrock.Values;
 
-namespace Baracuda.Mediator.Cursor
+namespace Baracuda.Bedrock.Cursor
 {
     public class CursorType : EnumAsset<CursorType>
     {

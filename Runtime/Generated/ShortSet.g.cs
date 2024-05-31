@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class ShortSet : SetAsset<short>
+    public class ShortSet : SetAsset<System.Int16>
     {
     }
 }

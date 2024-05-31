@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class Vector3List : ListAsset<Vector3>
+    public class Vector3List : ListAsset<UnityEngine.Vector3>
     {
     }
 }

@@ -1,6 +1,6 @@
 ﻿using UnityEngine.VFX;
 
-namespace Baracuda.Mediator.Pooling
+namespace Baracuda.Bedrock.Pooling
 {
     /// <summary>
     ///     Generic <see cref="VisualEffect" /> object pool.

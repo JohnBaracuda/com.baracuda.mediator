@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class ScriptableObjectRuntimeAsset : ValueAssetRuntime<ScriptableObject>
+    public class ScriptableObjectRuntimeAsset : ValueAssetRuntime<UnityEngine.ScriptableObject>
     {
     }
 }

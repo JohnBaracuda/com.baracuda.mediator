@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Collections
+namespace Baracuda.Bedrock.Collections
 {
     /// <summary>
     ///     Collection Asset representing a constant value set that is serialized in the inspector, cannot contain duplicates

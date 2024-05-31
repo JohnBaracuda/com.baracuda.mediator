@@ -1,4 +1,4 @@
-﻿namespace Baracuda.Mediator.Callbacks
+﻿namespace Baracuda.Bedrock.Callbacks
 {
 #if UNITY_EDITOR
     internal class BuildPreprocessor : UnityEditor.Build.IPreprocessBuildWithReport

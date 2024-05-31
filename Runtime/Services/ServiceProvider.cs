@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Baracuda.Mediator.Services
+namespace Baracuda.Bedrock.Services
 {
     public class ServiceProvider : MonoBehaviour
     {

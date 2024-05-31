@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class ScriptableObjectStack : StackAsset<ScriptableObject>
+    public class ScriptableObjectStack : StackAsset<UnityEngine.ScriptableObject>
     {
     }
 }

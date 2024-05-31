@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class IntStack : StackAsset<int>
+    public class IntStack : StackAsset<System.Int32>
     {
     }
 }

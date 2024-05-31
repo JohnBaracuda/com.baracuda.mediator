@@ -1,375 +1,954 @@
-﻿using Baracuda.Mediator.Callbacks;
-using Baracuda.Mediator.Events;
-using Baracuda.Mediator.Registry;
-using Baracuda.Serialization;
+﻿using Baracuda.Tools;
 using Baracuda.Utilities;
+using Baracuda.Utilities.Collections;
 using Baracuda.Utilities.Types;
 using JetBrains.Annotations;
-using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Assertions;
+using Action = System.Action;
 
-namespace Baracuda.Mediator.States
+namespace Baracuda.Bedrock.States
 {
-    /// <summary>
-    ///     Base class for scriptable object based state machines.
-    /// </summary>
-    public abstract class StateMachine : RegisteredAsset
-    {
-    }
-
-    /// <summary>
-    ///     Generic base class for scriptable object based state machines.
-    /// </summary>
-    /// <typeparam name="T">The type of the state instances</typeparam>
-    public abstract class StateMachine<T> : StateMachine where T : State<T>
+    public class StateMachine<TState> : MonoBehaviour where TState : unmanaged, Enum
     {
         #region Fields
 
-        [Title("State Machine")]
-        [Tooltip("When enabled, the state machine automatically enabled on load.")]
-        [SerializeField] private bool autoEnable = true;
-        [Tooltip("When enabled, the active state of the state machine is saved persistently.")]
-        [SerializeField] private bool saveStatePersistent;
-        [ShowIf(nameof(saveStatePersistent))]
-        [SerializeField] private bool saveNullState;
-        [Tooltip("Optional start state that is only applied if no state is set manually during startup.")]
-        [SerializeField] private Optional<T> startState;
-        [Space]
-        [Tooltip("Registry containing every available state.")]
-        [SerializeField] private List<T> states;
+        [Debug]
+        private TState _state;
+        private TState _previousState;
+        private readonly LimitedQueue<TState> _stateHistory = new(16);
+        private readonly Func<bool> _trueFunc = () => true;
+        private readonly EqualityComparer<TState> _comparer = EqualityComparer<TState>.Default;
 
-        [Title("Debug")]
-        [Tooltip("Color in which the log category is displayed.")]
-        [SerializeField] private Color messageColor = Color.cyan;
+        // Callbacks
+        private readonly Dictionary<TState, List<Action>> _stateEnterCallbacks = new();
+        private readonly List<Action<TState>> _parameterizedStateEnterCallbacks = new();
+        private readonly Dictionary<ulong, List<Action>> _stateEnterFromToCallbacks = new();
+        private readonly Dictionary<TState, List<Action>> _stateExitCallbacks = new();
+        private readonly List<Action<TState>> _parameterizedStateExitCallbacks = new();
+        private readonly Dictionary<TState, List<Action<float>>> _stateUpdateCallbacksWithDeltaTime = new();
+        private readonly Dictionary<TState, List<Action>> _stateUpdateCallbacks = new();
+        private readonly Dictionary<TState, List<Action<float>>> _stateTransitionUpdateCallbacks = new();
+        private readonly List<Action<TState, TState>> _globalStateTransitionCallbacks = new();
 
-        [NonSerialized] private bool _enabled;
-        [NonSerialized] private T _bufferedState;
-        private readonly Broadcast<T, T> _stateChanged = new();
-        private const int NullIndex = -1;
+        // Transitions
+        private readonly Dictionary<TState, List<ConditionalStateTransition>> _conditionalStateTransitions = new();
+        private readonly Dictionary<TState, TimedStateTransition> _timedStateTransitions = new();
+        [Debug] private bool _isTimerTransitionActive;
+        [Debug] private bool _isTransitionActive;
+        [Debug] private Transition _transition;
 
-        public event Action<T, T> StateChanged
+        // Blocking
+        [Debug] private readonly Dictionary<TState, HashSet<object>> _stateBlocker = new();
+        [Debug] private readonly HashSet<object> _stateMachineBlocker = new();
+
+        // Alias
+        private readonly Dictionary<TState, IStateObject> _stateObjects = new();
+        private readonly Dictionary<string, TState> _stateAlias = new(StringComparer.CurrentCultureIgnoreCase);
+
+        // Logging
+        private readonly LogCategory _log;
+        private readonly Color _color = RandomUtility.LoggingColor();
+
+        // Overrides
+
+        private TState _lastNonOverrideState;
+        private readonly HashSet<object> _overrideObjects = new();
+
+        protected StateMachine()
         {
-            add => _stateChanged.Add(value);
-            remove => _stateChanged.Remove(value);
+            _log = GetType().Name;
         }
 
         #endregion
 
 
-        #region Properties
+        #region Public API:
 
         /// <summary>
-        ///     The active state.
+        ///     Returns the current active state of the state machine.
         /// </summary>
         [PublicAPI]
-        [ReadOnly]
-        [ShowInInspector]
-        public T State { get; private set; }
-
-        /// <summary>
-        ///     The previously active state.
-        /// </summary>
-        [PublicAPI]
-        [ReadOnly]
-        [ShowInInspector]
-        public T PreviousState { get; private set; }
-
-        /// <summary>
-        ///     The active state of the system.
-        /// </summary>
-        [PublicAPI]
-        [ReadOnly]
-        [ShowInInspector]
-        public bool Enabled
+        public TState GetCurrentState()
         {
-            get => _enabled;
-            set => SetEnabled(value);
+            return _state;
+        }
+
+        /// <summary>
+        ///     Returns the state that was active before the current state.
+        /// </summary>
+        [PublicAPI]
+        public TState GetPreviousState()
+        {
+            return _previousState;
+        }
+
+        /// <summary>
+        ///     Returns the last state before the specified state, ignoring the specified state.
+        /// </summary>
+        [PublicAPI]
+        public TState GetPreviousStateThatWasNot(TState previousStateToIgnore)
+        {
+            return GetPreviousStateThatWasNotInternal(previousStateToIgnore);
+        }
+
+        /// <summary>
+        ///     Returns the last state before the current state, ignoring the specified states.
+        /// </summary>
+        [PublicAPI]
+        public TState GetPreviousStateThatWasNot(params TState[] previousStatesToIgnore)
+        {
+            return GetPreviousStateThatWasNotInternal(previousStatesToIgnore);
+        }
+
+        /// <summary>
+        ///     Returns a read-only collection of the state history.
+        /// </summary>
+        [PublicAPI]
+        public IReadOnlyCollection<TState> GetStateHistory()
+        {
+            return _stateHistory;
+        }
+
+        /// <summary>
+        ///     Sets the state without invoking enter or exit callbacks.
+        /// </summary>
+        [PublicAPI]
+        public void SetStateWithoutCallbacks(TState state)
+        {
+            _stateHistory.Enqueue(_state);
+            _previousState = _state;
+            _state = state;
+        }
+
+        /// <summary>
+        ///     Checks if the specified state is currently active.
+        /// </summary>
+        [PublicAPI]
+        public bool IsStateActive(TState state)
+        {
+            return _comparer.Equals(_state, state);
+        }
+
+        /// <summary>
+        ///     Checks if any of the specified states are currently active.
+        /// </summary>
+        [PublicAPI]
+        public bool IsStateActive(params TState[] states)
+        {
+            return _state.EqualsAny(states);
+        }
+
+        /// <summary>
+        ///     Checks if the specified state was the state before the current state.
+        /// </summary>
+        [PublicAPI]
+        public bool WasPreviousState(TState state)
+        {
+            return _comparer.Equals(state, GetPreviousState());
+        }
+
+        /// <summary>
+        ///     Checks if the specified state is not currently active.
+        /// </summary>
+        [PublicAPI]
+        public bool IsStateNotActive(TState state)
+        {
+            return !_comparer.Equals(_state, state);
+        }
+
+        /// <summary>
+        ///     Converts a string alias to the corresponding state if possible.
+        /// </summary>
+        [PublicAPI]
+        public TState? FromAlias(string alias)
+        {
+            return _stateAlias.TryGetValue(alias, out var state) ? state : null;
         }
 
         #endregion
 
 
-        #region Initialization & Shutdown
+        #region Public API: State Transition
 
-        [CallbackOnInitialization]
-        private void InitializeStateMachine()
+        /// <summary>
+        ///     Sets the state with the normal transition process, invoking relevant callbacks.
+        /// </summary>
+        [PublicAPI]
+        public void SetState(TState state)
         {
-            Log("Initializing State Machine");
-            PreviousState = null;
-
-            if (autoEnable)
-            {
-                Enabled = true;
-            }
-
-            if (_bufferedState != null)
-            {
-                var stateName = _bufferedState.name;
-                SetState(_bufferedState);
-                Log($"Set buffered state ({stateName}) as start state");
-                return;
-            }
-
-            if (saveStatePersistent && FileSystem.Profile.TryLoadFile<int>(GUID, out var stateIndex))
-            {
-                var state = stateIndex == NullIndex ? null : states[stateIndex];
-                var stateName = state != null ? state.name : "none";
-                SetState(state);
-                Log($"Set loaded state ({stateName}) as start state with index ({stateIndex})");
-                return;
-            }
-
-            if (State == null && startState.TryGetValue(out var start))
-            {
-                var stateName = start != null ? start.name : "none";
-                SetState(start);
-                Log($"Set default state ({stateName}) as start state");
-            }
+            BeginImmediateTransitionToState(state, false, false);
         }
 
-        [CallbackOnApplicationQuit]
-        private void ShutdownStateMachine()
+        /// <summary>
+        ///     Transitions to a state but will remember the last state before the first override.
+        ///     Overrides can and should be removed when the state is or should be exited.
+        ///     When the last override was removed, the last state before the first override is transitioned to again.
+        /// </summary>
+        [PublicAPI]
+        public void SetStateOverride<T>(TState state, T target) where T : class
         {
-            Enabled = false;
-            State = null;
-            State = null;
-            PreviousState = null;
-            _stateChanged.Clear();
-            _bufferedState = null;
+            SetStateOverrideInternal(state, target);
+        }
 
-            Log("Shutdown State Machine");
+        /// <summary>
+        ///     Removes an override state, potentially reverting to the last non-override state.
+        /// </summary>
+        [PublicAPI]
+        public void RemoveStateOverride<T>(T target) where T : class
+        {
+            RemoveStateOverrideInternal(target);
+        }
+
+        /// <summary>
+        ///     Sets the state after a specified delay in seconds.
+        /// </summary>
+        [PublicAPI]
+        public void SetStateAfter(TState state, float durationInSeconds)
+        {
+            BeginTimedTransitionToState(state, durationInSeconds);
+        }
+
+        /// <summary>
+        ///     Sets the state and re-enters it, allowing re invocation of callbacks even if it is the current state.
+        /// </summary>
+        [PublicAPI]
+        public void SetStateAndReinvoke(TState state)
+        {
+            BeginImmediateTransitionToState(state, true, false);
+        }
+
+        /// <summary>
+        ///     Cancels any currently active state transition.
+        /// </summary>
+        [PublicAPI]
+        public void CancelActiveTransition()
+        {
+            CancelActiveTransitionInternal();
         }
 
         #endregion
 
 
-        #region Set State
+        #region Public API: Blocking
 
         /// <summary>
-        ///     Set the active state.
+        ///     Blocks a state from being entered, with a specific blocker.
         /// </summary>
-        public void SetState(T nextState)
+        [PublicAPI]
+        public void BlockState(TState state, object blocker)
         {
-            if (nextState == State)
+            BlockStateInternal(state, blocker);
+        }
+
+        /// <summary>
+        ///     Unblocks a previously blocked state, allowing it to be entered again.
+        /// </summary>
+        [PublicAPI]
+        public void UnblockState(TState state, object blocker)
+        {
+            UnblockStateInternal(state, blocker);
+        }
+
+        /// <summary>
+        ///     Checks if a state is currently blocked.
+        /// </summary>
+        [PublicAPI]
+        public void IsStateBlocked(TState state)
+        {
+            IsStateBlockedInternal(state);
+        }
+
+        /// <summary>
+        ///     Blocks the entire state machine from transitioning states.
+        /// </summary>
+        [PublicAPI]
+        public bool BlockStateMachine(object blocker)
+        {
+            return _stateMachineBlocker.Add(blocker);
+        }
+
+        /// <summary>
+        ///     Unblocks the state machine, allowing state transitions again.
+        /// </summary>
+        [PublicAPI]
+        public bool UnblockStateMachine(object blocker)
+        {
+            return _stateMachineBlocker.Remove(blocker);
+        }
+
+        #endregion
+
+
+        #region Pubic API: Adding State Objects
+
+        /// <summary>
+        ///     Associates a state with a callback object implementing the IStateObject interface.
+        /// </summary>
+        [PublicAPI]
+        public void AddStateObject(TState state, IStateObject stateObjectObject)
+        {
+            AddStateCallbackObjectInternal(state, stateObjectObject);
+        }
+
+        /// <summary>
+        ///     Associates an alias with a state for easier reference.
+        /// </summary>
+        [PublicAPI]
+        public void AddStateAlias(TState state, string alias)
+        {
+            AddStateAliasInternal(state, alias);
+        }
+
+        #endregion
+
+
+        #region Public API: Adding Callbacks
+
+        /// <summary>
+        ///     Adds a callback to be called when entering a specific state.
+        /// </summary>
+        [PublicAPI]
+        public void AddStateEnterCallback(TState state, Action callback)
+        {
+            AddStateEnterCallbackInternal(state, callback);
+        }
+
+        /// <summary>
+        ///     Adds a callback to be called when entering any state, providing the state as a parameter.
+        /// </summary>
+        [PublicAPI]
+        public void AddStateEnterCallback(Action<TState> callback)
+        {
+            AddStateEnterCallbackInternal(callback);
+        }
+
+        /// <summary>
+        ///     Adds a callback to be called during a transition between specified states.
+        /// </summary>
+        [PublicAPI]
+        public void AddStateTransitionCallback(TState from, TState to, Action callback)
+        {
+            AddStateTransitionCallbackInternal(from, to, callback);
+        }
+
+        /// <summary>
+        ///     Adds a callback to be called when exiting a specific state.
+        /// </summary>
+        [PublicAPI]
+        public void AddStateExitCallback(TState state, Action callback)
+        {
+            AddStateExitCallbackInternal(state, callback);
+        }
+
+        /// <summary>
+        ///     Adds a callback to be called when exiting any state, providing the state as a parameter.
+        /// </summary>
+        [PublicAPI]
+        public void AddStateExitCallback(Action<TState> callback)
+        {
+            AddStateExitCallbackInternal(callback);
+        }
+
+        /// <summary>
+        ///     Adds a callback to be invoked on state update, providing delta time as a parameter.
+        /// </summary>
+        [PublicAPI]
+        public void AddStateUpdateCallback(TState state, Action<float> callback)
+        {
+            AddStateUpdateCallbackInternal(state, callback);
+        }
+
+        /// <summary>
+        ///     Adds a callback to be invoked on state update.
+        /// </summary>
+        [PublicAPI]
+        public void AddStateUpdateCallback(TState state, Action callback)
+        {
+            AddStateUpdateCallbackInternal(state, callback);
+        }
+
+        /// <summary>
+        ///     Adds a callback during a timed transition into a specific state, providing transition delta.
+        /// </summary>
+        [PublicAPI]
+        public void AddStateTransitionUpdateCallback(TState to, Action<float> callback)
+        {
+            AddStateTransitionUpdateCallbackInternal(to, callback);
+        }
+
+        /// <summary>
+        ///     Adds a callback to be called during any state transition, providing the from and to states as parameters.
+        /// </summary>
+        [PublicAPI]
+        public void AddStateTransitionCallback(Action<TState, TState> callback)
+        {
+            AddStateTransitionCallbackInternal(callback);
+        }
+
+        #endregion
+
+
+        #region Public API: Adding Transitions
+
+        /// <summary>
+        ///     Adds a conditional state transition that will occur if the condition is met.
+        /// </summary>
+        [PublicAPI]
+        public void AddStateTransition(TState from, TState to, Func<bool> condition = null)
+        {
+            AddStateTransitionInternal(from, to, condition);
+        }
+
+        /// <summary>
+        ///     Adds a state transition that will occur after a specified delay when a given state is entered.
+        /// </summary>
+        [PublicAPI]
+        public void AddStateTransition(TState from, TState to, float delayInSeconds)
+        {
+            AddStateTransitionInternal(from, to, delayInSeconds);
+        }
+
+        #endregion
+
+
+        #region Callback Adding
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddStateEnterCallbackInternal(TState state, Action callback)
+        {
+            if (!_stateEnterCallbacks.TryGetValue(state, out var list))
             {
+                list = new List<Action>();
+                _stateEnterCallbacks.Add(state, list);
+            }
+            list.Add(callback);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddStateEnterCallbackInternal(Action<TState> callback)
+        {
+            _parameterizedStateEnterCallbacks.Add(callback);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddStateTransitionCallbackInternal(TState from, TState to, Action callback)
+        {
+            var transitionKey = Combine(from, to);
+
+            if (!_stateEnterFromToCallbacks.TryGetValue(transitionKey, out var list))
+            {
+                list = new List<Action>();
+                _stateEnterFromToCallbacks.Add(transitionKey, list);
+            }
+            list.Add(callback);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddStateExitCallbackInternal(TState state, Action callback)
+        {
+            if (!_stateExitCallbacks.TryGetValue(state, out var list))
+            {
+                list = new List<Action>();
+                _stateExitCallbacks.Add(state, list);
+            }
+            list.Add(callback);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddStateExitCallbackInternal(Action<TState> callback)
+        {
+            _parameterizedStateExitCallbacks.Add(callback);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddStateUpdateCallbackInternal(TState state, Action<float> callback)
+        {
+            if (!_stateUpdateCallbacksWithDeltaTime.TryGetValue(state, out var list))
+            {
+                list = new List<Action<float>>();
+                _stateUpdateCallbacksWithDeltaTime.Add(state, list);
+            }
+            list.Add(callback);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddStateUpdateCallbackInternal(TState state, Action callback)
+        {
+            if (!_stateUpdateCallbacks.TryGetValue(state, out var list))
+            {
+                list = new List<Action>();
+                _stateUpdateCallbacks.Add(state, list);
+            }
+            list.Add(callback);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddStateTransitionUpdateCallbackInternal(TState to, Action<float> callback)
+        {
+            if (!_stateTransitionUpdateCallbacks.TryGetValue(to, out var list))
+            {
+                list = new List<Action<float>>();
+                _stateTransitionUpdateCallbacks.Add(to, list);
+            }
+            list.Add(callback);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddStateTransitionCallbackInternal(Action<TState, TState> callback)
+        {
+            _globalStateTransitionCallbacks.Add(callback);
+        }
+
+        #endregion
+
+
+        #region Transition Adding
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddStateTransitionInternal(TState from, TState to, Func<bool> condition = null)
+        {
+            if (!_conditionalStateTransitions.TryGetValue(from, out var list))
+            {
+                list = new List<ConditionalStateTransition>(4);
+                _conditionalStateTransitions.Add(from, list);
+            }
+            var transition = new ConditionalStateTransition(from, to, condition ?? _trueFunc);
+            list.Add(transition);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddStateTransitionInternal(TState from, TState to, float delayInSeconds)
+        {
+            var wasAdded = _timedStateTransitions.TryAdd(from, new TimedStateTransition(from, to, delayInSeconds));
+            Assert.IsTrue(wasAdded);
+        }
+
+        #endregion
+
+
+        #region State Transition
+
+        private struct Transition
+        {
+            public TState ToState;
+            public Timer Timer;
+        }
+
+        private void BeginImmediateTransitionToState(TState toState, bool allowStateReentering, bool isStateOverride)
+        {
+            if (_stateMachineBlocker.Count > 0)
+            {
+                Debug.Log(_log, "StateMachine is blocked!", _color);
                 return;
             }
 
-            if (Enabled is false)
+            if (IsStateBlockedInternal(toState))
             {
-                _bufferedState = nextState;
+                Debug.Log(_log, $"State: [{Colorized(toState)}] is blocked!", _color);
                 return;
             }
 
-            _bufferedState = null;
-            PreviousState = State;
-
-            if (PreviousState != null)
+            if (allowStateReentering is false && IsStateActive(toState))
             {
-                PreviousState.OnStateExit(nextState);
-                PreviousState.exited?.Invoke();
-            }
-            State = nextState;
-            if (nextState != null)
-            {
-                nextState.OnStateEnter(PreviousState);
-                nextState.entered?.Invoke();
+                Debug.Log(_log, $"State: [{Colorized(toState)}] is already active!", _color);
+                return;
             }
 
-            var fromStateString = PreviousState != null ? PreviousState.name : "none";
-            var toStateString = nextState != null ? nextState.name : "none";
-            Log("Transition " +
-                $"from ({fromStateString}) " +
-                $"to ({toStateString})");
-
-            _stateChanged.Raise(PreviousState, nextState);
-            if (saveStatePersistent)
+            _transition = new Transition
             {
-                var isNullState = State == null;
-                if (isNullState && saveNullState is false)
+                ToState = toState,
+                Timer = Timer.None
+            };
+
+            CompleteTransitionToStateInternal(ref _transition, allowStateReentering, isStateOverride);
+        }
+
+        private void BeginTimedTransitionToState(TState toState, float durationInSeconds)
+        {
+            if (_stateMachineBlocker.Count > 0)
+            {
+                Debug.Log(_log, "StateMachine is blocked!", _color);
+                return;
+            }
+
+            if (IsStateBlockedInternal(toState))
+            {
+                Debug.Log(_log, $"State: [{Colorized(toState)}] is blocked!", _color);
+                return;
+            }
+
+            if (IsStateActive(toState))
+            {
+                Debug.Log(_log, $"State: [{Colorized(toState)}] is already active!", _color);
+                return;
+            }
+
+            _transition = new Transition
+            {
+                ToState = toState,
+                Timer = Timer.FromSeconds(durationInSeconds)
+            };
+
+            _isTimerTransitionActive = true;
+        }
+
+        /// <summary>
+        ///     This is the method where the actual enter and exit callbacks happen
+        /// </summary>
+        private void CompleteTransitionToStateInternal(ref Transition transition, bool allowStateReentering,
+            bool isStateOverride)
+        {
+            if (IsStateBlockedInternal(transition.ToState))
+            {
+                Debug.Log(_log, $"State: [{Colorized(transition.ToState)}] is is blocked active!", _color);
+                return;
+            }
+
+            if (_isTransitionActive)
+            {
+                Debug.LogError(_log, "Transition is already active! Do not transition in state enter/exit callbacks!");
+                return;
+            }
+            _isTransitionActive = true;
+
+            if (allowStateReentering is false)
+            {
+                Assert.AreNotEqual(transition.ToState, GetCurrentState());
+            }
+
+            var fromState = GetCurrentState();
+            var toState = transition.ToState;
+            var transitionKey = Combine(fromState, toState);
+
+            if (isStateOverride is false)
+            {
+                _lastNonOverrideState = toState;
+            }
+
+            if (!_comparer.Equals(fromState, toState))
+            {
+                _previousState = _state;
+                _stateHistory.Enqueue(_state);
+            }
+
+            _state = toState;
+
+            // Exit Callbacks
+            if (_stateExitCallbacks.TryGetValue(fromState, out var exitCallbacks))
+            {
+                foreach (var callback in exitCallbacks)
                 {
-                    return;
+                    callback();
                 }
-                var stateIndex = isNullState ? NullIndex : states.IndexOf(State);
-                FileSystem.Profile.SaveFile(GUID, stateIndex);
-            }
-        }
-
-        public void ResetStateMachine()
-        {
-            if (State == null)
-            {
-                return;
-            }
-            _bufferedState = null;
-            PreviousState = State;
-
-            if (PreviousState != null)
-            {
-                PreviousState.OnStateExit(null);
-                PreviousState.exited?.Invoke();
-            }
-            State = null;
-
-            Log("Transition " +
-                $"from ({PreviousState.ToNullString()}) " +
-                $"to ({null})");
-
-            _stateChanged.Raise(PreviousState, null);
-            if (saveStatePersistent && saveNullState)
-            {
-                FileSystem.Profile.SaveFile(GUID, NullIndex);
-            }
-        }
-
-        #endregion
-
-
-        #region Gameloop
-
-        private void UpdateGameState()
-        {
-            if (Enabled is false)
-            {
-                return;
-            }
-            if (State == null)
-            {
-                return;
             }
 
-            State.UpdateState();
-        }
-
-        #endregion
-
-
-        #region Active State
-
-        private void SetEnabled(bool enabled)
-        {
-            if (enabled == _enabled)
+            // Exit Callbacks State Object
+            if (_stateObjects.TryGetValue(fromState, out var stateCallback))
             {
-                return;
+                stateCallback.OnStateExit();
             }
 
-            _enabled = enabled;
-
-            if (_enabled)
+            // Exit Callbacks Parameterized
+            foreach (var callback in _parameterizedStateExitCallbacks)
             {
-                Assert.IsFalse(Gameloop.IsDelegateSubscribedToUpdate(UpdateGameState));
-                Gameloop.Update += UpdateGameState;
-            }
-            else
-            {
-                Assert.IsTrue(Gameloop.IsDelegateSubscribedToUpdate(UpdateGameState));
-                Gameloop.Update -= UpdateGameState;
+                callback(fromState);
             }
 
-            if (State == null)
+            // General State Transition Callbacks
+            if (_globalStateTransitionCallbacks.Any())
             {
-                return;
-            }
-
-            if (enabled)
-            {
-                Log($"Enable ({State.name})");
-                State.OnStateEnabled();
-            }
-            else
-            {
-                Log($"Disable ({State.name})");
-                State.OnStateDisabled();
-            }
-        }
-
-        #endregion
-
-
-        #region Editor
-
-        [Conditional("DEBUG")]
-        private void Log(string message)
-        {
-            Debug.Log(typeof(T).Name, message, messageColor);
-        }
-
-#if UNITY_EDITOR
-
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            for (var i = states.Count - 1; i >= 0; i--)
-            {
-                if (states[i] == null)
+                foreach (var globalStateTransitionCallback in _globalStateTransitionCallbacks)
                 {
-                    states.RemoveAt(i);
+                    globalStateTransitionCallback(fromState, toState);
                 }
             }
-            foreach (var state in states)
+
+            // Enter Callbacks
+            if (_stateEnterCallbacks.TryGetValue(toState, out var enterCallbacks))
             {
-                state.StateMachine = this;
+                foreach (var callback in enterCallbacks)
+                {
+                    callback();
+                }
+            }
+
+            // Exit Callbacks State Object
+            if (_stateObjects.TryGetValue(toState, out var enterStateCallback))
+            {
+                enterStateCallback.OnStateEnter();
+            }
+
+            // Specific State Transition Callbacks
+            if (_stateEnterFromToCallbacks.TryGetValue(transitionKey, out var transitionCallbacks))
+            {
+                foreach (var callback in transitionCallbacks)
+                {
+                    callback();
+                }
+            }
+
+            // Parameterized Enter
+            foreach (var callback in _parameterizedStateEnterCallbacks)
+            {
+                callback(toState);
+            }
+
+            Debug.Log(_log, $"Transitioned from state [{Colorized(fromState)}] to [{Colorized(toState)}]", _color);
+
+            _isTimerTransitionActive = false;
+            _isTransitionActive = false;
+
+            // Automatic Timed Transitions
+            if (_timedStateTransitions.TryGetValue(_state, out var timedTransition))
+            {
+                Assert.AreEqual(GetCurrentState(), timedTransition.FromState);
+
+                BeginTimedTransitionToState(timedTransition.ToState,
+                    timedTransition.Duration);
             }
         }
 
-        internal void RemoveState(T state)
+        private void CancelActiveTransitionInternal()
         {
-            if (UnityEditor.Selection.activeObject == state)
-            {
-                UnityEditor.Selection.activeObject = this;
-            }
-            states.Remove(state);
-            UnityEditor.AssetDatabase.RemoveObjectFromAsset(state);
-            UnityEditor.AssetDatabase.SaveAssets();
-            UnityEditor.EditorApplication.delayCall += () => { DestroyImmediate(state); };
+            _isTimerTransitionActive = false;
+            _isTransitionActive = false;
+            _transition = default(Transition);
         }
-
-#endif
 
         #endregion
 
 
-        #region State Subsystem
+        #region State Machine Update
 
-        public void Activate()
+        private void LateUpdate()
         {
-            if (Enabled)
+            if (_isTimerTransitionActive)
             {
-                return;
+                ref var timer = ref _transition.Timer;
+                if (timer.IsRunning)
+                {
+                    if (_stateTransitionUpdateCallbacks.TryGetValue(_transition.ToState, out var callbacks))
+                    {
+                        foreach (var callback in callbacks)
+                        {
+                            callback(timer.Delta());
+                        }
+                    }
+                }
+                else if (timer.Expired)
+                {
+                    CompleteTransitionToStateInternal(ref _transition, false, false);
+                }
             }
 
-            Enabled = true;
-
-            if (_bufferedState != null)
+            if (_stateUpdateCallbacks.TryGetValue(GetCurrentState(), out var deltaTimeUpdates))
             {
-                var state = _bufferedState;
-                SetState(_bufferedState);
-                Log($"Set buffered state ({state}) as start state");
-                return;
+                foreach (var updateCallback in deltaTimeUpdates)
+                {
+                    updateCallback();
+                }
             }
 
-            if (saveStatePersistent && FileSystem.Profile.TryLoadFile<int>(GUID, out var stateIndex))
+            if (_stateUpdateCallbacksWithDeltaTime.TryGetValue(GetCurrentState(), out var updates))
             {
-                var state = stateIndex == -1 ? null : states[stateIndex];
-                SetState(state);
-                Log($"Set loaded state ({state}) as start state with index ({stateIndex})");
-                return;
+                var deltaTime = Time.deltaTime;
+                foreach (var updateCallback in updates)
+                {
+                    updateCallback(deltaTime);
+                }
             }
 
-            if (State == null && startState.TryGetValue(out var start))
+            if (_stateObjects.TryGetValue(GetCurrentState(), out var stateCallbackObject))
             {
-                SetState(start);
-                Log($"Set default state ({start}) as start state");
+                stateCallbackObject.OnStateUpdate();
+            }
+
+            if (_conditionalStateTransitions.TryGetValue(GetCurrentState(), out var conditionalStateTransitions))
+            {
+                foreach (var transition in conditionalStateTransitions)
+                {
+                    if (transition.Condition())
+                    {
+                        BeginImmediateTransitionToState(transition.ToState, false, false);
+                        break;
+                    }
+                }
             }
         }
 
-        public void Deactivate()
+        #endregion
+
+
+        #region State Blocking
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void BlockStateInternal(TState state, object blocker)
         {
-            Enabled = false;
+            if (!_stateBlocker.TryGetValue(state, out var blockerSet))
+            {
+                blockerSet = new HashSet<object>();
+                _stateBlocker.Add(state, blockerSet);
+            }
+            blockerSet.Add(blocker);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void UnblockStateInternal(TState state, object blocker)
+        {
+            if (!_stateBlocker.TryGetValue(state, out var blockerSet))
+            {
+                blockerSet = new HashSet<object>();
+                _stateBlocker.Add(state, blockerSet);
+            }
+            blockerSet.Remove(blocker);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool IsStateBlockedInternal(TState state)
+        {
+            return _stateBlocker.TryGetValue(state, out var blocker) && blocker.Any();
+        }
+
+        #endregion
+
+
+        #region State Objects
+
+        private void AddStateCallbackObjectInternal(TState state, IStateObject objectObject)
+        {
+            var wasAdded = _stateObjects.TryAdd(state, objectObject);
+            if (wasAdded is false)
+            {
+                Debug.LogWarning(_log, $"State: [{Colorized(state)}] already has a state object!");
+            }
+        }
+
+        private void AddStateAliasInternal(TState state, string alias)
+        {
+            _stateAlias.TryAdd(alias, state);
+        }
+
+        #endregion
+
+
+        #region Misc
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void SetStateOverrideInternal(TState state, object target)
+        {
+            _overrideObjects.Add(target);
+            BeginImmediateTransitionToState(state, false, true);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void RemoveStateOverrideInternal(object target)
+        {
+            if (_overrideObjects.Remove(target) && _overrideObjects.IsEmpty())
+            {
+                BeginImmediateTransitionToState(_lastNonOverrideState, false, false);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private TState GetPreviousStateThatWasNotInternal(TState previousStateToIgnore)
+        {
+            foreach (var state in _stateHistory.Reverse())
+            {
+                if (_comparer.Equals(previousStateToIgnore, state))
+                {
+                    continue;
+                }
+
+                return state;
+            }
+            return default(TState);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private TState GetPreviousStateThatWasNotInternal(params TState[] previousStatesToIgnore)
+        {
+            foreach (var state in _stateHistory)
+            {
+                var isStateValid = true;
+                foreach (var previous in previousStatesToIgnore)
+                {
+                    if (_comparer.Equals(previous, state))
+                    {
+                        isStateValid = false;
+                        break;
+                    }
+                }
+
+                if (isStateValid)
+                {
+                    return state;
+                }
+            }
+            return default(TState);
+        }
+
+        #endregion
+
+
+        #region Helper
+
+        private static ulong Combine(TState fromState, TState toState)
+        {
+            var aInt = UnsafeUtility.As<TState, int>(ref fromState);
+            var bInt = UnsafeUtility.As<TState, int>(ref toState);
+            return Combine(aInt, bInt);
+        }
+
+        private static ulong Combine(int a, int b)
+        {
+            var ua = (uint) a;
+            ulong ub = (uint) b;
+            return (ub << 32) | ua;
+        }
+
+        private static void Separate(ulong c, out int a, out int b)
+        {
+            a = (int) (c & 0xFFFFFFFFUL);
+            b = (int) (c >> 32);
+        }
+
+        private string Colorized(TState state)
+        {
+            return state.ToString().Colorize(_color);
+        }
+
+        private class ConditionalStateTransition
+        {
+            public readonly TState FromState;
+            public readonly TState ToState;
+            public readonly Func<bool> Condition;
+
+            public ConditionalStateTransition(TState fromState, TState toState, Func<bool> condition)
+            {
+                FromState = fromState;
+                ToState = toState;
+                Condition = condition;
+            }
+        }
+
+        private class TimedStateTransition
+        {
+            public readonly TState FromState;
+            public readonly TState ToState;
+            public readonly float Duration;
+
+            public TimedStateTransition(TState fromState, TState toState, float duration)
+            {
+                FromState = fromState;
+                ToState = toState;
+                Duration = duration;
+            }
         }
 
         #endregion

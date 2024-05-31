@@ -1,8 +1,8 @@
-using Baracuda.Mediator.Callbacks;
-using Baracuda.Mediator.Registry;
+using Baracuda.Bedrock.Callbacks;
+using Baracuda.Bedrock.Registry;
 using JetBrains.Annotations;
 
-namespace Baracuda.Mediator.Singleton
+namespace Baracuda.Bedrock.Singleton
 {
     public abstract class SingletonAsset<T> : ScriptableAsset where T : SingletonAsset<T>
     {

@@ -1,4 +1,4 @@
-using Baracuda.Mediator.Callbacks;
+using Baracuda.Bedrock.Callbacks;
 using System;
 
 namespace Baracuda.Mediation.Editor

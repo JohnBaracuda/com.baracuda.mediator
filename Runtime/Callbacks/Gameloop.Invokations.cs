@@ -2,7 +2,7 @@
 using System;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Callbacks
+namespace Baracuda.Bedrock.Callbacks
 {
 #if UNITY_EDITOR
     [UnityEditor.InitializeOnLoadAttribute]
@@ -497,6 +497,7 @@ namespace Baracuda.Mediator.Callbacks
 
         private static void OnExitPlayMode()
         {
+            IsQuitting = true;
             for (var i = 0; i < exitPlayModeDelegate.Count; i++)
             {
                 if (exitPlayModeDelegate[i] == null)

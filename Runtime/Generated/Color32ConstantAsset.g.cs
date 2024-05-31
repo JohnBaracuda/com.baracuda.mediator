@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class Color32ConstantAsset : ValueAssetConstant<Color32>
+    public class Color32ConstantAsset : ValueAssetSerialized<UnityEngine.Color32>
     {
     }
 }

@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using Baracuda.Utilities.Types;
 
 namespace Baracuda.Mediator
 {
-    public class RuntimeGUIDList : ListAsset<RuntimeGUID>
+    public class RuntimeGUIDList : ListAsset<Baracuda.Utilities.Types.RuntimeGUID>
     {
     }
 }

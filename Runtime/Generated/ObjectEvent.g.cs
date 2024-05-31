@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Events;
+using Baracuda.Bedrock.Events;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class ObjectEvent : EventAsset<Object>
+    public class ObjectEvent : EventAsset<UnityEngine.Object>
     {
     }
 }

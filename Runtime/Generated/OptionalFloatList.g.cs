@@ -1,10 +1,10 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using Baracuda.Utilities.Types;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class OptionalFloatList : ListAsset<Optional<float>>
+    public class OptionalFloatList : ListAsset<Baracuda.Utilities.Types.Optional<System.Single>>
     {
     }
 }

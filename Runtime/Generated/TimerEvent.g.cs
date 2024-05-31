@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Events;
+using Baracuda.Bedrock.Events;
 using Baracuda.Utilities.Types;
 
 namespace Baracuda.Mediator
 {
-    public class TimerEvent : EventAsset<Timer>
+    public class TimerEvent : EventAsset<Baracuda.Utilities.Types.Timer>
     {
     }
 }

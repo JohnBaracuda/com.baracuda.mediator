@@ -1,10 +1,10 @@
-using Baracuda.Mediator.Events;
+using Baracuda.Bedrock.Events;
 using Baracuda.Utilities.Types;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class OptionalStringEvent : EventAsset<Optional<string>>
+    public class OptionalStringEvent : EventAsset<Baracuda.Utilities.Types.Optional<System.String>>
     {
     }
 }

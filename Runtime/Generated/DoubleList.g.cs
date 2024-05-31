@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class DoubleList : ListAsset<double>
+    public class DoubleList : ListAsset<System.Double>
     {
     }
 }

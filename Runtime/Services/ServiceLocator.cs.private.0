@@ -1,0 +1,6 @@
+﻿namespace Baracuda.Mediator.Services
+{
+    public static class ServiceLocatorT<T> where T : ServiceLocatorScope, new()
+    {
+    }
+}

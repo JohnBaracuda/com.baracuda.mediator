@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class IntSaveAsset : ValueAssetSave<int>
+    public class IntSaveAsset : ValueAssetSave<System.Int32>
     {
     }
 }

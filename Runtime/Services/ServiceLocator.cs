@@ -1,29 +1,28 @@
-﻿using Baracuda.Mediator.Callbacks;
-using Baracuda.Monitoring;
+﻿using Baracuda.Bedrock.Callbacks;
 using Baracuda.Utilities;
 using JetBrains.Annotations;
-using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Baracuda.Mediator.Services
+namespace Baracuda.Bedrock.Services
 {
     [DisallowMultipleComponent]
-    public abstract class ServiceLocator : MonoBehaviour, IServiceProvider<ServiceLocator>
+    public abstract class ServiceLocator : MonoBehaviour
     {
         #region Fields
 
-        private static ServiceLocator global;
-        private static readonly List<GameObject> gameObjectBuffer = new();
+        protected static ServiceLocator GlobalLocator { get; set; }
         protected static Dictionary<Scene, ServiceLocator> SceneLocators { get; } = new();
+        private static Dictionary<string, ServiceLocator> NamedLocators { get; } = new();
+        private static Dictionary<Type, ServiceLocator> TypedLocators { get; } = new();
 
         private readonly ServiceContainer _container = new();
 
         private const string GlobalServiceLocatorName = "ServiceLocator [Global]";
-        private const string SceneServiceLocatorName = "ServiceLocator [Scene]";
+        private const string SceneServiceLocatorName = "ServiceLocator [ForActiveScene]";
 
         #endregion
 
@@ -31,89 +30,38 @@ namespace Baracuda.Mediator.Services
         #region Service Locator Access
 
         [PublicAPI]
-        public static ServiceLocator Global
+        public static ServiceContainer Global => GetGlobalContainerInternal();
+
+        [PublicAPI]
+        public static ServiceContainer ForActiveScene(bool create = true)
         {
-            get
-            {
-                if (global != null)
-                {
-                    return global;
-                }
-
-                if (FindFirstObjectByType<ServiceLocatorGlobal>().IsNotNull(out var locator))
-                {
-                    locator.BootstrapOnDemand();
-                    return global;
-                }
-
-#if UNITY_EDITOR
-                if (Gameloop.IsQuitting)
-                {
-                    return null;
-                }
-#endif
-
-                var container = new GameObject(GlobalServiceLocatorName);
-                container.AddComponent<ServiceLocatorGlobal>().BootstrapOnDemand();
-                return global;
-            }
-            protected set => global = value;
+            return ForActiveSceneInternal(create);
         }
 
         [PublicAPI]
-        public static ServiceLocator Scene
+        [CanBeNull]
+        public static ServiceContainer ForSceneOf(MonoBehaviour monoBehaviour, bool create = false)
         {
-            get
-            {
-                var scene = SceneManager.GetActiveScene();
-
-                if (SceneLocators.TryGetValue(scene, out var container))
-                {
-                    return container;
-                }
-
-                gameObjectBuffer.Clear();
-                scene.GetRootGameObjects(gameObjectBuffer);
-
-                foreach (var gameObject in gameObjectBuffer.Where(gameObject =>
-                             gameObject.GetComponent<ServiceLocatorScene>() != null))
-                {
-                    if (gameObject.TryGetComponent(out ServiceLocatorScene bootstrapper))
-                    {
-                        bootstrapper.BootstrapOnDemand();
-                        return bootstrapper;
-                    }
-                }
-
-                return Global;
-            }
+            return ForSceneOfInternal(monoBehaviour, create);
         }
 
         [PublicAPI]
-        public static ServiceLocator ForSceneOf(MonoBehaviour monoBehaviour)
+        [CanBeNull]
+        public static ServiceContainer ForScene(Scene scene, bool create = false)
         {
-            var scene = monoBehaviour.gameObject.scene;
+            return ForSceneInternal(scene, create);
+        }
 
-            if (SceneLocators.TryGetValue(scene, out var container) && container != monoBehaviour)
-            {
-                return container;
-            }
+        [PublicAPI]
+        public static ServiceContainer ForScope(string scope)
+        {
+            return ForScopeInternal(scope);
+        }
 
-            gameObjectBuffer.Clear();
-            scene.GetRootGameObjects(gameObjectBuffer);
-
-            foreach (var gameObject in gameObjectBuffer.Where(gameObject =>
-                         gameObject.GetComponent<ServiceLocatorScene>() != null))
-            {
-                if (gameObject.TryGetComponent(out ServiceLocatorScene bootstrapper) &&
-                    bootstrapper != monoBehaviour)
-                {
-                    bootstrapper.BootstrapOnDemand();
-                    return bootstrapper;
-                }
-            }
-
-            return Global;
+        [PublicAPI]
+        public static ServiceContainer ForScope<T>()
+        {
+            return ForScopeInternal<T>();
         }
 
         #endregion
@@ -121,72 +69,219 @@ namespace Baracuda.Mediator.Services
 
         #region Service Provider
 
-        [ShowInInspector]
         [PublicAPI]
-        public IEnumerable<object> Services => _container.Services;
-
-        [PublicAPI]
-        public T Get<T>() where T : class
+        public static T Get<T>() where T : class
         {
-            return _container.Get<T>();
+            return Global.Resolve<T>();
         }
 
         [PublicAPI]
-        public object Get(Type type)
+        public static void Get<T>(ref T field) where T : class
         {
-            return _container.Get(type);
+            field = Global.Resolve<T>();
         }
 
         [PublicAPI]
-        public bool TryGet<T>(out T service) where T : class
+        public static object Get(Type type)
         {
-            return _container.TryGet(out service);
+            return Global.Resolve(type);
         }
 
         [PublicAPI]
-        public bool TryGet(Type type, out object value)
+        public static bool TryResolve<T>(out T service) where T : class
         {
-            return _container.TryGet(type, out value);
+            return Global.TryResolve(out service);
         }
 
         [PublicAPI]
-        public ServiceLocator Register(Type type, object service)
+        public static bool TryResolve(Type type, out object value)
         {
-            _container.Register(type, service);
-            return this;
+            return Global.TryResolve(type, out value);
         }
 
         [PublicAPI]
-        public ServiceLocator Register<T>(T service)
+        public static void AddSingleton<T>(T service)
         {
-            _container.Register(service);
-            return this;
+            Global.AddSingleton(service);
         }
 
         [PublicAPI]
-        public ServiceLocator Remove<T>(T service)
+        public static void AddSingleton(Type type, object service)
         {
-            _container.Remove(service);
-            return this;
+            Global.AddSingleton(type, service);
         }
 
         [PublicAPI]
-        public ServiceLocator Remove<T>()
+        public static void AddTransient<T>(Func<T> serviceFunc)
         {
-            _container.Remove<T>();
-            return this;
+            Global.AddTransient(serviceFunc);
         }
 
         [PublicAPI]
-        public void AddRegistrationCallback<T>(Action<T> callback, bool callRetroactively = true) where T : class
+        public static void AddTransient(Type type, Delegate serviceFunc)
         {
-            _container.AddRegistrationCallback(callback, callRetroactively);
+            Global.AddTransient(type, serviceFunc);
         }
 
         [PublicAPI]
-        public void RemoveRegistrationCallback<T>(Action<T> callback)
+        public static void AddLazy<T>(Func<T> serviceFunc)
         {
-            _container.RemoveRegistrationCallback(callback);
+            Global.AddLazy(serviceFunc);
+        }
+
+        [PublicAPI]
+        public static void AddLazy(Type type, Delegate serviceFunc)
+        {
+            Global.AddLazy(type, serviceFunc);
+        }
+
+        [PublicAPI]
+        public static void Remove<T>(T service)
+        {
+            Global.Remove(service);
+        }
+
+        [PublicAPI]
+        public static void Remove<T>()
+        {
+            Global.Remove<T>();
+        }
+
+        #endregion
+
+
+        #region Internal
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ServiceContainer GetGlobalContainerInternal()
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+
+            if (GlobalLocator != null)
+            {
+                return GlobalLocator._container;
+            }
+
+            if (FindFirstObjectByType<ServiceLocatorGlobal>().IsNotNull(out var locator))
+            {
+                locator.BootstrapOnDemand();
+                return GlobalLocator._container;
+            }
+
+#if UNITY_EDITOR
+            if (Gameloop.IsQuitting)
+            {
+                Debug.LogWarning("Service Locator",
+                    "Please do not access service locator while the game is quitting!");
+                return null;
+            }
+#endif
+
+            var container = new GameObject(GlobalServiceLocatorName);
+            container.AddComponent<ServiceLocatorGlobal>().BootstrapOnDemand();
+            return GlobalLocator._container;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ServiceContainer ForActiveSceneInternal(bool create)
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+
+            var scene = SceneManager.GetActiveScene();
+
+            return ForScene(scene, create);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ServiceContainer ForSceneOfInternal(MonoBehaviour monoBehaviour, bool create)
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+            var scene = monoBehaviour.gameObject.scene;
+
+            if (SceneLocators.TryGetValue(scene, out var locator))
+            {
+                return locator._container;
+            }
+            return create ? CreateSceneLocator(scene)._container : null;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ServiceContainer ForSceneInternal(Scene scene, bool create)
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+            if (SceneLocators.TryGetValue(scene, out var locator))
+            {
+                return locator._container;
+            }
+            return create ? CreateSceneLocator(scene)._container : null;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ServiceContainer ForScopeInternal(string scope)
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+            if (NamedLocators.TryGetValue(scope, out var locator))
+            {
+                return locator._container;
+            }
+
+            var gameObject = new GameObject($"ServiceLocator [{scope}]");
+            gameObject.DontDestroyOnLoad();
+            var serviceLocator = gameObject.AddComponent<ServiceLocatorScene>();
+            serviceLocator.BootstrapOnDemand();
+            NamedLocators.Add(scope, serviceLocator);
+
+            return serviceLocator._container;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ServiceContainer ForScopeInternal<T>()
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                throw new InvalidOperationException("Application must be running!");
+            }
+#endif
+            var scope = typeof(T);
+
+            if (TypedLocators.TryGetValue(scope, out var locator))
+            {
+                return locator._container;
+            }
+
+            var gameObject = new GameObject($"ServiceLocator [{scope.FullName}]");
+            gameObject.DontDestroyOnLoad();
+            var serviceLocator = gameObject.AddComponent<ServiceLocatorScene>();
+            serviceLocator.BootstrapOnDemand();
+            TypedLocators.Add(scope, serviceLocator);
+
+            return serviceLocator._container;
         }
 
         #endregion
@@ -194,21 +289,11 @@ namespace Baracuda.Mediator.Services
 
         #region Setup
 
-        private void OnEnable()
-        {
-            Monitor.StartMonitoring(_container);
-        }
-
-        private void OnDisable()
-        {
-            Monitor.StopMonitoring(_container);
-        }
-
         private void OnDestroy()
         {
-            if (this == global)
+            if (this == GlobalLocator)
             {
-                global = null;
+                GlobalLocator = null;
             }
             else if (SceneLocators.ContainsValue(this))
             {
@@ -216,28 +301,40 @@ namespace Baracuda.Mediator.Services
             }
         }
 
-        // https://docs.unity3d.com/ScriptReference/RuntimeInitializeOnLoadMethodAttribute.html
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
         {
-            global = null;
+            GlobalLocator = null;
             SceneLocators.Clear();
-            gameObjectBuffer.Clear();
+            NamedLocators.Clear();
+            TypedLocators.Clear();
+
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
-#if UNITY_EDITOR
-        [UnityEditor.MenuItem("GameObject/ServiceLocator/Add Global")]
-        private static void AddGlobal()
+        private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            var go = new GameObject(GlobalServiceLocatorName, typeof(ServiceLocatorGlobal));
+            if (scene.isSubScene)
+            {
+                return;
+            }
+            if (ForScene(scene) is not null)
+            {
+                return;
+            }
+
+            CreateSceneLocator(scene);
         }
 
-        [UnityEditor.MenuItem("GameObject/ServiceLocator/Add Scene")]
-        private static void AddScene()
+        private static ServiceLocatorScene CreateSceneLocator(Scene scene)
         {
-            var go = new GameObject(SceneServiceLocatorName, typeof(ServiceLocatorScene));
+            var gameObject = new GameObject(SceneServiceLocatorName);
+            SceneManager.MoveGameObjectToScene(gameObject, scene);
+            var sceneLocator = gameObject.AddComponent<ServiceLocatorScene>();
+            sceneLocator.BootstrapOnDemand();
+            return sceneLocator;
         }
-#endif
 
         #endregion
     }

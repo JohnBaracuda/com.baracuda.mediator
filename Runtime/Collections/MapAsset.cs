@@ -1,12 +1,12 @@
 ﻿using Baracuda.Tools;
-using Baracuda.Utilities.Types;
+using Baracuda.Utilities.Collections;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Collections
+namespace Baracuda.Bedrock.Collections
 {
     /// <summary>
     ///     Collection Asset representing a serializable dictionary that cannot be modified during runtime.
@@ -119,7 +119,7 @@ namespace Baracuda.Mediator.Collections
         }
 
         /// <summary>
-        ///     Add an element to the map (Editor Only!)
+        ///     AddSingleton an element to the map (Editor Only!)
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
@@ -131,7 +131,7 @@ namespace Baracuda.Mediator.Collections
 
         public void Add(KeyValuePair<TKey, TValue> item)
         {
-            Debug.LogError("MapAsset", "Add(KeyValuePair<TKey, TValue> item) is not supported!");
+            Debug.LogError("MapAsset", "AddSingleton(KeyValuePair<TKey, TValue> item) is not supported!");
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Baracuda.Mediator.Callbacks
+namespace Baracuda.Bedrock.Callbacks
 {
     /// <summary>
     ///     Class handles custom gameloop specific callbacks as well as other gameloop relevant data.
@@ -16,7 +16,7 @@ namespace Baracuda.Mediator.Callbacks
         #region Callbacks
 
         /// <summary>
-        ///     Register an object making it receive custom callbacks.
+        ///     AddSingleton an object making it receive custom callbacks.
         /// </summary>
         /// <param name="target">The object to register</param>
         public static void Register(Object target)
@@ -38,7 +38,7 @@ namespace Baracuda.Mediator.Callbacks
         }
 
         /// <summary>
-        ///     Raise a custom callback method.
+        ///     Inject a custom callback method.
         /// </summary>
         /// <param name="callback">The name of the callback method</param>
         public static void RaiseCallback(string callback)
@@ -47,7 +47,7 @@ namespace Baracuda.Mediator.Callbacks
         }
 
         /// <summary>
-        ///     Raise the initialization completed callback.
+        ///     Inject the initialization completed callback.
         /// </summary>
         public static void RaiseInitializationCompleted()
         {
@@ -244,7 +244,7 @@ namespace Baracuda.Mediator.Callbacks
         public static bool ControlTimeScale { get; set; } = true;
 
         /// <summary>
-        ///     Add a custom timescale modification source.
+        ///     AddSingleton a custom timescale modification source.
         /// </summary>
         public static void AddTimeScaleModifier(TimeScaleDelegate modifier)
         {

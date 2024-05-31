@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class StringList : ListAsset<string>
+    public class StringList : ListAsset<System.String>
     {
     }
 }

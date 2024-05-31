@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Baracuda.Mediator.Events
+namespace Baracuda.Bedrock.Events
 {
     public interface IReceiver
     {
-        /// <summary> Add a listener to the event </summary>
+        /// <summary> AddSingleton a listener to the event </summary>
         public void Add(Action listener);
 
-        /// <summary> Add a listener to the event if it is not already added </summary>
+        /// <summary> AddSingleton a listener to the event if it is not already added </summary>
         public bool AddUnique(Action listener);
 
         /// <summary> Remove a listener from the event </summary>
@@ -32,10 +32,10 @@ namespace Baracuda.Mediator.Events
 
     public interface IReceiver<T>
     {
-        /// <summary> Add a listener to the event </summary>
+        /// <summary> AddSingleton a listener to the event </summary>
         public void Add(Action<T> listener);
 
-        /// <summary> Add a listener to the event if it is not already added </summary>
+        /// <summary> AddSingleton a listener to the event if it is not already added </summary>
         public bool AddUnique(Action<T> listener);
 
         /// <summary> Remove a listener from the event </summary>
@@ -59,10 +59,10 @@ namespace Baracuda.Mediator.Events
 
     public interface IReceiver<T1, T2>
     {
-        /// <summary> Add a listener to the event </summary>
+        /// <summary> AddSingleton a listener to the event </summary>
         public void Add(Action<T1, T2> listener);
 
-        /// <summary> Add a listener to the event if it is not already added </summary>
+        /// <summary> AddSingleton a listener to the event if it is not already added </summary>
         public bool AddUnique(Action<T1, T2> listener);
 
         /// <summary> Remove a listener from the event </summary>
@@ -86,10 +86,10 @@ namespace Baracuda.Mediator.Events
 
     public interface IReceiver<T1, T2, T3>
     {
-        /// <summary> Add a listener to the event </summary>
+        /// <summary> AddSingleton a listener to the event </summary>
         public void Add(Action<T1, T2, T3> listener);
 
-        /// <summary> Add a listener to the event if it is not already added </summary>
+        /// <summary> AddSingleton a listener to the event if it is not already added </summary>
         public bool AddUnique(Action<T1, T2, T3> listener);
 
         /// <summary> Remove a listener from the event </summary>
@@ -113,10 +113,10 @@ namespace Baracuda.Mediator.Events
 
     public interface IReceiver<T1, T2, T3, T4>
     {
-        /// <summary> Add a listener to the event </summary>
+        /// <summary> AddSingleton a listener to the event </summary>
         public void Add(Action<T1, T2, T3, T4> listener);
 
-        /// <summary> Add a listener to the event if it is not already added </summary>
+        /// <summary> AddSingleton a listener to the event if it is not already added </summary>
         public bool AddUnique(Action<T1, T2, T3, T4> listener);
 
         /// <summary> Remove a listener from the event </summary>

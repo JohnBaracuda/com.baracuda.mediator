@@ -1,10 +1,10 @@
-﻿using Baracuda.Mediator.Callbacks;
+﻿using Baracuda.Bedrock.Callbacks;
 using Sirenix.OdinInspector;
 using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Requests
+namespace Baracuda.Bedrock.Requests
 {
     public class RequestAsset : MediatorAsset
     {

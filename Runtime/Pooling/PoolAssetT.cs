@@ -1,7 +1,7 @@
 ﻿#if UNITY_ADDRESSABLES
 using UnityEngine.AddressableAssets;
 #endif
-using Baracuda.Mediator.Callbacks;
+using Baracuda.Bedrock.Callbacks;
 using Baracuda.Tools;
 using Baracuda.Utilities.Reflection;
 using Sirenix.OdinInspector;
@@ -14,7 +14,7 @@ using UnityEngine.Assertions;
 using UnityEngine.Pool;
 using Object = UnityEngine.Object;
 
-namespace Baracuda.Mediator.Pooling
+namespace Baracuda.Bedrock.Pooling
 {
     public abstract partial class PoolAsset<T> : PoolAsset,
         IDisposable,

@@ -1,8 +1,8 @@
-using Baracuda.Mediator.Injection;
+using Baracuda.Bedrock.Injection;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Baracuda.Mediator.Cursor
+namespace Baracuda.Bedrock.Cursor
 {
     /// <summary>
     ///     Class for storing custom cursor animation data
@@ -15,7 +15,7 @@ namespace Baracuda.Mediator.Cursor
         [SerializeField] public CursorAnimationType cursorAnimationType;
         [SerializeField] public Texture2D[] frames;
 
-        [Inject] private CursorSystem _cursorSystem;
+        [Inject] private CursorManager _cursorManager;
 
         internal WaitForSeconds Delay { get; private set; }
 
@@ -43,7 +43,7 @@ namespace Baracuda.Mediator.Cursor
         {
             if (Application.isPlaying)
             {
-                _cursorSystem.AddCursorOverride(this);
+                _cursorManager.AddCursorOverride(this);
             }
         }
 
@@ -53,7 +53,7 @@ namespace Baracuda.Mediator.Cursor
         {
             if (Application.isPlaying)
             {
-                _cursorSystem.RemoveCursorOverride(this);
+                _cursorManager.RemoveCursorOverride(this);
             }
         }
 #endif

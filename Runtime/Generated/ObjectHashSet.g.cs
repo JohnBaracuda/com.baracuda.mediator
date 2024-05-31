@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class ObjectHashSet : HashSetAsset<Object>
+    public class ObjectHashSet : HashSetAsset<UnityEngine.Object>
     {
     }
 }

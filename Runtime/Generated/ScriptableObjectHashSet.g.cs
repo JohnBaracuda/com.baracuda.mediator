@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class ScriptableObjectHashSet : HashSetAsset<ScriptableObject>
+    public class ScriptableObjectHashSet : HashSetAsset<UnityEngine.ScriptableObject>
     {
     }
 }

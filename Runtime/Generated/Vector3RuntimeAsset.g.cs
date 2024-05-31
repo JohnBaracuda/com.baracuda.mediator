@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Values;
+using Baracuda.Bedrock.Values;
 using UnityEngine;
 
 namespace Baracuda.Mediator
 {
-    public class Vector3RuntimeAsset : ValueAssetRuntime<Vector3>
+    public class Vector3RuntimeAsset : ValueAssetRuntime<UnityEngine.Vector3>
     {
     }
 }

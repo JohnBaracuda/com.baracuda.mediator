@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Baracuda.Mediator.Statistics
+namespace Baracuda.Bedrock.Statistics
 {
     [Serializable]
     public class StatData

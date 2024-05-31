@@ -1,9 +1,9 @@
-using Baracuda.Mediator.Collections;
+using Baracuda.Bedrock.Collections;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class LongQueue : QueueAsset<long>
+    public class LongQueue : QueueAsset<System.Int64>
     {
     }
 }

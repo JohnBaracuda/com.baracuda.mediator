@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Baracuda.Mediator.Statistics
+namespace Baracuda.Bedrock.Statistics
 {
     public readonly ref struct UpdateResult<T>
     {

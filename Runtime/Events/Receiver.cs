@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine.Assertions;
 
-namespace Baracuda.Mediator.Events
+namespace Baracuda.Bedrock.Events
 {
     public class Receiver : IReceiver
     {
@@ -39,7 +39,7 @@ namespace Baracuda.Mediator.Events
         //--------------------------------------------------------------------------------------------------------------
 
 
-        #region Add Listener
+        #region AddSingleton Listener
 
         /// <inheritdoc />
         public bool AddUnique(Action listener)
@@ -150,7 +150,7 @@ namespace Baracuda.Mediator.Events
         #endregion
 
 
-        #region Raise
+        #region Inject
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void RaiseInternal()
@@ -213,7 +213,7 @@ namespace Baracuda.Mediator.Events
         //--------------------------------------------------------------------------------------------------------------
 
 
-        #region Add Listener
+        #region AddSingleton Listener
 
         /// <inheritdoc />
         public bool AddUnique(Action<T> listener)
@@ -322,7 +322,7 @@ namespace Baracuda.Mediator.Events
         #endregion
 
 
-        #region Raise
+        #region Inject
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void RaiseInternal(T arg)
@@ -383,7 +383,7 @@ namespace Baracuda.Mediator.Events
         //--------------------------------------------------------------------------------------------------------------
 
 
-        #region Add Listener
+        #region AddSingleton Listener
 
         /// <inheritdoc />
         public bool AddUnique(Action<T1, T2> listener)
@@ -494,7 +494,7 @@ namespace Baracuda.Mediator.Events
         #endregion
 
 
-        #region Raise
+        #region Inject
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void RaiseInternal(T1 first, T2 second)
@@ -555,7 +555,7 @@ namespace Baracuda.Mediator.Events
         //--------------------------------------------------------------------------------------------------------------
 
 
-        #region Add Listener
+        #region AddSingleton Listener
 
         /// <inheritdoc />
         public bool AddUnique(Action<T1, T2, T3> listener)
@@ -666,7 +666,7 @@ namespace Baracuda.Mediator.Events
         #endregion
 
 
-        #region Raise
+        #region Inject
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void RaiseInternal(T1 first, T2 second, T3 third)
@@ -727,7 +727,7 @@ namespace Baracuda.Mediator.Events
         //--------------------------------------------------------------------------------------------------------------
 
 
-        #region Add Listener
+        #region AddSingleton Listener
 
         /// <inheritdoc />
         public bool AddUnique(Action<T1, T2, T3, T4> listener)
@@ -838,7 +838,7 @@ namespace Baracuda.Mediator.Events
         #endregion
 
 
-        #region Raise
+        #region Inject
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void RaiseInternal(T1 first, T2 second, T3 third, T4 fourth)

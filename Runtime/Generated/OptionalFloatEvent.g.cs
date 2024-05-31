@@ -1,10 +1,10 @@
-using Baracuda.Mediator.Events;
+using Baracuda.Bedrock.Events;
 using Baracuda.Utilities.Types;
 using System;
 
 namespace Baracuda.Mediator
 {
-    public class OptionalFloatEvent : EventAsset<Optional<float>>
+    public class OptionalFloatEvent : EventAsset<Baracuda.Utilities.Types.Optional<System.Single>>
     {
     }
 }

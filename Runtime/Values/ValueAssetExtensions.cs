@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Baracuda.Mediator.Values
+namespace Baracuda.Bedrock.Values
 {
     public static class ValueAssetExtensions
     {
