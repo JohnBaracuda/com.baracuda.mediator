@@ -1,16 +1,15 @@
 ﻿using Baracuda.Bedrock.Assets;
-using Baracuda.Bedrock.PlayerLoop;
 using Baracuda.Utilities;
 using System;
 using System.Diagnostics;
 using UnityEngine;
 
-namespace Baracuda.Bedrock.Installer
+namespace Baracuda.Bedrock.Initialization
 {
     /// <summary>
     ///     Base class for assets that are used to install and setup runtime game systems.
     /// </summary>
-    public abstract class SystemInstallerAsset : ScriptableAsset, IComparable<SystemInstallerAsset>
+    public abstract class InstallerAsset : ScriptableAsset, IComparable<InstallerAsset>
     {
         [SerializeField] private int priority;
 
@@ -48,7 +47,7 @@ namespace Baracuda.Bedrock.Installer
             AssetRegistry.RegisterInstaller(this);
         }
 
-        public int CompareTo(SystemInstallerAsset other)
+        public int CompareTo(InstallerAsset other)
         {
             if (ReferenceEquals(this, other))
             {

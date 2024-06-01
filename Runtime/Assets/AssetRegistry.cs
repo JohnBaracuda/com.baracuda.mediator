@@ -1,4 +1,4 @@
-﻿using Baracuda.Bedrock.Installer;
+﻿using Baracuda.Bedrock.Initialization;
 using Baracuda.Bedrock.Odin;
 using Baracuda.Bedrock.PlayerLoop;
 using Baracuda.Utilities;
@@ -25,7 +25,7 @@ namespace Baracuda.Bedrock.Assets
     {
         #region Fields
 
-        [SerializeField] private List<SystemInstallerAsset> installer = new();
+        [SerializeField] private List<InstallerAsset> installer = new();
         [Space]
         [SerializeField] private List<Object> singletons;
         [Line]
@@ -173,7 +173,7 @@ namespace Baracuda.Bedrock.Assets
 
         #region SystemInstallerAsset API
 
-        public static void RegisterInstaller<T>(T instance) where T : SystemInstallerAsset
+        public static void RegisterInstaller<T>(T instance) where T : InstallerAsset
         {
             Singleton.installer.AddUnique(instance);
         }
@@ -428,7 +428,7 @@ namespace Baracuda.Bedrock.Assets
             await Gameloop.DelayedCallAsync();
 
             // We load installer asset to make sure they are loaded in the editor when starting a game.
-            var guids = UnityEditor.AssetDatabase.FindAssets($"t:{typeof(SystemInstallerAsset)}");
+            var guids = UnityEditor.AssetDatabase.FindAssets($"t:{typeof(InstallerAsset)}");
             for (var i = 0; i < guids.Length; i++)
             {
                 var assetPath = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[i]);
@@ -446,7 +446,7 @@ namespace Baracuda.Bedrock.Assets
             Singleton.registry.TryRemove(guid.GetHashCode());
             Singleton.singletons.Remove(asset);
 
-            if (asset is SystemInstallerAsset installation)
+            if (asset is InstallerAsset installation)
             {
                 Singleton.installer.Remove(installation);
             }
