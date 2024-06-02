@@ -49,6 +49,17 @@ namespace Baracuda.Bedrock.Services
         }
 
         [PublicAPI]
+        public static ServiceContainer AddSingletonPrefabInstance<T>(this ServiceContainer container, GameObject prefab)
+            where T : MonoBehaviour
+        {
+            var gameObject = Object.Instantiate(prefab);
+            var instance = gameObject.GetComponent<T>();
+            instance.DontDestroyOnLoad();
+            container.AddSingleton(instance);
+            return container;
+        }
+
+        [PublicAPI]
         public static ServiceContainer AddSingletonPrefabInstanceLazy<T>(this ServiceContainer container, T prefab)
             where T : MonoBehaviour
         {

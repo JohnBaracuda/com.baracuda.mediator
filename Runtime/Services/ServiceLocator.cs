@@ -1,5 +1,6 @@
 ﻿using Baracuda.Bedrock.PlayerLoop;
 using Baracuda.Utilities;
+using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
@@ -68,6 +69,19 @@ namespace Baracuda.Bedrock.Services
 
 
         #region Service Provider
+
+        [PublicAPI]
+        public static async UniTask<T> GetAsync<T>() where T : class
+        {
+            for (;;)
+            {
+                if (TryResolve<T>(out var result))
+                {
+                    return result;
+                }
+                await UniTask.NextFrame();
+            }
+        }
 
         [PublicAPI]
         public static T Get<T>() where T : class

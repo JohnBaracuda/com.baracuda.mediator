@@ -1,6 +1,7 @@
 ﻿using Baracuda.Bedrock.Assets;
 using Baracuda.Bedrock.Events;
 using Baracuda.Bedrock.PlayerLoop;
+using Baracuda.Utilities;
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using System;
@@ -15,7 +16,7 @@ namespace Baracuda.Bedrock.Scenes
     {
         #region Instance
 
-        [SerializeField] private SceneProvider sceneProvider = SceneProvider.Addressable;
+        [SerializeField] private SceneProvider sceneProvider = SceneProvider.BuildIndex;
         [ShowIf(nameof(sceneProvider), SceneProvider.Addressable)]
         [SerializeField] [Required] private AssetReferenceScene sceneReference;
         [ShowIf(nameof(sceneProvider), SceneProvider.BuildIndex)]
@@ -136,7 +137,7 @@ namespace Baracuda.Bedrock.Scenes
             switch (sceneProvider)
             {
                 case SceneProvider.BuildIndex:
-                    if (SceneManager.GetSceneByBuildIndex(buildIndex).IsValid() is false)
+                    if (SceneUtility.GetScenePathByBuildIndex(buildIndex).IsNullOrEmpty())
                     {
                         Debug.LogError("Scene Asset Build Index is not valid!", this);
                         return;
@@ -185,10 +186,24 @@ namespace Baracuda.Bedrock.Scenes
         private async UniTask LoadSingleAsyncInternal()
         {
 #if UNITY_EDITOR
-            if (sceneReference.editorAsset == null)
+            switch (sceneProvider)
             {
-                Debug.LogError("Scene Asset Reference is not set!", this);
-                return;
+                case SceneProvider.BuildIndex:
+                    if (SceneUtility.GetScenePathByBuildIndex(buildIndex).IsNullOrEmpty())
+                    {
+                        Debug.LogError($"Scene Asset Build Index {buildIndex} is not valid!", this);
+                        return;
+                    }
+                    break;
+                case SceneProvider.Addressable:
+                    if (sceneReference.editorAsset == null)
+                    {
+                        Debug.LogError("Scene Asset Reference is not set!", this);
+                        return;
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 #endif
 
