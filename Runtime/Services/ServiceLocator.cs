@@ -116,13 +116,13 @@ namespace Baracuda.Bedrock.Services
         [PublicAPI]
         public static void AddSingleton<T>(T service)
         {
-            Global.AddSingleton(service);
+            Global.Add(service);
         }
 
         [PublicAPI]
         public static void AddSingleton(Type type, object service)
         {
-            Global.AddSingleton(type, service);
+            Global.Add(type, service);
         }
 
         [PublicAPI]

@@ -176,7 +176,7 @@ namespace Baracuda.Bedrock.Services
         #region Public API: Add Singleton
 
         [PublicAPI]
-        public ServiceContainer AddSingleton<T>(T service)
+        public ServiceContainer Add<T>(T service)
         {
 #if UNITY_EDITOR
             if (!Application.isPlaying)
@@ -203,7 +203,7 @@ namespace Baracuda.Bedrock.Services
         }
 
         [PublicAPI]
-        public ServiceContainer AddSingleton(Type type, object service)
+        public ServiceContainer Add(Type type, object service)
         {
 #if UNITY_EDITOR
             if (!Application.isPlaying)

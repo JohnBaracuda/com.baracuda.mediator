@@ -14,7 +14,7 @@ namespace Baracuda.Bedrock.Initialization
     {
         #region Fields
 
-        [SerializeField] private LevelAsset firstLevel;
+        [SerializeField] private SceneReference firstLevel;
         [Header("File System")]
         [InlineInspector]
         [SerializeField] private FileSystemArgumentsAsset fileSystemArgumentsRelease;
@@ -85,7 +85,10 @@ namespace Baracuda.Bedrock.Initialization
             Gameloop.RaiseInitializationCompleted();
 
             Debug.Log(nameof(Bootstrap), "(5/5) Loading First Level");
-            await firstLevel.LoadAsync();
+            await SceneLoader
+                .Create()
+                .ScheduleScene(firstLevel)
+                .LoadAsync();
 
             Debug.Log(nameof(Bootstrap), "Initialization Completed");
         }
