@@ -124,7 +124,6 @@ namespace Baracuda.Bedrock.Input
         private void UpdateInputActionMaps()
         {
             inputActionAsset.Enable();
-
             foreach (var (inputActionMapName, hashSet) in _inputActionMapProvider.Reverse())
             {
                 var actionMap = inputActionAsset.FindActionMap(inputActionMapName, true);
@@ -216,6 +215,7 @@ namespace Baracuda.Bedrock.Input
             foreach (var inputActionMap in inputActionAsset.actionMaps)
             {
                 inputActionMap.Disable();
+                _inputActionMapProvider.Add(new InputActionMapReference(inputActionMap), new HashSet<object>());
             }
             foreach (var inputActionReference in mouseInputActions)
             {

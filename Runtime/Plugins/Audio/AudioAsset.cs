@@ -8,7 +8,7 @@ using UnityEngine;
 using StopMode = FMOD.Studio.STOP_MODE;
 using Attribute3D = FMOD.ATTRIBUTES_3D;
 
-namespace Baracuda.Mediation.Audio
+namespace Baracuda.Bedrock.Audio
 {
     public class AudioAsset : ScriptableAsset
     {

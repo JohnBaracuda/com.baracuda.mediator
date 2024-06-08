@@ -1,6 +1,6 @@
 ﻿using FMOD.Studio;
 
-namespace Baracuda.Mediation.Audio
+namespace Baracuda.Bedrock.Audio
 {
     public readonly struct FmodParameter
     {

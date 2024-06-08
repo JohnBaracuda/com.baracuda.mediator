@@ -1,11 +1,11 @@
-﻿using Baracuda.Bedrock.Odin;
-using Baracuda.Bedrock.Settings;
+﻿using Baracuda.Bedrock.Assets;
+using Baracuda.Bedrock.Odin;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Baracuda.Bedrock.Cursor
 {
-    public class CursorSystemSettings : SettingsAsset
+    public class CursorSystemSettings : ScriptableAsset
     {
         [Foldout("Cursor Assets")]
         [SerializeField] private CursorType startCursor;
