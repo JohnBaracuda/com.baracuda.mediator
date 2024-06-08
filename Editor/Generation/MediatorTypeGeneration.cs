@@ -125,15 +125,24 @@ namespace Baracuda.Bedrock.Editor.Generation
             var metaFilePath = Path.Combine(Application.dataPath.RemoveFromEnd("Assets"), $"{assetPath}.meta");
             var iconPath = UnityEditor.AssetDatabase.GetAssetPath(icon);
             var iconGUID = UnityEditor.AssetDatabase.GUIDFromAssetPath(iconPath);
+            var assetGUID = UnityEditor.AssetDatabase.GUIDFromAssetPath(assetPath);
 
-            var metaFileContent = File.ReadAllText(metaFilePath);
             var attributes = File.GetAttributes(metaFilePath);
 
             var updatedAttributes = attributes & ~ FileAttributes.ReadOnly;
             File.SetAttributes(metaFilePath, updatedAttributes);
 
-            metaFileContent = metaFileContent.Replace("icon: {instanceID: 0}",
-                $"icon: {{fileID: 2800000, guid: {iconGUID}, type: 3}}");
+            var metaFileContent = "fileFormatVersion: 2\n" +
+                                  $"guid: {assetGUID}\n" +
+                                  "MonoImporter:\n" +
+                                  "  externalObjects: {}\n" +
+                                  "  serializedVersion: 2\n" +
+                                  "  defaultReferences: []\n" +
+                                  "  executionOrder: 0\n" +
+                                  $"  icon: {{fileID: 2800000, guid: {iconGUID}, type: 3}}\n" +
+                                  "  userData: \n" +
+                                  "  assetBundleName: \n" +
+                                  "  assetBundleVariant: ";
 
             File.WriteAllText(metaFilePath, metaFileContent);
             File.SetAttributes(metaFilePath, attributes);

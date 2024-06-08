@@ -37,6 +37,6 @@ namespace Baracuda.Bedrock.Mediator
     internal static class MediatorDefinitions
     {
         public const string Subfolder = "Generated";
-        public const string NameSpace = "Baracuda.Mediator";
+        public const string NameSpace = "Baracuda.Bedrock.Mediator";
     }
 }
