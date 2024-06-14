@@ -1,51 +1,74 @@
-﻿using Baracuda.Bedrock.Scenes2;
+﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Baracuda.Bedrock.Scenes2;
 using Cysharp.Threading.Tasks;
-using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine.Assertions;
 using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 
 namespace Baracuda.Bedrock.Scenes
 {
-    public readonly struct SceneLoader
+    /// <summary>
+    ///     This struct can be used to layout and then execute complex scene load operations.
+    /// </summary>
+    public readonly ref struct SceneLoader
     {
-        #region Constructor
-
-        public readonly bool IsCreated;
-        private readonly List<SceneEntry> _entries;
-
-        private SceneLoader(List<SceneEntry> entries)
-        {
-            IsCreated = true;
-            _entries = entries;
-        }
-
-        #endregion
-
-
         #region Builder API
 
+        /// <summary>
+        ///     Use this to validate if the <see cref="SceneLoader" /> has been created or if it is just the default value.
+        /// </summary>
+        [PublicAPI]
+        public readonly bool IsCreated;
+
+        /// <summary>
+        ///     Create a new scene loader.
+        /// </summary>
         public static SceneLoader Create()
         {
-            return new SceneLoader(ListPool<SceneEntry>.Get());
+            return new SceneLoader(ListPool<SceneLoadData>.Get());
         }
 
+        /// <summary>
+        ///     Schedule the next scene load.
+        /// </summary>
+        [PublicAPI]
         public SceneEntryBuilder ScheduleScene(SceneBuildIndex buildIndex)
         {
             Assert.IsTrue(IsCreated);
             return new SceneEntryBuilder(this, buildIndex);
         }
 
+        /// <summary>
+        ///     Schedule the next scene load.
+        /// </summary>
+        [PublicAPI]
         public SceneEntryBuilder ScheduleScene(string sceneName)
         {
             Assert.IsTrue(IsCreated);
             return new SceneEntryBuilder(this, SceneUtilityAPI.GetSceneIndexByName(sceneName));
         }
 
+        /// <summary>
+        ///     Schedule the next scene load.
+        /// </summary>
+        [PublicAPI]
         public SceneEntryBuilder ScheduleScene(SceneReference scene)
         {
             Assert.IsTrue(IsCreated);
             return new SceneEntryBuilder(this, scene.BuildIndex);
+        }
+
+        /// <summary>
+        ///     Begin the scene load asynchronous. This method will return synchronous if every scene was scheduled with
+        ///     <see cref="SceneEntryBuilder.AsBlocking" />
+        /// </summary>
+        [PublicAPI]
+        public UniTask LoadAsync()
+        {
+            Assert.IsTrue(IsCreated);
+            return LoadAsyncInternal(_entries);
         }
 
         #endregion
@@ -53,12 +76,121 @@ namespace Baracuda.Bedrock.Scenes
 
         #region Scene Entry Builder
 
-        private void AddEntry(SceneEntry entry)
+        public ref struct SceneEntryBuilder
         {
-            _entries.Add(entry);
+            /// <summary>
+            ///     Set the scene as the main scene.
+            /// </summary>
+            [PublicAPI]
+            public SceneEntryBuilder AsMain()
+            {
+                _loadData.IsMainScene = true;
+                return this;
+            }
+
+            /// <summary>
+            ///     Set the scene to be loaded synchronously.
+            /// </summary>
+            [PublicAPI]
+            public SceneEntryBuilder AsBlocking()
+            {
+                _loadData.LoadAsync = false;
+                return this;
+            }
+
+            /// <summary>
+            ///     Set the scene to be loaded in parallel with other scenes.
+            /// </summary>
+            [PublicAPI]
+            public SceneEntryBuilder AsParallel()
+            {
+                _loadData.LoadParallel = true;
+                return this;
+            }
+
+            /// <summary>
+            ///     Complete the current scene load entry and schedule the next scene.
+            /// </summary>
+            [PublicAPI]
+            public SceneEntryBuilder ScheduleScene(SceneBuildIndex buildIndex)
+            {
+                _sceneLoader.Add(_loadData);
+                return new SceneEntryBuilder(_sceneLoader, buildIndex);
+            }
+
+            /// <summary>
+            ///     Complete the current scene load entry and schedule the next scene.
+            /// </summary>
+            [PublicAPI]
+            public SceneEntryBuilder ScheduleScene(string sceneName)
+            {
+                _sceneLoader.Add(_loadData);
+                return new SceneEntryBuilder(_sceneLoader, SceneUtilityAPI.GetSceneIndexByName(sceneName));
+            }
+
+            /// <summary>
+            ///     Complete the current scene load entry and schedule the next scene.
+            /// </summary>
+            [PublicAPI]
+            public SceneEntryBuilder ScheduleScene(SceneReference scene)
+            {
+                _sceneLoader.Add(_loadData);
+                return new SceneEntryBuilder(_sceneLoader, scene.BuildIndex);
+            }
+
+            /// <summary>
+            ///     Build the scene loader without starting it.
+            /// </summary>
+            [PublicAPI]
+            public SceneLoader Build()
+            {
+                _sceneLoader.Add(_loadData);
+                return _sceneLoader;
+            }
+
+            /// <summary>
+            ///     Build the scene load data and start the scene load.
+            /// </summary>
+            [PublicAPI]
+            public UniTask LoadAsync()
+            {
+                return Build().LoadAsync();
+            }
+
+
+            #region Fields & Ctor
+
+            private readonly SceneLoader _sceneLoader;
+            private SceneLoadData _loadData;
+
+            public SceneEntryBuilder(SceneLoader sceneLoader, SceneBuildIndex buildIndex)
+            {
+                _sceneLoader = sceneLoader;
+
+                _loadData = new SceneLoadData
+                {
+                    BuildIndex = buildIndex,
+                    LoadAsync = true,
+                    IsMainScene = false,
+                    LoadParallel = false,
+                    ActivateOnLoad = true
+                };
+            }
+
+            #endregion
         }
 
-        private struct SceneEntry
+        #endregion
+
+
+        #region Ctor & Data
+
+        private void Add(SceneLoadData loadData)
+        {
+            _entries.Add(loadData);
+        }
+
+        private struct SceneLoadData
         {
             public bool LoadAsync;
             public bool LoadParallel;
@@ -67,70 +199,12 @@ namespace Baracuda.Bedrock.Scenes
             public SceneBuildIndex BuildIndex;
         }
 
-        public struct SceneEntryBuilder
+        private readonly List<SceneLoadData> _entries;
+
+        private SceneLoader(List<SceneLoadData> entries)
         {
-            private readonly SceneLoader _sceneLoader;
-            private SceneEntry _entry;
-
-            public SceneEntryBuilder(SceneLoader sceneLoader, SceneBuildIndex buildIndex)
-            {
-                _sceneLoader = sceneLoader;
-                _entry = new SceneEntry
-                {
-                    BuildIndex = buildIndex,
-                    LoadAsync = false,
-                    IsMainScene = false,
-                    LoadParallel = false,
-                    ActivateOnLoad = true
-                };
-            }
-
-            public SceneEntryBuilder AsMain()
-            {
-                _entry.IsMainScene = true;
-                return this;
-            }
-
-            public SceneEntryBuilder AsAsync()
-            {
-                _entry.LoadAsync = true;
-                return this;
-            }
-
-            public SceneEntryBuilder AsParallel()
-            {
-                _entry.LoadParallel = true;
-                return this;
-            }
-
-            public SceneEntryBuilder ScheduleScene(SceneBuildIndex buildIndex)
-            {
-                _sceneLoader.AddEntry(_entry);
-                return new SceneEntryBuilder(_sceneLoader, buildIndex);
-            }
-
-            public SceneEntryBuilder ScheduleScene(string sceneName)
-            {
-                _sceneLoader.AddEntry(_entry);
-                return new SceneEntryBuilder(_sceneLoader, SceneUtilityAPI.GetSceneIndexByName(sceneName));
-            }
-
-            public SceneEntryBuilder ScheduleScene(SceneReference scene)
-            {
-                _sceneLoader.AddEntry(_entry);
-                return new SceneEntryBuilder(_sceneLoader, scene.BuildIndex);
-            }
-
-            public SceneLoader Build()
-            {
-                _sceneLoader.AddEntry(_entry);
-                return _sceneLoader;
-            }
-
-            public UniTask LoadAsync()
-            {
-                return Build().LoadAsync();
-            }
+            IsCreated = true;
+            _entries = entries;
         }
 
         #endregion
@@ -138,12 +212,12 @@ namespace Baracuda.Bedrock.Scenes
 
         #region Loading
 
-        public async UniTask LoadAsync()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static async UniTask LoadAsyncInternal(List<SceneLoadData> entries)
         {
-            Assert.IsTrue(IsCreated);
-
             var loadSceneMode = LoadSceneMode.Single;
-            foreach (var sceneEntry in _entries)
+
+            foreach (var sceneEntry in entries)
             {
                 var buildIndex = sceneEntry.BuildIndex;
 
@@ -167,7 +241,7 @@ namespace Baracuda.Bedrock.Scenes
                 loadSceneMode = LoadSceneMode.Additive;
             }
 
-            ListPool<SceneEntry>.Release(_entries);
+            ListPool<SceneLoadData>.Release(entries);
         }
 
         #endregion

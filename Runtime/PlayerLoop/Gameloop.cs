@@ -78,6 +78,11 @@ namespace Baracuda.Bedrock.PlayerLoop
         #region State
 
         /// <summary>
+        ///     Returns true if the application is not quitting.
+        /// </summary>
+        public static bool IsRunning => Application.isPlaying && !IsQuitting;
+
+        /// <summary>
         ///     Returns true if the application quitting process has started.
         /// </summary>
         public static bool IsQuitting { get; private set; }

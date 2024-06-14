@@ -51,6 +51,12 @@ namespace Baracuda.Bedrock.Values
             return false;
         }
 
+        [PublicAPI]
+        public bool HasValue => _value != null;
+
+        [PublicAPI]
+        public bool IsNull => _value == null;
+
         public Observable()
         {
         }

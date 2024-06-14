@@ -15,9 +15,11 @@ namespace Baracuda.Bedrock.Initialization
         #region Fields
 
         [SerializeField] private SceneReference firstLevel;
+
         [Header("File System")]
         [InlineInspector]
         [SerializeField] private FileSystemArgumentsAsset fileSystemArgumentsRelease;
+
         [InlineInspector]
         [SerializeField] private FileSystemArgumentsAsset fileSystemArgumentsDebug;
 
@@ -56,6 +58,7 @@ namespace Baracuda.Bedrock.Initialization
                 {
                     forceSynchronousShutdown = true
                 };
+
                 await FileSystem.ShutdownAsync(args);
             }
 #endif
@@ -72,6 +75,7 @@ namespace Baracuda.Bedrock.Initialization
             {
                 Debug.Log(nameof(Bootstrap),
                     $"Loading Resource [{resourceLocation.PrimaryKey}]");
+
                 await Addressables.LoadAssetAsync<Object>(resourceLocation);
             }
 
@@ -85,9 +89,11 @@ namespace Baracuda.Bedrock.Initialization
             Gameloop.RaiseInitializationCompleted();
 
             Debug.Log(nameof(Bootstrap), "(5/5) Loading First Level");
+
             await SceneLoader
                 .Create()
                 .ScheduleScene(firstLevel)
+                .AsBlocking()
                 .LoadAsync();
 
             Debug.Log(nameof(Bootstrap), "Initialization Completed");
@@ -106,6 +112,7 @@ namespace Baracuda.Bedrock.Initialization
             var activeScene = SceneManager.GetActiveScene();
             var sceneIndex = SceneUtility.GetBuildIndexByScenePath(activeScene.path);
             var isInitializationScene = sceneIndex == 0;
+
             if (isInitializationScene)
             {
                 return;
