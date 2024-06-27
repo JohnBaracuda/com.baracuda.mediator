@@ -27,5 +27,14 @@ namespace Baracuda.Bedrock.Values
         {
             return variableRO.Value;
         }
+
+        public static implicit operator VariableRO<T>(T value)
+        {
+            return new VariableRO<T>
+            {
+                value = value,
+                byReference = false
+            };
+        }
     }
 }

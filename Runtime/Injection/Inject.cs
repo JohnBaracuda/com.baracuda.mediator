@@ -1,10 +1,10 @@
-﻿using Baracuda.Bedrock.Services;
-using Baracuda.Utilities.Reflection;
-using JetBrains.Annotations;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Baracuda.Bedrock.Services;
+using Baracuda.Utilities.Reflection;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Pool;
 using UnityEngine.Profiling;
@@ -63,12 +63,10 @@ namespace Baracuda.Bedrock.Injection
             {
                 InjectFieldsInternal(monoBehaviour, type, createTypeCache);
                 InjectPropertiesInternal(monoBehaviour, type, createTypeCache);
-                PostInjection(monoBehaviour);
                 return;
             }
             InjectFieldsInternal(target, type, createTypeCache);
             InjectPropertiesInternal(target, type, createTypeCache);
-            PostInjection(target);
         }
 
         [PublicAPI]
@@ -79,11 +77,9 @@ namespace Baracuda.Bedrock.Injection
             if (target is MonoBehaviour monoBehaviour)
             {
                 InjectFieldsInternal(monoBehaviour, type, createTypeCache);
-                PostInjection(monoBehaviour);
                 return;
             }
             InjectFieldsInternal(target, type, createTypeCache);
-            PostInjection(target);
         }
 
         [PublicAPI]
@@ -94,11 +90,9 @@ namespace Baracuda.Bedrock.Injection
             if (target is MonoBehaviour monoBehaviour)
             {
                 InjectPropertiesInternal(monoBehaviour, type);
-                PostInjection(monoBehaviour);
                 return;
             }
             InjectPropertiesInternal(target, type);
-            PostInjection(target);
         }
 
         [PublicAPI]
@@ -108,7 +102,6 @@ namespace Baracuda.Bedrock.Injection
             var type = target.GetType();
             InjectFieldsInternal(target, type, createTypeCache);
             InjectPropertiesInternal(target, type, createTypeCache);
-            PostInjection(target);
         }
 
         [PublicAPI]
@@ -117,7 +110,6 @@ namespace Baracuda.Bedrock.Injection
         {
             var type = target.GetType();
             InjectFieldsInternal(target, type, createTypeCache);
-            PostInjection(target);
         }
 
         [PublicAPI]
@@ -126,20 +118,6 @@ namespace Baracuda.Bedrock.Injection
         {
             var type = target.GetType();
             InjectPropertiesInternal(target, type);
-            PostInjection(target);
-        }
-
-        #endregion
-
-
-        #region Post Injection
-
-        private static void PostInjection(object target)
-        {
-            if (target is IInjectCallback injectCallback)
-            {
-                injectCallback.OnDependenciesInjected();
-            }
         }
 
         #endregion
@@ -331,7 +309,7 @@ namespace Baracuda.Bedrock.Injection
                 {
                     var profile = new InjectionCache<object>
                     {
-                        InjectDelegate = target => propertyInfo.SetValue(target, serviceLocator.Resolve(dependencyType))
+                        InjectDelegate = target => propertyInfo.SetValue(target, serviceLocator.Get(dependencyType))
                     };
                     profiles.Add(profile);
                 }
@@ -339,7 +317,7 @@ namespace Baracuda.Bedrock.Injection
                 {
                     var profile = new InjectionCache<object>
                     {
-                        InjectDelegate = target => backingField.SetValue(target, serviceLocator.Resolve(dependencyType))
+                        InjectDelegate = target => backingField.SetValue(target, serviceLocator.Get(dependencyType))
                     };
                     profiles.Add(profile);
                 }
@@ -365,7 +343,7 @@ namespace Baracuda.Bedrock.Injection
 
                 var profile = new InjectionCache<object>
                 {
-                    InjectDelegate = target => fieldInfo.SetValue(target, serviceLocator.Resolve(dependencyType))
+                    InjectDelegate = target => fieldInfo.SetValue(target, serviceLocator.Get(dependencyType))
                 };
 
                 profiles.Add(profile);
@@ -404,7 +382,7 @@ namespace Baracuda.Bedrock.Injection
                             var profile = new InjectionCache<MonoBehaviour>
                             {
                                 InjectDelegate = target =>
-                                    propertyInfo.SetValue(target, serviceLocator.Resolve(dependencyType))
+                                    propertyInfo.SetValue(target, serviceLocator.Get(dependencyType))
                             };
                             profiles.Add(profile);
                         }
@@ -413,159 +391,7 @@ namespace Baracuda.Bedrock.Injection
                             var profile = new InjectionCache<MonoBehaviour>
                             {
                                 InjectDelegate = target =>
-                                    backingField.SetValue(target, serviceLocator.Resolve(dependencyType))
-                            };
-                            profiles.Add(profile);
-                        }
-                        continue;
-                    }
-                    case GetComponentAttribute:
-                    {
-                        if (propertyInfo.CanWrite)
-                        {
-                            var componentType = propertyInfo.PropertyType;
-                            var profile = new InjectionCache<MonoBehaviour>
-                            {
-                                InjectDelegate = target => propertyInfo.SetValue(target,
-                                    target.GetComponent(componentType))
-                            };
-                            profiles.Add(profile);
-                        }
-                        else if (propertyInfo.TryGetBackingField(out var backingField))
-                        {
-                            var componentType = propertyInfo.PropertyType;
-                            var profile = new InjectionCache<MonoBehaviour>
-                            {
-                                InjectDelegate = target => backingField.SetValue(target,
-                                    target.GetComponent(componentType))
-                            };
-                            profiles.Add(profile);
-                        }
-                        continue;
-                    }
-                    case GetComponentInChildrenAttribute attribute:
-                    {
-                        if (propertyInfo.CanWrite)
-                        {
-                            var componentType = propertyInfo.PropertyType;
-                            var profile = new InjectionCache<MonoBehaviour>
-                            {
-                                InjectDelegate = target => propertyInfo.SetValue(target,
-                                    target.GetComponentInChildren(componentType,
-                                        attribute.IncludeInactive))
-                            };
-                            profiles.Add(profile);
-                        }
-                        else if (propertyInfo.TryGetBackingField(out var backingField))
-                        {
-                            var componentType = propertyInfo.PropertyType;
-                            var profile = new InjectionCache<MonoBehaviour>
-                            {
-                                InjectDelegate = target => backingField.SetValue(target,
-                                    target.GetComponentInChildren(componentType,
-                                        attribute.IncludeInactive))
-                            };
-                            profiles.Add(profile);
-                        }
-                        continue;
-                    }
-                    case GetComponentInParentAttribute attribute:
-                    {
-                        if (propertyInfo.CanWrite)
-                        {
-                            var componentType = propertyInfo.PropertyType;
-                            var profile = new InjectionCache<MonoBehaviour>
-                            {
-                                InjectDelegate = target => propertyInfo.SetValue(target,
-                                    target.GetComponentInParent(componentType,
-                                        attribute.IncludeInactive))
-                            };
-                            profiles.Add(profile);
-                        }
-                        else if (propertyInfo.TryGetBackingField(out var backingField))
-                        {
-                            var componentType = propertyInfo.PropertyType;
-                            var profile = new InjectionCache<MonoBehaviour>
-                            {
-                                InjectDelegate = target => backingField.SetValue(target,
-                                    target.GetComponentInParent(componentType,
-                                        attribute.IncludeInactive))
-                            };
-                            profiles.Add(profile);
-                        }
-                        continue;
-                    }
-                    case GetComponentsAttribute:
-                    {
-                        if (propertyInfo.CanWrite)
-                        {
-                            var componentType = propertyInfo.PropertyType.GetElementType();
-                            var profile = new InjectionCache<MonoBehaviour>
-                            {
-                                InjectDelegate = target => propertyInfo.SetValue(target,
-                                    target.GetComponent(componentType))
-                            };
-                            profiles.Add(profile);
-                        }
-                        else if (propertyInfo.TryGetBackingField(out var backingField))
-                        {
-                            var componentType = propertyInfo.PropertyType.GetElementType();
-                            var profile = new InjectionCache<MonoBehaviour>
-                            {
-                                InjectDelegate = target => backingField.SetValue(target,
-                                    target.GetComponents(componentType))
-                            };
-                            profiles.Add(profile);
-                        }
-                        continue;
-                    }
-                    case GetComponentsInChildrenAttribute attribute:
-                    {
-                        if (propertyInfo.CanWrite)
-                        {
-                            var componentType = propertyInfo.PropertyType.GetElementType();
-                            var profile = new InjectionCache<MonoBehaviour>
-                            {
-                                InjectDelegate = target => propertyInfo.SetValue(target,
-                                    target.GetComponentsInChildren(componentType,
-                                        attribute.IncludeInactive))
-                            };
-                            profiles.Add(profile);
-                        }
-                        else if (propertyInfo.TryGetBackingField(out var backingField))
-                        {
-                            var componentType = propertyInfo.PropertyType.GetElementType();
-                            var profile = new InjectionCache<MonoBehaviour>
-                            {
-                                InjectDelegate = target => backingField.SetValue(target,
-                                    target.GetComponentInChildren(componentType,
-                                        attribute.IncludeInactive))
-                            };
-                            profiles.Add(profile);
-                        }
-                        continue;
-                    }
-                    case GetComponentsInParentAttribute attribute:
-                    {
-                        if (propertyInfo.CanWrite)
-                        {
-                            var componentType = propertyInfo.PropertyType.GetElementType();
-                            var profile = new InjectionCache<MonoBehaviour>
-                            {
-                                InjectDelegate = target => propertyInfo.SetValue(target,
-                                    target.GetComponentInParent(componentType,
-                                        attribute.IncludeInactive))
-                            };
-                            profiles.Add(profile);
-                        }
-                        else if (propertyInfo.TryGetBackingField(out var backingField))
-                        {
-                            var componentType = propertyInfo.PropertyType.GetElementType();
-                            var profile = new InjectionCache<MonoBehaviour>
-                            {
-                                InjectDelegate = target => backingField.SetValue(target,
-                                    target.GetComponentsInParent(componentType,
-                                        attribute.IncludeInactive))
+                                    backingField.SetValue(target, serviceLocator.Get(dependencyType))
                             };
                             profiles.Add(profile);
                         }
@@ -599,82 +425,7 @@ namespace Baracuda.Bedrock.Injection
                         var profile = new InjectionCache<MonoBehaviour>
                         {
                             InjectDelegate = target =>
-                                fieldInfo.SetValue(target, serviceLocator.Resolve(dependencyType))
-                        };
-                        profiles.Add(profile);
-
-                        continue;
-                    }
-                    case GetComponentAttribute:
-                    {
-                        var componentType = fieldInfo.FieldType;
-                        var profile = new InjectionCache<MonoBehaviour>
-                        {
-                            InjectDelegate = target => fieldInfo.SetValue(target,
-                                target.GetComponent(componentType))
-                        };
-                        profiles.Add(profile);
-
-                        continue;
-                    }
-                    case GetComponentInChildrenAttribute attribute:
-                    {
-                        var componentType = fieldInfo.FieldType;
-                        var profile = new InjectionCache<MonoBehaviour>
-                        {
-                            InjectDelegate = target => fieldInfo.SetValue(target,
-                                target.GetComponentInChildren(componentType,
-                                    attribute.IncludeInactive))
-                        };
-                        profiles.Add(profile);
-
-                        continue;
-                    }
-                    case GetComponentInParentAttribute attribute:
-                    {
-                        var componentType = fieldInfo.FieldType;
-                        var profile = new InjectionCache<MonoBehaviour>
-                        {
-                            InjectDelegate = target => fieldInfo.SetValue(target,
-                                target.GetComponentInParent(componentType,
-                                    attribute.IncludeInactive))
-                        };
-                        profiles.Add(profile);
-
-                        continue;
-                    }
-                    case GetComponentsAttribute:
-                    {
-                        var componentType = fieldInfo.FieldType.GetElementType();
-                        var profile = new InjectionCache<MonoBehaviour>
-                        {
-                            InjectDelegate = target => fieldInfo.SetValue(target,
-                                target.GetComponent(componentType))
-                        };
-                        profiles.Add(profile);
-
-                        continue;
-                    }
-                    case GetComponentsInChildrenAttribute attribute:
-                    {
-                        var componentType = fieldInfo.FieldType.GetElementType();
-                        var profile = new InjectionCache<MonoBehaviour>
-                        {
-                            InjectDelegate = target => fieldInfo.SetValue(target,
-                                target.GetComponentsInChildren(componentType, attribute.IncludeInactive))
-                        };
-                        profiles.Add(profile);
-
-                        continue;
-                    }
-                    case GetComponentsInParentAttribute attribute:
-                    {
-                        var componentType = fieldInfo.FieldType.GetElementType();
-                        var profile = new InjectionCache<MonoBehaviour>
-                        {
-                            InjectDelegate = target => fieldInfo.SetValue(target,
-                                target.GetComponentInParent(componentType,
-                                    attribute.IncludeInactive))
+                                fieldInfo.SetValue(target, serviceLocator.Get(dependencyType))
                         };
                         profiles.Add(profile);
 

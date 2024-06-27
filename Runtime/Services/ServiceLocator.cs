@@ -1,10 +1,10 @@
-﻿using Baracuda.Bedrock.PlayerLoop;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Baracuda.Bedrock.PlayerLoop;
 using Baracuda.Utilities;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -30,14 +30,29 @@ namespace Baracuda.Bedrock.Services
 
         #region Service Locator Access
 
+        /// <summary>
+        ///     Get the global <see cref="ServiceContainer" /> that all global services are registered to.
+        /// </summary>
         [PublicAPI]
         public static ServiceContainer Global => GetGlobalContainerInternal();
 
+        /// <summary>
+        ///     Get the <see cref="ServiceContainer" /> for the active scene. This call will create a new
+        ///     ServiceContainer for the active scene if none is found. Use <see cref="ActiveSceneOrNull" />
+        ///     if you try to get the service container
+        ///     instead.
+        /// </summary>
         [PublicAPI]
-        public static ServiceContainer ForActiveScene(bool create = true)
-        {
-            return ForActiveSceneInternal(create);
-        }
+        public static ServiceContainer ActiveScene => ForActiveSceneInternal(true);
+
+        /// <summary>
+        ///     Get the <see cref="ServiceContainer" /> for the active scene or null. This call will not create a new
+        ///     ServiceContainer for the active scene if none is found. Use <see cref="ActiveScene" />
+        ///     if you want to ensure that a new service container is created if none is found.
+        /// </summary>
+        [PublicAPI]
+        [CanBeNull]
+        public static ServiceContainer ActiveSceneOrNull => ForActiveSceneInternal(false);
 
         [PublicAPI]
         [CanBeNull]
@@ -75,7 +90,7 @@ namespace Baracuda.Bedrock.Services
         {
             for (;;)
             {
-                if (TryResolve<T>(out var result))
+                if (TryGet<T>(out var result))
                 {
                     return result;
                 }
@@ -86,29 +101,29 @@ namespace Baracuda.Bedrock.Services
         [PublicAPI]
         public static T Get<T>() where T : class
         {
-            return Global.Resolve<T>();
+            return Global.Get<T>();
         }
 
         [PublicAPI]
-        public static void Get<T>(ref T field) where T : class
+        public static void Inject<T>(ref T field) where T : class
         {
-            field = Global.Resolve<T>();
+            field = Global.Get<T>();
         }
 
         [PublicAPI]
         public static object Get(Type type)
         {
-            return Global.Resolve(type);
+            return Global.Get(type);
         }
 
         [PublicAPI]
-        public static bool TryResolve<T>(out T service) where T : class
+        public static bool TryGet<T>(out T service) where T : class
         {
             return Global.TryResolve(out service);
         }
 
         [PublicAPI]
-        public static bool TryResolve(Type type, out object value)
+        public static bool TryGet(Type type, out object value)
         {
             return Global.TryResolve(type, out value);
         }

@@ -1,5 +1,6 @@
-﻿using Baracuda.Utilities.Types;
-using System;
+﻿using System;
+using System.Threading;
+using Baracuda.Utilities.Types;
 using UnityEngine;
 
 namespace Baracuda.Bedrock.PlayerLoop
@@ -20,8 +21,10 @@ namespace Baracuda.Bedrock.PlayerLoop
                     IsQuitting = true;
                     ShutdownAsync();
                 }
+
                 return EnableApplicationQuit;
             };
+
             Application.quitting += () =>
             {
                 IsQuitting = true;
@@ -33,6 +36,13 @@ namespace Baracuda.Bedrock.PlayerLoop
             UnityEditor.EditorApplication.update += OnEditorUpdate;
             UnityEditor.EditorApplication.projectWindowItemInstanceOnGUI += (_, _) => Segment = Segment.OnGUI;
 #endif
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetCancellationTokenSource()
+        {
+            cancellationTokenSource?.Dispose();
+            cancellationTokenSource = new CancellationTokenSource();
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -56,6 +66,7 @@ namespace Baracuda.Bedrock.PlayerLoop
             {
                 beforeFirstSceneLoadCallbacks[index]();
             }
+
             BeforeSceneLoadCompleted = true;
         }
 
@@ -67,6 +78,7 @@ namespace Baracuda.Bedrock.PlayerLoop
             {
                 afterFirstSceneLoadCallbacks[index]();
             }
+
             AfterSceneLoadCompleted = true;
         }
 
@@ -211,12 +223,12 @@ namespace Baracuda.Bedrock.PlayerLoop
 
         private static void OnSlowTickUpdate()
         {
-            if (OneSecondTimer.IsRunning)
+            if (OneSecondScaledTimer.IsRunning)
             {
                 return;
             }
 
-            OneSecondTimer = Timer.FromSeconds(1);
+            OneSecondScaledTimer = ScaledTimer.FromSeconds(1);
 #if DEBUG
             for (var index = slowTickUpdateCallbacks.Count - 1; index >= 0; index--)
             {
@@ -239,12 +251,12 @@ namespace Baracuda.Bedrock.PlayerLoop
 
         private static void OnTickUpdate()
         {
-            if (TickTimer.IsRunning)
+            if (TickScaledTimer.IsRunning)
             {
                 return;
             }
 
-            TickTimer = Timer.FromSeconds(.1f);
+            TickScaledTimer = ScaledTimer.FromSeconds(.1f);
 #if DEBUG
             for (var index = tickUpdateCallbacks.Count - 1; index >= 0; index--)
             {
@@ -337,6 +349,8 @@ namespace Baracuda.Bedrock.PlayerLoop
                     Debug.LogException(logCategory, exception);
                 }
             }
+
+            cancellationTokenSource.Cancel();
         }
 
         private static void OnApplicationFocus(bool hasFocus)
@@ -471,7 +485,7 @@ namespace Baracuda.Bedrock.PlayerLoop
 
         private static void EditorApplicationOnplayModeStateChanged(UnityEditor.PlayModeStateChange state)
         {
-            EditorState = (int) state;
+            EditorState = (int)state;
             switch (state)
             {
                 case UnityEditor.PlayModeStateChange.EnteredEditMode:
@@ -504,6 +518,7 @@ namespace Baracuda.Bedrock.PlayerLoop
                 {
                     continue;
                 }
+
                 try
                 {
                     exitPlayModeDelegate[i]();
@@ -523,6 +538,7 @@ namespace Baracuda.Bedrock.PlayerLoop
                 {
                     continue;
                 }
+
                 try
                 {
                     enterPlayModeDelegate[i]();
@@ -542,6 +558,7 @@ namespace Baracuda.Bedrock.PlayerLoop
                 {
                     continue;
                 }
+
                 try
                 {
                     exitEditModeDelegate[i]();
@@ -569,6 +586,7 @@ namespace Baracuda.Bedrock.PlayerLoop
                 {
                     continue;
                 }
+
                 try
                 {
                     enterEditModeDelegate[i]();

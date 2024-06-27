@@ -1,7 +1,8 @@
-﻿using Baracuda.Utilities;
-using System;
+﻿using System;
 using System.Collections;
+using System.Threading;
 using System.Threading.Tasks;
+using Baracuda.Utilities;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -83,6 +84,11 @@ namespace Baracuda.Bedrock.PlayerLoop
         public static bool IsRunning => Application.isPlaying && !IsQuitting;
 
         /// <summary>
+        ///     Returns true if the application is not running.
+        /// </summary>
+        public static bool IsNotRunning => !IsRunning;
+
+        /// <summary>
         ///     Returns true if the application quitting process has started.
         /// </summary>
         public static bool IsQuitting { get; private set; }
@@ -122,10 +128,26 @@ namespace Baracuda.Bedrock.PlayerLoop
         /// </summary>
         public static int FixedUpdateCount { get; private set; }
 
+        /// <summary>
+        ///     Return a <see cref="CancellationToken" /> that is valid for the duration of the applications runtime.
+        ///     This means until OnApplicationQuit is called in a build
+        ///     or until the play state is changed in the editor.
+        /// </summary>
+        public static CancellationToken RuntimeToken => cancellationTokenSource.Token;
+
         #endregion
 
 
         #region Events
+
+        /// <summary>
+        ///     Called during shutdown for async shutdown logic.
+        /// </summary>
+        public static event Func<Task> AsyncShutdown
+        {
+            add => asyncShutdownCallbacks.Add(value);
+            remove => asyncShutdownCallbacks.Remove(value);
+        }
 
         /// <summary>
         ///     Called before the first scene is loaded.
@@ -284,6 +306,7 @@ namespace Baracuda.Bedrock.PlayerLoop
             {
                 return null;
             }
+
             return monoBehaviour.StartCoroutine(enumerator);
         }
 
@@ -293,6 +316,7 @@ namespace Baracuda.Bedrock.PlayerLoop
             {
                 return;
             }
+
             monoBehaviour.StopCoroutine(coroutine);
         }
 
@@ -324,7 +348,7 @@ namespace Baracuda.Bedrock.PlayerLoop
 
         #region Editor
 
-        public static float TickDelta => TickTimer.Delta();
+        public static float TickDelta => TickScaledTimer.Delta();
 
         public static async Task DelayedCallAsync()
         {

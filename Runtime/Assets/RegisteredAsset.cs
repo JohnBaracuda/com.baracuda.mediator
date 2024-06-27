@@ -13,6 +13,7 @@ namespace Baracuda.Bedrock.Assets
         [PropertySpace]
         [PropertyOrder(-10001)]
         [SerializeField] private RuntimeGUID guid;
+
         public RuntimeGUID GUID => guid;
 
 #if UNITY_EDITOR
@@ -20,12 +21,12 @@ namespace Baracuda.Bedrock.Assets
         {
             base.OnEnable();
             RuntimeGUID.Create(this, ref guid);
-            AssetRegistry.RegisterAsset(this);
+            AssetRepository.RegisterAsset(this);
         }
 
         protected virtual void OnValidate()
         {
-            AssetRegistry.RegisterAsset(this);
+            AssetRepository.RegisterAsset(this);
         }
 #endif
     }

@@ -1,9 +1,10 @@
-﻿using Baracuda.Utilities.Reflection;
-using Baracuda.Utilities.Types;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
+using Baracuda.Utilities.Reflection;
+using Baracuda.Utilities.Types;
 using UnityEngine;
 using UnityEngine.Profiling;
 using Object = UnityEngine.Object;
@@ -46,8 +47,10 @@ namespace Baracuda.Bedrock.PlayerLoop
         private static readonly Dictionary<string, List<Action>> customCallbacks = new();
         private static MonoBehaviour monoBehaviour;
 
-        private static Timer OneSecondTimer { get; set; } = Timer.None;
-        private static Timer TickTimer { get; set; }
+        private static CancellationTokenSource cancellationTokenSource = new();
+
+        private static ScaledTimer OneSecondScaledTimer { get; set; } = ScaledTimer.None;
+        private static ScaledTimer TickScaledTimer { get; set; }
 
         public delegate void WillDeleteAssetCallback(string assetPath, Object asset);
 #pragma warning disable
@@ -165,7 +168,7 @@ namespace Baracuda.Bedrock.PlayerLoop
                 customCallbacks.Add(callbackName, list);
             }
 
-            var callback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+            var callback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
             list.Add(callback);
         }
 
@@ -178,129 +181,136 @@ namespace Baracuda.Bedrock.PlayerLoop
                     break;
 
                 case Segment.Update:
-                    var updateCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var updateCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     updateCallbacks.Add(updateCallback);
                     break;
 
                 case Segment.LateUpdate:
-                    var lateUpdateCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var lateUpdateCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     lateUpdateCallbacks.Add(lateUpdateCallback);
                     break;
 
                 case Segment.FixedUpdate:
-                    var fixedUpdateCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var fixedUpdateCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     fixedUpdateCallbacks.Add(fixedUpdateCallback);
                     break;
 
                 case Segment.ApplicationQuit:
-                    var applicationQuitCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var applicationQuitCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     applicationQuitCallbacks.Add(applicationQuitCallback);
                     break;
 
                 case Segment.ApplicationFocus:
                     var applicationFocusCallback =
-                        (Action<bool>) methodInfo.CreateDelegate(typeof(Action<bool>), target);
+                        (Action<bool>)methodInfo.CreateDelegate(typeof(Action<bool>), target);
+
                     applicationFocusCallbacks.Add(applicationFocusCallback);
                     break;
 
                 case Segment.ApplicationPause:
                     var applicationPauseCallback =
-                        (Action<bool>) methodInfo.CreateDelegate(typeof(Action<bool>), target);
+                        (Action<bool>)methodInfo.CreateDelegate(typeof(Action<bool>), target);
+
                     applicationPauseCallbacks.Add(applicationPauseCallback);
                     break;
 
                 case Segment.AsyncShutdown:
-                    var asyncShutdownCallback = (Func<Task>) methodInfo.CreateDelegate(typeof(Func<Task>), target);
+                    var asyncShutdownCallback = (Func<Task>)methodInfo.CreateDelegate(typeof(Func<Task>), target);
                     asyncShutdownCallbacks.Add(asyncShutdownCallback);
                     break;
 
                 case Segment.FirstUpdate:
-                    var firstUpdateCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var firstUpdateCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     firstUpdateCallbacks.Add(firstUpdateCallback);
                     break;
 
                 case Segment.InitializationCompleted:
-                    var initializationCompletedCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var initializationCompletedCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     initializationCompletedCallbacks.Add(initializationCompletedCallback);
                     if (InitializationCompletedState)
                     {
                         initializationCompletedCallback();
                     }
+
                     break;
 
                 case Segment.BeforeFirstSceneLoad:
-                    var beforeFirstSceneLoadCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var beforeFirstSceneLoadCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     beforeFirstSceneLoadCallbacks.Add(beforeFirstSceneLoadCallback);
                     if (BeforeSceneLoadCompleted)
                     {
                         beforeFirstSceneLoadCallback();
                     }
+
                     break;
 
                 case Segment.AfterFirstSceneLoad:
-                    var afterFirstSceneLoadCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var afterFirstSceneLoadCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     afterFirstSceneLoadCallbacks.Add(afterFirstSceneLoadCallback);
                     if (AfterSceneLoadCompleted)
                     {
                         afterFirstSceneLoadCallback();
                     }
+
                     break;
 
                 case Segment.PreUpdate:
-                    var preUpdateCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var preUpdateCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     preUpdateCallbacks.Add(preUpdateCallback);
                     break;
 
                 case Segment.PostUpdate:
-                    var postUpdateCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var postUpdateCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     postUpdateCallbacks.Add(postUpdateCallback);
                     break;
 
                 case Segment.PreLateUpdate:
-                    var preLateUpdateCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var preLateUpdateCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     preLateUpdateCallbacks.Add(preLateUpdateCallback);
                     break;
 
                 case Segment.PostLateUpdate:
-                    var postLateUpdateCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var postLateUpdateCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     postLateUpdateCallbacks.Add(postLateUpdateCallback);
                     break;
 
 #if UNITY_EDITOR
                 case Segment.EditorUpdate:
-                    var editorUpdateCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var editorUpdateCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     editorUpdateCallbacks.Add(editorUpdateCallback);
                     break;
 
                 case Segment.EnteredEditMode:
-                    var enteredEditModeCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var enteredEditModeCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     enterEditModeDelegate.Add(enteredEditModeCallback);
                     break;
 
                 case Segment.ExitingEditMode:
-                    var exitingEditModeCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var exitingEditModeCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     exitEditModeDelegate.Add(exitingEditModeCallback);
                     break;
 
                 case Segment.EnteredPlayMode:
-                    var enteredPlayModeCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var enteredPlayModeCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     enterPlayModeDelegate.Add(enteredPlayModeCallback);
                     break;
 
                 case Segment.ExitingPlayMode:
-                    var exitingPlayModeCallback = (Action) methodInfo.CreateDelegate(typeof(Action), target);
+                    var exitingPlayModeCallback = (Action)methodInfo.CreateDelegate(typeof(Action), target);
                     exitPlayModeDelegate.Add(exitingPlayModeCallback);
                     break;
 
                 case Segment.BuildPreprocessor:
                     var buildPreprocessor =
-                        (Action<BuildReportData>) methodInfo.CreateDelegate(typeof(Action<BuildReportData>), target);
+                        (Action<BuildReportData>)methodInfo.CreateDelegate(typeof(Action<BuildReportData>), target);
+
                     buildPreprocessorCallbacks.Add(buildPreprocessor);
                     break;
 
                 case Segment.BuildPostprocessor:
                     var buildPostprocessor =
-                        (Action<BuildReportData>) methodInfo.CreateDelegate(typeof(Action<BuildReportData>), target);
+                        (Action<BuildReportData>)methodInfo.CreateDelegate(typeof(Action<BuildReportData>), target);
+
                     buildPostprocessorCallbacks.Add(buildPostprocessor);
                     break;
 #endif

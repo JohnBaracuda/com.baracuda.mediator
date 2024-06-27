@@ -22,7 +22,7 @@ using static Baracuda.Bedrock.Mediator.MediatorDefinitions;
 [assembly: GenerateMediatorFor(typeof(Vector2Int), NameSpace = NameSpace, Subfolder = Subfolder)]
 [assembly: GenerateMediatorFor(typeof(Vector3Int), NameSpace = NameSpace, Subfolder = Subfolder)]
 [assembly: GenerateMediatorFor(typeof(LayerMask), NameSpace = NameSpace, Subfolder = Subfolder)]
-[assembly: GenerateMediatorFor(typeof(Timer), NameSpace = NameSpace, Subfolder = Subfolder)]
+[assembly: GenerateMediatorFor(typeof(ScaledTimer), NameSpace = NameSpace, Subfolder = Subfolder)]
 [assembly: GenerateMediatorFor(typeof(RuntimeGUID), NameSpace = NameSpace, Subfolder = Subfolder)]
 [assembly: GenerateMediatorFor(typeof(Optional<int>), NameSpace = NameSpace, Subfolder = Subfolder)]
 [assembly: GenerateMediatorFor(typeof(Optional<bool>), NameSpace = NameSpace, Subfolder = Subfolder)]

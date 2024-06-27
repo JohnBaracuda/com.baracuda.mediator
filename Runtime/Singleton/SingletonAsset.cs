@@ -1,25 +1,25 @@
 using Baracuda.Bedrock.Assets;
-using Baracuda.Bedrock.PlayerLoop;
 using JetBrains.Annotations;
 
 namespace Baracuda.Bedrock.Singleton
 {
     public abstract class SingletonAsset<T> : ScriptableAsset where T : SingletonAsset<T>
     {
-        public static T Singleton => singleton ??= AssetRegistry.ResolveSingleton<T>();
+        public static T Singleton => singleton ??= AssetRepository.ResolveSingleton<T>();
         private static T singleton;
 
         [PublicAPI]
-        public bool IsSingleton => AssetRegistry.ExistsSingleton<T>() && AssetRegistry.ResolveSingleton<T>() == this;
+        public bool IsSingleton =>
+            AssetRepository.ExistsSingleton<T>() && AssetRepository.ResolveSingleton<T>() == this;
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            singleton = (T) this;
+            singleton = (T)this;
 
-            if (AssetRegistry.ExistsSingleton<T>() is false)
+            if (AssetRepository.ExistsSingleton<T>() is false)
             {
-                AssetRegistry.RegisterSingleton(this);
+                AssetRepository.RegisterSingleton(this);
             }
         }
     }

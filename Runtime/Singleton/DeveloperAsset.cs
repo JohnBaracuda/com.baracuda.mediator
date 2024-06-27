@@ -1,8 +1,7 @@
+using System;
 using Baracuda.Bedrock.Assets;
 using Baracuda.Bedrock.Odin;
-using Baracuda.Bedrock.PlayerLoop;
 using Sirenix.OdinInspector;
-using System;
 
 namespace Baracuda.Bedrock.Singleton
 {
@@ -21,7 +20,7 @@ namespace Baracuda.Bedrock.Singleton
             get
             {
 #if !UNITY_EDITOR
-                return AssetRegistry.ResolveSingleton<T>();
+                return AssetRepository.ResolveSingleton<T>();
 #else
                 if (local == null)
                 {
@@ -54,7 +53,7 @@ namespace Baracuda.Bedrock.Singleton
 
                 if (local == null)
                 {
-                    Singleton = AssetRegistry.ResolveSingleton<T>();
+                    Singleton = AssetRepository.ResolveSingleton<T>();
                 }
 
                 return local;
@@ -71,9 +70,10 @@ namespace Baracuda.Bedrock.Singleton
                 var path = UnityEditor.AssetDatabase.GetAssetPath(value);
                 var guid = UnityEditor.AssetDatabase.AssetPathToGUID(path);
                 UnityEditor.EditorPrefs.SetString(typeof(T).FullName, guid);
-                if (AssetRegistry.ExistsSingleton<T>() is false)
+
+                if (AssetRepository.ExistsSingleton<T>() is false)
                 {
-                    AssetRegistry.RegisterSingleton(value);
+                    AssetRepository.RegisterSingleton(value);
                 }
 #endif
                 local = value;
@@ -89,7 +89,7 @@ namespace Baracuda.Bedrock.Singleton
 
         private bool IsGlobal()
         {
-            return this == AssetRegistry.ResolveSingleton<T>();
+            return this == AssetRepository.ResolveSingleton<T>();
         }
 
         [Button]
@@ -97,7 +97,7 @@ namespace Baracuda.Bedrock.Singleton
         [HideIf(nameof(IsLocal))]
         public void DeclareAsLocal()
         {
-            Singleton = (T) this;
+            Singleton = (T)this;
         }
 
         [Button]
@@ -105,7 +105,7 @@ namespace Baracuda.Bedrock.Singleton
         [HideIf(nameof(IsGlobal))]
         public void DeclareAsGlobal()
         {
-            AssetRegistry.RegisterSingleton((T) this);
+            AssetRepository.RegisterSingleton((T)this);
         }
 
 #endif

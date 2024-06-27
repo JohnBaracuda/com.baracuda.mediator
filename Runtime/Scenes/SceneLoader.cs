@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Baracuda.Bedrock.PlayerLoop;
 using Baracuda.Bedrock.Scenes2;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
@@ -15,6 +17,13 @@ namespace Baracuda.Bedrock.Scenes
     public readonly ref struct SceneLoader
     {
         #region Builder API
+
+        /// <summary>
+        ///     High level API to check if a scene load is currently active.
+        ///     Note that this only returns true for scenes loaded with the SceneLoader.
+        /// </summary>
+        [PublicAPI]
+        public static bool IsSceneLoadActive { get; private set; }
 
         /// <summary>
         ///     Use this to validate if the <see cref="SceneLoader" /> has been created or if it is just the default value.
@@ -85,6 +94,17 @@ namespace Baracuda.Bedrock.Scenes
             public SceneEntryBuilder AsMain()
             {
                 _loadData.IsMainScene = true;
+                return this;
+            }
+
+            /// <summary>
+            ///     Perform the scene load using the passed scene load delegate.
+            ///     This can be used for custom network or addressable scene loads.
+            /// </summary>
+            [PublicAPI]
+            public SceneEntryBuilder WithAsyncSceneLoader(IAsyncSceneLoader loader)
+            {
+                _loadData.AsyncSceneLoader = loader;
                 return this;
             }
 
@@ -195,6 +215,7 @@ namespace Baracuda.Bedrock.Scenes
             public bool LoadAsync;
             public bool LoadParallel;
             public bool IsMainScene;
+            public IAsyncSceneLoader AsyncSceneLoader;
             public bool ActivateOnLoad;
             public SceneBuildIndex BuildIndex;
         }
@@ -215,33 +236,72 @@ namespace Baracuda.Bedrock.Scenes
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static async UniTask LoadAsyncInternal(List<SceneLoadData> entries)
         {
-            var loadSceneMode = LoadSceneMode.Single;
-
-            foreach (var sceneEntry in entries)
+            try
             {
-                var buildIndex = sceneEntry.BuildIndex;
-
-                if (sceneEntry.LoadAsync)
+                if (IsSceneLoadActive)
                 {
-                    var loadOperation = SceneManager.LoadSceneAsync(buildIndex, loadSceneMode);
-                    loadOperation!.allowSceneActivation = sceneEntry.ActivateOnLoad;
-                    await loadOperation.ToUniTask();
-                }
-                else
-                {
-                    SceneManager.LoadScene(buildIndex, loadSceneMode);
+                    throw new InvalidOperationException("Another scene Load is already active!");
                 }
 
-                if (sceneEntry.IsMainScene)
+                IsSceneLoadActive = true;
+                var loadSceneMode = LoadSceneMode.Single;
+
+                foreach (var sceneEntry in entries)
                 {
-                    var scene = SceneManager.GetSceneByBuildIndex(buildIndex);
-                    SceneManager.SetActiveScene(scene);
+                    var buildIndex = sceneEntry.BuildIndex;
+
+                    if (sceneEntry.LoadAsync)
+                    {
+                        Gameloop.RuntimeToken.ThrowIfCancellationRequested();
+
+                        if (sceneEntry.AsyncSceneLoader is not null)
+                        {
+                            var scene = await sceneEntry.AsyncSceneLoader.LoadSceneAsync(buildIndex, loadSceneMode);
+                            if (sceneEntry.ActivateOnLoad)
+                            {
+                                SceneManager.SetActiveScene(scene);
+                            }
+                        }
+                        else
+                        {
+                            var asyncOperation = SceneManager.LoadSceneAsync(buildIndex, loadSceneMode);
+                            if (asyncOperation is null)
+                            {
+                                continue;
+                            }
+
+                            asyncOperation.allowSceneActivation = sceneEntry.ActivateOnLoad;
+                            await asyncOperation.ToUniTask();
+                        }
+                    }
+                    else
+                    {
+                        SceneManager.LoadScene(buildIndex, loadSceneMode);
+                    }
+
+                    if (sceneEntry.IsMainScene)
+                    {
+                        var scene = SceneManager.GetSceneByBuildIndex(buildIndex);
+                        SceneManager.SetActiveScene(scene);
+                    }
+
+                    loadSceneMode = LoadSceneMode.Additive;
                 }
 
-                loadSceneMode = LoadSceneMode.Additive;
+                ListPool<SceneLoadData>.Release(entries);
             }
-
-            ListPool<SceneLoadData>.Release(entries);
+            catch (OperationCanceledException)
+            {
+                Debug.Log("Scene Load", "Scene Load Operation Cancelled");
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+            }
+            finally
+            {
+                IsSceneLoadActive = false;
+            }
         }
 
         #endregion

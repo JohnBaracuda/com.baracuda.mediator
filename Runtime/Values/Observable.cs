@@ -1,6 +1,7 @@
+using System;
+using System.Collections.Generic;
 using Baracuda.Bedrock.Events;
 using JetBrains.Annotations;
-using System;
 
 namespace Baracuda.Bedrock.Values
 {
@@ -47,8 +48,15 @@ namespace Baracuda.Bedrock.Values
                 value = _value;
                 return true;
             }
-            value = default(TValue);
+
+            value = default;
             return false;
+        }
+
+        [PublicAPI]
+        public bool Is(TValue other)
+        {
+            return EqualityComparer<TValue>.Default.Equals(_value, other);
         }
 
         [PublicAPI]

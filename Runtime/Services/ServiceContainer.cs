@@ -1,8 +1,8 @@
-﻿using Baracuda.Bedrock.Injection;
+﻿using System;
+using System.Collections.Generic;
+using Baracuda.Bedrock.Injection;
 using Baracuda.Utilities;
 using JetBrains.Annotations;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Baracuda.Bedrock.Services
@@ -30,7 +30,7 @@ namespace Baracuda.Bedrock.Services
         }
 
         [PublicAPI]
-        public T Resolve<T>() where T : class
+        public T Get<T>() where T : class
         {
 #if UNITY_EDITOR
             if (!Application.isPlaying)
@@ -63,7 +63,7 @@ namespace Baracuda.Bedrock.Services
         }
 
         [PublicAPI]
-        public object Resolve(Type type)
+        public object Get(Type type)
         {
 #if UNITY_EDITOR
             if (!Application.isPlaying)
@@ -132,7 +132,7 @@ namespace Baracuda.Bedrock.Services
                 return true;
             }
 
-            service = default(T);
+            service = default;
             return false;
         }
 
@@ -166,7 +166,7 @@ namespace Baracuda.Bedrock.Services
                 return true;
             }
 
-            service = default(object);
+            service = default;
             return false;
         }
 

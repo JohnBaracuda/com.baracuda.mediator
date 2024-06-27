@@ -7,6 +7,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
+using UnityEngine.Scripting;
 
 namespace Baracuda.Bedrock.Initialization
 {
@@ -17,20 +18,17 @@ namespace Baracuda.Bedrock.Initialization
         [SerializeField] private SceneReference firstLevel;
 
         [Header("File System")]
+        [Preserve]
         [InlineInspector]
         [SerializeField] private FileSystemArgumentsAsset fileSystemArgumentsRelease;
-
+        [Preserve]
         [InlineInspector]
         [SerializeField] private FileSystemArgumentsAsset fileSystemArgumentsDebug;
+        [Preserve]
+        [InlineInspector]
+        [SerializeField] private FileSystemArgumentsAsset fileSystemArgumentsEditor;
 
         [SerializeField] private string bootstrapKey = "Preload";
-
-        private static bool IsDebug =>
-#if DEBUG
-            true;
-#else
-            false;
-#endif
 
         #endregion
 
@@ -62,7 +60,16 @@ namespace Baracuda.Bedrock.Initialization
                 await FileSystem.ShutdownAsync(args);
             }
 #endif
-            var arguments = IsDebug ? fileSystemArgumentsDebug : fileSystemArgumentsRelease;
+
+            var arguments =
+#if UNITY_EDITOR
+                fileSystemArgumentsEditor;
+#elif DEBUG
+                fileSystemArgumentsDebug;
+#else
+                fileSystemArgumentsEditor;
+#endif
+
             await FileSystem.InitializeAsync(arguments);
 
             Debug.Log(nameof(Bootstrap), "(2/5) Loading Addressables");
@@ -81,10 +88,10 @@ namespace Baracuda.Bedrock.Initialization
 
             Debug.Log(nameof(Bootstrap), "(3/5) Loading Resources");
 
-            await Resources.LoadAsync<AssetRegistry>("AssetRegistry");
+            await Resources.LoadAsync<AssetRepository>("AssetRepository");
 
             Debug.Log(nameof(Bootstrap), "(4/5) Installing Runtime Systems");
-            AssetRegistry.Singleton.InstallRuntimeSystems();
+            AssetRepository.Singleton.InstallRuntimeSystems();
 
             Gameloop.RaiseInitializationCompleted();
 
@@ -126,7 +133,7 @@ namespace Baracuda.Bedrock.Initialization
             }
 
             Debug.Log("Bootstrap", "Installing Runtime Systems");
-            var assetRegistry = Resources.Load<AssetRegistry>("AssetRegistry");
+            var assetRegistry = Resources.Load<AssetRepository>("AssetRepository");
             assetRegistry.InstallRuntimeSystems();
             Gameloop.RaiseInitializationCompleted();
         }

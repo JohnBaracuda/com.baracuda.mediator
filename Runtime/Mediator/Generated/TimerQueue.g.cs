@@ -3,7 +3,7 @@ using Baracuda.Utilities.Types;
 
 namespace Baracuda.Bedrock.Mediator
 {
-    public class TimerQueue : Baracuda.Bedrock.Collections.QueueAsset<Baracuda.Utilities.Types.Timer>
+    public class TimerQueue : Baracuda.Bedrock.Collections.QueueAsset<Baracuda.Utilities.Types.ScaledTimer>
     {
     }
 }

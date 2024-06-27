@@ -1,4 +1,5 @@
 using System;
+using Baracuda.Bedrock.Scenes2;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
@@ -14,6 +15,7 @@ namespace Baracuda.Bedrock.Scenes
 
         public int BuildIndex => GetBuildIndex();
         public string ScenePath => GetScenePath();
+        
 #if UNITY_EDITOR
         public UnityEditor.SceneAsset SceneAsset => sceneAsset as UnityEditor.SceneAsset;
 #endif
@@ -40,6 +42,11 @@ namespace Baracuda.Bedrock.Scenes
             }
 
             return buildIndex;
+        }
+
+        public bool IsLoaded()
+        {
+            return SceneUtilityAPI.IsSceneLoaded(buildIndex);
         }
     }
 }

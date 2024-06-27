@@ -3,7 +3,7 @@ using Baracuda.Utilities.Types;
 
 namespace Baracuda.Bedrock.Mediator
 {
-    public class TimerEvent : Baracuda.Bedrock.Events.EventAsset<Baracuda.Utilities.Types.Timer>
+    public class TimerEvent : Baracuda.Bedrock.Events.EventAsset<Baracuda.Utilities.Types.ScaledTimer>
     {
     }
 }

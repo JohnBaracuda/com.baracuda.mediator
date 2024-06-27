@@ -1,7 +1,7 @@
-﻿using Baracuda.Bedrock.Assets;
-using Baracuda.Utilities;
-using System;
+﻿using System;
 using System.Diagnostics;
+using Baracuda.Bedrock.Assets;
+using Baracuda.Utilities;
 using UnityEngine;
 
 namespace Baracuda.Bedrock.Initialization
@@ -44,7 +44,7 @@ namespace Baracuda.Bedrock.Initialization
         protected override void OnEnable()
         {
             base.OnEnable();
-            AssetRegistry.RegisterInstaller(this);
+            AssetRepository.RegisterInstaller(this);
         }
 
         public int CompareTo(InstallerAsset other)
@@ -53,14 +53,17 @@ namespace Baracuda.Bedrock.Initialization
             {
                 return 0;
             }
+
             if (ReferenceEquals(null, other))
             {
                 return 1;
             }
+
             if (Priority < other.Priority)
             {
                 return 1;
             }
+
             return Priority > other.Priority ? -1 : 0;
         }
     }

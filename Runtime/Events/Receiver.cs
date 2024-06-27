@@ -36,9 +36,6 @@ namespace Baracuda.Bedrock.Events
         #endregion
 
 
-        //--------------------------------------------------------------------------------------------------------------
-
-
         #region AddSingleton Listener
 
         /// <inheritdoc />
@@ -117,6 +114,7 @@ namespace Baracuda.Bedrock.Events
         private void RemoveAt(int index)
         {
             --Count;
+
             for (var i = index; i < Count; ++i)
             {
                 _listener[i] = _listener[i + 1];
@@ -129,6 +127,7 @@ namespace Baracuda.Bedrock.Events
         public void Clear()
         {
             Count = 0;
+
             for (var i = _listener.Length - 1; i >= 0; i--)
             {
                 _listener[i] = null;
@@ -210,9 +209,6 @@ namespace Baracuda.Bedrock.Events
         #endregion
 
 
-        //--------------------------------------------------------------------------------------------------------------
-
-
         #region AddSingleton Listener
 
         /// <inheritdoc />
@@ -289,6 +285,7 @@ namespace Baracuda.Bedrock.Events
         private void RemoveAt(int index)
         {
             --Count;
+
             for (var i = index; i < Count; ++i)
             {
                 _listener[i] = _listener[i + 1];
@@ -301,6 +298,7 @@ namespace Baracuda.Bedrock.Events
         public void Clear()
         {
             Count = 0;
+
             for (var i = _listener.Length - 1; i >= 0; i--)
             {
                 _listener[i] = null;
@@ -378,9 +376,6 @@ namespace Baracuda.Bedrock.Events
         }
 
         #endregion
-
-
-        //--------------------------------------------------------------------------------------------------------------
 
 
         #region AddSingleton Listener
@@ -461,6 +456,7 @@ namespace Baracuda.Bedrock.Events
         private void RemoveAt(int index)
         {
             --Count;
+
             for (var i = index; i < Count; ++i)
             {
                 _listener[i] = _listener[i + 1];
@@ -473,6 +469,7 @@ namespace Baracuda.Bedrock.Events
         public void Clear()
         {
             Count = 0;
+
             for (var i = _listener.Length - 1; i >= 0; i--)
             {
                 _listener[i] = null;
@@ -550,9 +547,6 @@ namespace Baracuda.Bedrock.Events
         }
 
         #endregion
-
-
-        //--------------------------------------------------------------------------------------------------------------
 
 
         #region AddSingleton Listener
@@ -633,6 +627,7 @@ namespace Baracuda.Bedrock.Events
         private void RemoveAt(int index)
         {
             --Count;
+
             for (var i = index; i < Count; ++i)
             {
                 _listener[i] = _listener[i + 1];
@@ -645,6 +640,7 @@ namespace Baracuda.Bedrock.Events
         public void Clear()
         {
             Count = 0;
+
             for (var i = _listener.Length - 1; i >= 0; i--)
             {
                 _listener[i] = null;
@@ -722,9 +718,6 @@ namespace Baracuda.Bedrock.Events
         }
 
         #endregion
-
-
-        //--------------------------------------------------------------------------------------------------------------
 
 
         #region AddSingleton Listener
@@ -805,6 +798,7 @@ namespace Baracuda.Bedrock.Events
         private void RemoveAt(int index)
         {
             --Count;
+
             for (var i = index; i < Count; ++i)
             {
                 _listener[i] = _listener[i + 1];
@@ -817,6 +811,7 @@ namespace Baracuda.Bedrock.Events
         public void Clear()
         {
             Count = 0;
+
             for (var i = _listener.Length - 1; i >= 0; i--)
             {
                 _listener[i] = null;

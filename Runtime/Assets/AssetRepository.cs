@@ -1,4 +1,9 @@
-﻿using Baracuda.Bedrock.Initialization;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using Baracuda.Bedrock.Initialization;
 using Baracuda.Bedrock.Odin;
 using Baracuda.Bedrock.PlayerLoop;
 using Baracuda.Utilities;
@@ -6,11 +11,6 @@ using Baracuda.Utilities.Collections;
 using Baracuda.Utilities.Types;
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Assertions;
 using Object = UnityEngine.Object;
@@ -21,13 +21,15 @@ namespace Baracuda.Bedrock.Assets
     [UnityEditor.InitializeOnLoadAttribute]
 #endif
     [CreateAssetMenu]
-    public sealed class AssetRegistry : ScriptableObject, ISerializationCallbackReceiver
+    public sealed class AssetRepository : ScriptableObject, ISerializationCallbackReceiver
     {
         #region Fields
 
         [SerializeField] private List<InstallerAsset> installer = new();
+
         [Space]
         [SerializeField] private List<Object> singletons;
+
         [Line]
         [SerializeField] private Map<int, Object> registry = new();
 
@@ -90,6 +92,7 @@ namespace Baracuda.Bedrock.Assets
                 {
                     Debug.Log(asset);
                 }
+
                 Singleton.registry.AddOrUpdate(asset.GUID.Hash, asset);
             };
 #endif
@@ -100,7 +103,7 @@ namespace Baracuda.Bedrock.Assets
         /// </summary>
         public static T ResolveAsset<T>(string guid) where T : Object
         {
-            return (T) Singleton.registry[guid.GetHashCode()];
+            return (T)Singleton.registry[guid.GetHashCode()];
         }
 
         /// <summary>
@@ -108,7 +111,7 @@ namespace Baracuda.Bedrock.Assets
         /// </summary>
         public static T ResolveAsset<T>(int hash) where T : Object
         {
-            return (T) Singleton.registry[hash];
+            return (T)Singleton.registry[hash];
         }
 
         /// <summary>
@@ -116,7 +119,7 @@ namespace Baracuda.Bedrock.Assets
         /// </summary>
         public static T ResolveAsset<T>(RuntimeGUID guid) where T : Object
         {
-            return (T) Singleton.registry[guid.Hash];
+            return (T)Singleton.registry[guid.Hash];
         }
 
         /// <summary>
@@ -130,7 +133,7 @@ namespace Baracuda.Bedrock.Assets
                 return result != null;
             }
 
-            result = default(T);
+            result = default;
             return false;
         }
 
@@ -145,7 +148,7 @@ namespace Baracuda.Bedrock.Assets
                 return result != null;
             }
 
-            result = default(T);
+            result = default;
             return false;
         }
 
@@ -199,10 +202,12 @@ namespace Baracuda.Bedrock.Assets
             _isOrHasBeenInstalled = true;
 
             installer.Sort();
+
             foreach (var installation in installer)
             {
                 installation.Install();
             }
+
             foreach (var installation in installer)
             {
                 installation.OnPostProcessInstallation();
@@ -222,14 +227,17 @@ namespace Baracuda.Bedrock.Assets
             if (IsImport())
             {
                 var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+
                 WaitWhile(IsImport).ContinueWith(task =>
                 {
                     if (task.IsFaulted)
                     {
                         return;
                     }
+
                     RegisterSingleton(instance);
                 }, scheduler);
+
                 return;
             }
 #endif
@@ -238,12 +246,14 @@ namespace Baracuda.Bedrock.Assets
                 Debug.LogError("Singleton",
                     $"Registry is not loaded yet! Cannot register instance for {typeof(T)}",
                     instance);
+
                 return;
             }
 
             for (var i = 0; i < Singleton.singletons.Count; i++)
             {
                 var entry = Singleton.singletons[i];
+
                 if (entry != null && entry is T)
                 {
                     Singleton.singletons[i] = instance;
@@ -282,6 +292,7 @@ namespace Baracuda.Bedrock.Assets
             for (var i = 0; i < Singleton.singletons.Count; i++)
             {
                 var element = Singleton.singletons[i];
+
                 if (element != null && element is T instance)
                 {
                     return instance;
@@ -290,6 +301,7 @@ namespace Baracuda.Bedrock.Assets
 
             Debug.LogError("Singleton", $"No singleton instance of type {typeof(T)} registered!",
                 Singleton);
+
             return null;
         }
 
@@ -299,6 +311,7 @@ namespace Baracuda.Bedrock.Assets
             {
                 Debug.LogError("Singleton",
                     $"Registry is null! Attempted to access singleton for {typeof(T)}");
+
                 return false;
             }
 
@@ -325,15 +338,15 @@ namespace Baracuda.Bedrock.Assets
 
         #region Singleton
 
-        private static AssetRegistry singleton;
+        private static AssetRepository singleton;
 
-        public static AssetRegistry Singleton
+        public static AssetRepository Singleton
         {
             get
             {
                 if (singleton == null)
                 {
-                    singleton = Resources.Load<AssetRegistry>("AssetRegistry");
+                    singleton = Resources.Load<AssetRepository>("AssetRepository");
                 }
                 // In the editor we load the singleton from the asset database.
 #if UNITY_EDITOR
@@ -342,16 +355,19 @@ namespace Baracuda.Bedrock.Assets
                     return singleton;
                 }
 
-                var guids = UnityEditor.AssetDatabase.FindAssets($"t:{typeof(AssetRegistry)}");
+                var guids = UnityEditor.AssetDatabase.FindAssets($"t:{typeof(AssetRepository)}");
+
                 for (var i = 0; i < guids.Length; i++)
                 {
                     var path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[i]);
-                    singleton = UnityEditor.AssetDatabase.LoadAssetAtPath<AssetRegistry>(path);
+                    singleton = UnityEditor.AssetDatabase.LoadAssetAtPath<AssetRepository>(path);
+
                     if (singleton != null)
                     {
                         break;
                     }
                 }
+
                 if (singleton == null)
                 {
                     Debug.LogError("AssetRegistry",
@@ -399,6 +415,7 @@ namespace Baracuda.Bedrock.Assets
         public void Validate()
         {
             var assets = registry.ToArray();
+
             foreach (var (key, value) in assets)
             {
                 if (value == null || value is not IAssetGUID)
@@ -417,7 +434,7 @@ namespace Baracuda.Bedrock.Assets
             }
         }
 
-        static AssetRegistry()
+        static AssetRepository()
         {
             Gameloop.BeforeDeleteAsset += OnBeforeDeleteAsset;
             ValidateRegistryAsync().Forget();
@@ -429,10 +446,12 @@ namespace Baracuda.Bedrock.Assets
 
             // We load installer asset to make sure they are loaded in the editor when starting a game.
             var guids = UnityEditor.AssetDatabase.FindAssets($"t:{typeof(InstallerAsset)}");
+
             for (var i = 0; i < guids.Length; i++)
             {
                 var assetPath = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[i]);
                 var assets = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(assetPath);
+
                 foreach (var asset in assets)
                 {
                     Assert.IsNotNull(asset);

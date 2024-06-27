@@ -1,12 +1,14 @@
-﻿using Baracuda.Bedrock.Odin;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using Baracuda.Bedrock.Odin;
+using Baracuda.Bedrock.PlayerLoop;
+using Baracuda.Monitoring;
 using Baracuda.Utilities;
 using Baracuda.Utilities.Collections;
 using Baracuda.Utilities.Types;
 using JetBrains.Annotations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -19,6 +21,8 @@ namespace Baracuda.Bedrock.States
         #region Fields
 
         [Debug]
+        [Monitor]
+        [MGroupName("State Machines")]
         private TState _state;
         private TState _previousState;
         private readonly LimitedQueue<TState> _stateHistory = new(16);
@@ -427,6 +431,7 @@ namespace Baracuda.Bedrock.States
                 list = new List<Action>();
                 _stateEnterCallbacks.Add(state, list);
             }
+
             list.Add(callback);
         }
 
@@ -446,6 +451,7 @@ namespace Baracuda.Bedrock.States
                 list = new List<Action>();
                 _stateEnterFromToCallbacks.Add(transitionKey, list);
             }
+
             list.Add(callback);
         }
 
@@ -457,6 +463,7 @@ namespace Baracuda.Bedrock.States
                 list = new List<Action>();
                 _stateExitCallbacks.Add(state, list);
             }
+
             list.Add(callback);
         }
 
@@ -474,6 +481,7 @@ namespace Baracuda.Bedrock.States
                 list = new List<Action<float>>();
                 _stateUpdateCallbacksWithDeltaTime.Add(state, list);
             }
+
             list.Add(callback);
         }
 
@@ -485,6 +493,7 @@ namespace Baracuda.Bedrock.States
                 list = new List<Action>();
                 _stateUpdateCallbacks.Add(state, list);
             }
+
             list.Add(callback);
         }
 
@@ -496,6 +505,7 @@ namespace Baracuda.Bedrock.States
                 list = new List<Action<float>>();
                 _stateTransitionUpdateCallbacks.Add(to, list);
             }
+
             list.Add(callback);
         }
 
@@ -518,6 +528,7 @@ namespace Baracuda.Bedrock.States
                 list = new List<ConditionalStateTransition>(4);
                 _conditionalStateTransitions.Add(from, list);
             }
+
             var transition = new ConditionalStateTransition(from, to, condition ?? _trueFunc);
             list.Add(transition);
         }
@@ -537,7 +548,7 @@ namespace Baracuda.Bedrock.States
         private struct Transition
         {
             public TState ToState;
-            public Timer Timer;
+            public ScaledTimer ScaledTimer;
         }
 
         private void BeginImmediateTransitionToState(TState toState, bool allowStateReentering, bool isStateOverride)
@@ -563,7 +574,7 @@ namespace Baracuda.Bedrock.States
             _transition = new Transition
             {
                 ToState = toState,
-                Timer = Timer.None
+                ScaledTimer = ScaledTimer.None
             };
 
             CompleteTransitionToStateInternal(ref _transition, allowStateReentering, isStateOverride);
@@ -592,7 +603,7 @@ namespace Baracuda.Bedrock.States
             _transition = new Transition
             {
                 ToState = toState,
-                Timer = Timer.FromSeconds(durationInSeconds)
+                ScaledTimer = ScaledTimer.FromSeconds(durationInSeconds)
             };
 
             _isTimerTransitionActive = true;
@@ -612,9 +623,10 @@ namespace Baracuda.Bedrock.States
 
             if (_isTransitionActive)
             {
-                Debug.LogError(_log, "Transition is already active! Do not transition in state enter/exit callbacks!");
+                Debug.Log(_log, "Transition is already active! Do not transition in state enter/exit callbacks!", Verbosity.Error);
                 return;
             }
+
             _isTransitionActive = true;
 
             if (allowStateReentering is false)
@@ -718,7 +730,7 @@ namespace Baracuda.Bedrock.States
         {
             _isTimerTransitionActive = false;
             _isTransitionActive = false;
-            _transition = default(Transition);
+            _transition = default;
         }
 
         #endregion
@@ -728,9 +740,15 @@ namespace Baracuda.Bedrock.States
 
         private void LateUpdate()
         {
+#if UNITY_EDITOR
+            if (Gameloop.IsQuitting)
+            {
+                return;
+            }
+#endif
             if (_isTimerTransitionActive)
             {
-                ref var timer = ref _transition.Timer;
+                ref var timer = ref _transition.ScaledTimer;
                 if (timer.IsRunning)
                 {
                     if (_stateTransitionUpdateCallbacks.TryGetValue(_transition.ToState, out var callbacks))
@@ -795,6 +813,7 @@ namespace Baracuda.Bedrock.States
                 blockerSet = new HashSet<object>();
                 _stateBlocker.Add(state, blockerSet);
             }
+
             blockerSet.Add(blocker);
         }
 
@@ -806,6 +825,7 @@ namespace Baracuda.Bedrock.States
                 blockerSet = new HashSet<object>();
                 _stateBlocker.Add(state, blockerSet);
             }
+
             blockerSet.Remove(blocker);
         }
 
@@ -867,7 +887,8 @@ namespace Baracuda.Bedrock.States
 
                 return state;
             }
-            return default(TState);
+
+            return default;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -890,7 +911,8 @@ namespace Baracuda.Bedrock.States
                     return state;
                 }
             }
-            return default(TState);
+
+            return default;
         }
 
         #endregion
@@ -907,15 +929,15 @@ namespace Baracuda.Bedrock.States
 
         private static ulong Combine(int a, int b)
         {
-            var ua = (uint) a;
-            ulong ub = (uint) b;
+            var ua = (uint)a;
+            ulong ub = (uint)b;
             return (ub << 32) | ua;
         }
 
         private static void Separate(ulong c, out int a, out int b)
         {
-            a = (int) (c & 0xFFFFFFFFUL);
-            b = (int) (c >> 32);
+            a = (int)(c & 0xFFFFFFFFUL);
+            b = (int)(c >> 32);
         }
 
         private string Colorized(TState state)

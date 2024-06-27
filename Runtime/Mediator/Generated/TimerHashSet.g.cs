@@ -3,7 +3,7 @@ using Baracuda.Utilities.Types;
 
 namespace Baracuda.Bedrock.Mediator
 {
-    public class TimerHashSet : Baracuda.Bedrock.Collections.HashSetAsset<Baracuda.Utilities.Types.Timer>
+    public class TimerHashSet : Baracuda.Bedrock.Collections.HashSetAsset<Baracuda.Utilities.Types.ScaledTimer>
     {
     }
 }
